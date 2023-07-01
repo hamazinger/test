@@ -27,7 +27,7 @@ def main():
     credentials_path = 'GOOGLE_CREDENTIALS_PATH'
 
     # 認証情報の設定
-    credentials = service_account.Credentials.from_service_account_file(credentials_path)
+    credentials = service_account.Credentials.from_service_account_info(os.environ.get("GCP_CREDENTIALS"))
 
     # クライアントの作成
     client = bigquery.Client(credentials=credentials, project=project_id)
