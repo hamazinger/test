@@ -1,4 +1,6 @@
 import streamlit as st
+import os
+print(os.environ)
 
 import numpy as np
 from scipy.interpolate import make_interp_spline, BSpline
@@ -6,7 +8,6 @@ from google.cloud import bigquery
 import pandas as pd
 import json
 
-import os
 from google.cloud import bigquery
 from google.oauth2 import service_account
 from google.cloud.bigquery import SchemaField
@@ -30,7 +31,6 @@ def main():
     # 認証情報の設定
     credentials_info = json.loads(os.environ["GCP_CREDENTIALS"])
     credentials = service_account.Credentials.from_service_account_info(credentials_info)
-    print(os.environ)
     # credentials = service_account.Credentials.from_service_account_info(os.environ.get("GCP_CREDENTIALS"))
 
     # クライアントの作成
