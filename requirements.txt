@@ -8,3 +8,4 @@ pytrends
 matplotlib
 japanize_matplotlib
 openai
+json
