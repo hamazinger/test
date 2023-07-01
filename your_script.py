@@ -4,6 +4,7 @@ import numpy as np
 from scipy.interpolate import make_interp_spline, BSpline
 from google.cloud import bigquery
 import pandas as pd
+import json
 
 import os
 from google.cloud import bigquery
@@ -22,12 +23,14 @@ def main():
     keyword = st.text_input("Enter a keyword")
 
     # 変数の設定
-    project_id = 'GOOGLE_PROJECT_ID'
-    destination_table = 'GOOGLE_DESTINATION_TABLE'
+    project_id = 'mythical-envoy-386309'
+    destination_table = 'mythical-envoy-386309.majisemi.bussiness_it_article'
     credentials_path = 'GOOGLE_CREDENTIALS_PATH'
 
     # 認証情報の設定
-    credentials = service_account.Credentials.from_service_account_info(os.environ.get("GCP_CREDENTIALS"))
+    credentials_info = json.loads(os.environ["GCP_CREDENTIALS"])
+    credentials = service_account.Credentials.from_service_account_info(credentials_info)
+    # credentials = service_account.Credentials.from_service_account_info(os.environ.get("GCP_CREDENTIALS"))
 
     # クライアントの作成
     client = bigquery.Client(credentials=credentials, project=project_id)
