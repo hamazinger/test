@@ -1,6 +1,5 @@
 import streamlit as st
 import os
-print(os.environ)
 
 import numpy as np
 from scipy.interpolate import make_interp_spline, BSpline
