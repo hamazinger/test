@@ -8,3 +8,5 @@ pytrends
 matplotlib
 japanize_matplotlib
 openai
+dbtypes
+pandas_gbq
