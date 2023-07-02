@@ -25,15 +25,29 @@ def main():
     # 変数の設定
     project_id = 'mythical-envoy-386309'
     destination_table = 'mythical-envoy-386309.majisemi.bussiness_it_article'
-    credentials_path = 'GOOGLE_CREDENTIALS_PATH'
 
-    # 認証情報の設定
-    credentials_info = json.loads(os.environ["GCP_CREDENTIALS"])
+    # 環境変数から認証情報を取得し、JSONとして解析
+    credentials_info = json.loads(os.environ["GCP.GCP_CREDENTIALS"])
+
+    # 認証情報を使ってCredentialsオブジェクトを作成
     credentials = service_account.Credentials.from_service_account_info(credentials_info)
-    # credentials = service_account.Credentials.from_service_account_info(os.environ.get("GCP_CREDENTIALS"))
 
     # クライアントの作成
     client = bigquery.Client(credentials=credentials, project=project_id)
+        
+    
+    # # 変数の設定
+    # project_id = 'mythical-envoy-386309'
+    # destination_table = 'mythical-envoy-386309.majisemi.bussiness_it_article'
+    # credentials_path = 'GOOGLE_CREDENTIALS_PATH'
+
+    # # 認証情報の設定
+    # credentials_info = json.loads(os.environ["GCP_CREDENTIALS"])
+    # credentials = service_account.Credentials.from_service_account_info(credentials_info)
+    # # credentials = service_account.Credentials.from_service_account_info(os.environ.get("GCP_CREDENTIALS"))
+
+    # # クライアントの作成
+    # client = bigquery.Client(credentials=credentials, project=project_id)
 
     # 残りのコードをここに追加します。
     import openai
