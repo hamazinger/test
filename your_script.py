@@ -19,8 +19,8 @@ import japanize_matplotlib
 # ここからコードを追加します。
 def main():
     st.title("Google Trends and Article Analysis")
-    #keyword = st.text_input("Enter a keyword", value='マネーフォワード')  # ユーザがキーワードを入力できるテキストボックスを作成します。
     keyword = st.text_input("Enter a keyword")
+    execute_button = st.button("Execute Query") 
 
     # 変数の設定
     project_id = 'mythical-envoy-386309'
@@ -92,51 +92,52 @@ def main():
     WHERE (date BETWEEN '{start_date}' AND '{end_date}') AND ({where_clause})
     """
     
-    
-    # クエリの実行と結果の取得
-    df = client.query(query).to_dataframe()
-    
-    # 日付列をDatetime型に変換
-    # df['date'] = pd.to_datetime(df['date'])
-    
-    # # 3ヶ月単位での集計
-    # df_quarterly = df.resample('3M', on='date').count()['title']
-    df['date'] = pd.to_datetime(df['date'])
-    df = df.set_index('date')
-    
-    # 3ヶ月単位での集計
-    df_quarterly = df.resample('3M').count()['title']
-    
-    # 近似曲線の描画
-    fig, ax1 = plt.subplots(figsize=(14,7))
-    
-    # プロットのデータポイント数
-    n_plot_points = 10000
-    
-    # x軸の値を等間隔に補間（日時をエポック秒に変換）
-    xnew = np.linspace(df_trends_quarterly.index.astype(int).min(), df_trends_quarterly.index.astype(int).max(), n_plot_points)
-    
-    # スプライン補間関数の生成（日時をエポック秒に変換）と近似曲線の値を生成
-    spl_trends = make_interp_spline(df_trends_quarterly.index.astype(int), df_trends_quarterly)
-    ynew_trends = spl_trends(xnew)
-    
-    # Googleトレンドの近似曲線の描画（エポック秒を日時に戻す）
-    ax2 = ax1.twinx()
-    ax2.plot(pd.to_datetime(xnew), ynew_trends, color='tab:blue')
-    
-    if not df_quarterly.empty:
-        xnew = np.linspace(df_quarterly.index.astype(int).min(), df_quarterly.index.astype(int).max(), n_plot_points)
-        spl_quarterly = make_interp_spline(df_quarterly.index.astype(int), df_quarterly)
-        ynew_quarterly = spl_quarterly(xnew)
-        ax1.plot(pd.to_datetime(xnew), ynew_quarterly, color='tab:red')
-    
-    ax1.set_xlabel('Month')
-    ax1.set_ylabel('Number of articles', color='tab:red')
-    ax2.set_ylabel('Google Trends', color='tab:blue')
-    plt.title('Quarterly trends for keyword: {}'.format(keyword))
-    #plt.show()
-    # ただし、最後の plt.show() は以下のように書き換える必要があります。
-    st.pyplot(fig)
+    if execute_button:  # ボタンが押された場合にクエリを実行します
+
+        # クエリの実行と結果の取得
+        df = client.query(query).to_dataframe()
+        
+        # 日付列をDatetime型に変換
+        # df['date'] = pd.to_datetime(df['date'])
+        
+        # # 3ヶ月単位での集計
+        # df_quarterly = df.resample('3M', on='date').count()['title']
+        df['date'] = pd.to_datetime(df['date'])
+        df = df.set_index('date')
+        
+        # 3ヶ月単位での集計
+        df_quarterly = df.resample('3M').count()['title']
+        
+        # 近似曲線の描画
+        fig, ax1 = plt.subplots(figsize=(14,7))
+        
+        # プロットのデータポイント数
+        n_plot_points = 10000
+        
+        # x軸の値を等間隔に補間（日時をエポック秒に変換）
+        xnew = np.linspace(df_trends_quarterly.index.astype(int).min(), df_trends_quarterly.index.astype(int).max(), n_plot_points)
+        
+        # スプライン補間関数の生成（日時をエポック秒に変換）と近似曲線の値を生成
+        spl_trends = make_interp_spline(df_trends_quarterly.index.astype(int), df_trends_quarterly)
+        ynew_trends = spl_trends(xnew)
+        
+        # Googleトレンドの近似曲線の描画（エポック秒を日時に戻す）
+        ax2 = ax1.twinx()
+        ax2.plot(pd.to_datetime(xnew), ynew_trends, color='tab:blue')
+        
+        if not df_quarterly.empty:
+            xnew = np.linspace(df_quarterly.index.astype(int).min(), df_quarterly.index.astype(int).max(), n_plot_points)
+            spl_quarterly = make_interp_spline(df_quarterly.index.astype(int), df_quarterly)
+            ynew_quarterly = spl_quarterly(xnew)
+            ax1.plot(pd.to_datetime(xnew), ynew_quarterly, color='tab:red')
+        
+        ax1.set_xlabel('Month')
+        ax1.set_ylabel('Number of articles', color='tab:red')
+        ax2.set_ylabel('Google Trends', color='tab:blue')
+        plt.title('Quarterly trends for keyword: {}'.format(keyword))
+        #plt.show()
+        # ただし、最後の plt.show() は以下のように書き換える必要があります。
+        st.pyplot(fig)
 
 if __name__ == "__main__":
     main()
