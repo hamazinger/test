@@ -92,13 +92,27 @@ def main():
     WHERE (date BETWEEN '{start_date}' AND '{end_date}') AND ({where_clause})
     """
     
-    if execute_button:  # ボタンが押された場合にクエリを実行します
-
+    # if execute_button:  
+    if execute_button and keyword: 
         # クエリの実行と結果の取得
-        df = client.query(query).to_dataframe()
+        query_job = client.query(query)
+        rows = query_job.result()  # ここで結果を取得します
+        
+        # BigQueryの結果をpandasのDataFrameに変換しますが、
+        # データ型の問題を避けるために、すべてのデータを文字列として読み込みます。
+        df = pd.DataFrame(
+            data=[list(x.values()) for x in rows],
+            columns=list(rows[0].keys())
+        )
         
         # 日付列をDatetime型に変換
-        # df['date'] = pd.to_datetime(df['date'])
+        df['date'] = pd.to_datetime(df['date'])
+
+        # # クエリの実行と結果の取得
+        # df = client.query(query).to_dataframe()
+        
+        # # 日付列をDatetime型に変換
+        # # df['date'] = pd.to_datetime(df['date'])
         
         # # 3ヶ月単位での集計
         # df_quarterly = df.resample('3M', on='date').count()['title']
