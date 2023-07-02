@@ -84,7 +84,7 @@ def main():
     
     #キーワードを部分文字列として含む単語は抽出しないよう改善
     where_clause = " OR ".join([f"REGEXP_CONTAINS(title, r'\\b{term}\\b') OR REGEXP_CONTAINS(tag, r'\\b{term}\\b')" for term in related_terms])
-    @st.cache_data(ttl=600)
+    
     query = f"""
     SELECT date, title, tag
     FROM `mythical-envoy-386309.majisemi.bussiness_it_article`
