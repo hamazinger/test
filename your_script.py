@@ -40,7 +40,8 @@ def main():
     # 残りのコードをここに追加します。
     import openai
 
-    openai.api_key = 'OPENAI_API_KEY'
+    # openai.api_key = 'OPENAI_API_KEY'
+    openai.api_key = st.secrets["openai"]["api_key"]
     
     def get_related_terms(token, topn=20):
         """
