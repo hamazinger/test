@@ -29,12 +29,7 @@ def main():
     # 認証情報の設定
     # gcp_credentials = os.getenv("GCP.GCP_CREDENTIALS")
     gcp_credentials = st.secrets["GCP"]["GCP_CREDENTIALS"]
-    print(f"GCP Credentials: {gcp_credentials}")  # これにより、環境変数が何であるかを確認できます。
-    if gcp_credentials is not None:
-        credentials_info = json.loads(gcp_credentials)
-    else:
-        raise Exception("GCP.GCP_CREDENTIALS environment variable not found.")
-    
+    credentials_info = json.loads(gcp_credentials)
     credentials = service_account.Credentials.from_service_account_info(credentials_info)
 
 
