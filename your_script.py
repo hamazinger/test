@@ -26,11 +26,16 @@ def main():
     project_id = 'mythical-envoy-386309'
     destination_table = 'mythical-envoy-386309.majisemi.bussiness_it_article'
 
-    # 環境変数から認証情報を取得し、JSONとして解析
-    credentials_info = json.loads(os.environ["GCP.GCP_CREDENTIALS"])
-
-    # 認証情報を使ってCredentialsオブジェクトを作成
+    # 認証情報の設定
+    gcp_credentials = os.getenv("GCP.GCP_CREDENTIALS")
+    print(f"GCP Credentials: {gcp_credentials}")  # これにより、環境変数が何であるかを確認できます。
+    if gcp_credentials is not None:
+        credentials_info = json.loads(gcp_credentials)
+    else:
+        raise Exception("GCP.GCP_CREDENTIALS environment variable not found.")
+    
     credentials = service_account.Credentials.from_service_account_info(credentials_info)
+
 
     # クライアントの作成
     client = bigquery.Client(credentials=credentials, project=project_id)
