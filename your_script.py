@@ -27,27 +27,14 @@ def main():
     destination_table = 'mythical-envoy-386309.majisemi.bussiness_it_article'
 
     # 認証情報の設定
-    # gcp_credentials = os.getenv("GCP.GCP_CREDENTIALS")
-    gcp_credentials = st.secrets["GCP"]["GCP_CREDENTIALS"]
-    credentials_info = json.loads(gcp_credentials)
-    credentials = service_account.Credentials.from_service_account_info(credentials_info)
+    # Create API client.
+    credentials = service_account.Credentials.from_service_account_info(
+        st.secrets["gcp_service_account"]
+    )
+    client = bigquery.Client(credentials=credentials)
 
 
     # クライアントの作成
-    client = bigquery.Client(credentials=credentials, project=project_id)
-        
-    
-    # # 変数の設定
-    # project_id = 'mythical-envoy-386309'
-    # destination_table = 'mythical-envoy-386309.majisemi.bussiness_it_article'
-    # credentials_path = 'GOOGLE_CREDENTIALS_PATH'
-
-    # # 認証情報の設定
-    # credentials_info = json.loads(os.environ["GCP_CREDENTIALS"])
-    # credentials = service_account.Credentials.from_service_account_info(credentials_info)
-    # # credentials = service_account.Credentials.from_service_account_info(os.environ.get("GCP_CREDENTIALS"))
-
-    # # クライアントの作成
     # client = bigquery.Client(credentials=credentials, project=project_id)
 
     # 残りのコードをここに追加します。
@@ -97,7 +84,7 @@ def main():
     
     #キーワードを部分文字列として含む単語は抽出しないよう改善
     where_clause = " OR ".join([f"REGEXP_CONTAINS(title, r'\\b{term}\\b') OR REGEXP_CONTAINS(tag, r'\\b{term}\\b')" for term in related_terms])
-    
+    @st.cache_data(ttl=600)
     query = f"""
     SELECT date, title, tag
     FROM `mythical-envoy-386309.majisemi.bussiness_it_article`
