@@ -27,7 +27,7 @@ def main():
     destination_table = 'mythical-envoy-386309.majisemi.bussiness_it_article'
 
     # 環境変数から認証情報を取得し、JSONとして解析
-    credentials_info = json.loads(os.environ["GCP_CREDENTIALS"])
+    credentials_info = json.loads(os.environ["GCP.GCP_CREDENTIALS"])
 
     # 認証情報を使ってCredentialsオブジェクトを作成
     credentials = service_account.Credentials.from_service_account_info(credentials_info)
