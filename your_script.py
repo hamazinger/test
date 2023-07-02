@@ -27,7 +27,8 @@ def main():
     destination_table = 'mythical-envoy-386309.majisemi.bussiness_it_article'
 
     # 認証情報の設定
-    gcp_credentials = os.getenv("GCP.GCP_CREDENTIALS")
+    # gcp_credentials = os.getenv("GCP.GCP_CREDENTIALS")
+    gcp_credentials = st.secrets["GCP"]["GCP_CREDENTIALS"]
     print(f"GCP Credentials: {gcp_credentials}")  # これにより、環境変数が何であるかを確認できます。
     if gcp_credentials is not None:
         credentials_info = json.loads(gcp_credentials)
