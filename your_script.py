@@ -92,6 +92,7 @@ def main():
         
         # 取得したデータをデータフレームに変換
         df_articles = pd.DataFrame(rows)
+        st.dataframe(df_articles)
         df_articles['date'] = pd.to_datetime(df_articles['date'])
         df_articles.set_index('date', inplace=True)
         df_articles_quarterly = df_articles.resample('3M').sum()
