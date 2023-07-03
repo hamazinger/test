@@ -92,16 +92,29 @@ def main():
         
         # 取得したデータをデータフレームに変換
         df_articles = pd.DataFrame(rows)
-        st.dataframe(df_articles)
-        df_articles['date'] = pd.to_datetime(df_articles['date'])
-        df_articles.set_index('date', inplace=True)
-        df_articles_quarterly = df_articles.resample('3M').sum()
+        if not df_articles.empty:
+            st.dataframe(df_articles)
+            df_articles['date'] = pd.to_datetime(df_articles['date'])
+            df_articles.set_index('date', inplace=True)
+            df_articles_quarterly = df_articles.resample('3M').sum()
+        
+            # プロット
+            plt.plot(df_trends_quarterly.index, df_trends_quarterly, label='Google Trends')
+            plt.plot(df_articles_quarterly.index, df_articles_quarterly, label='Article Counts')
+            plt.legend(loc='best')
+            st.pyplot(plt)
+        else:
+            st.write("No articles found for the related terms.")
 
-        # プロット
-        plt.plot(df_trends_quarterly.index, df_trends_quarterly, label='Google Trends')
-        plt.plot(df_articles_quarterly.index, df_articles_quarterly, label='Article Counts')
-        plt.legend(loc='best')
-        st.pyplot(plt)
+        # df_articles['date'] = pd.to_datetime(df_articles['date'])
+        # df_articles.set_index('date', inplace=True)
+        # df_articles_quarterly = df_articles.resample('3M').sum()
+
+        # # プロット
+        # plt.plot(df_trends_quarterly.index, df_trends_quarterly, label='Google Trends')
+        # plt.plot(df_articles_quarterly.index, df_articles_quarterly, label='Article Counts')
+        # plt.legend(loc='best')
+        # st.pyplot(plt)
 
 if __name__ == "__main__":
     main()
