@@ -7,14 +7,12 @@ from google.cloud import bigquery
 import pandas as pd
 import json
 
-from google.cloud import bigquery
 from google.oauth2 import service_account
 from google.cloud.bigquery import SchemaField
 
 from pytrends.request import TrendReq
 import matplotlib.pyplot as plt
 import japanize_matplotlib
-# %matplotlib inline  # Streamlitではこの行は不要です。
 
 # ここからコードを追加します。
 def main():
@@ -33,14 +31,9 @@ def main():
     )
     client = bigquery.Client(credentials=credentials)
 
-
-    # クライアントの作成
-    # client = bigquery.Client(credentials=credentials, project=project_id)
-
     # 残りのコードをここに追加します。
     import openai
 
-    # openai.api_key = 'OPENAI_API_KEY'
     openai.api_key = st.secrets["openai"]["api_key"]
     
     def get_related_terms(token, topn=20):
@@ -58,6 +51,15 @@ def main():
     
         return related_terms
     
+    # Use st.cache_data to only rerun when the query changes or after 10 min.
+    @st.cache_data(ttl=600)
+    def run_query(query):
+        query_job = client.query(query)
+        rows_raw = query_job.result()
+        # Convert to list of dicts. Required for st.cache_data to hash the return value.
+        rows = [dict(row) for row in rows_raw]
+        return rows
+
     # if execute_button:  
     if execute_button and keyword: 
         
@@ -76,67 +78,29 @@ def main():
         start_date = df_trends_quarterly.index.min().strftime("%Y-%m-%d")
         end_date = df_trends_quarterly.index.max().strftime("%Y-%m-%d")
         
-        #キーワードを部分文字列として含む単語は抽出しないよう改善
-        #where_clause = " OR ".join([f"REGEXP_CONTAINS(title, r'\\b{term}\\b') OR REGEXP_CONTAINS(tag, r'\\b{term}\\b')" for term in related_terms])
-        where_clause = " OR ".join([f"title LIKE '%{term}%' OR tag LIKE '%{term}%'" for term in related_terms])
+        # 関連キーワードについての記事数をBigQueryから取得
+        rows = []
+        for term in related_terms:
+            query = f"""
+            SELECT date, COUNT(title) as count 
+            FROM `{destination_table}` 
+            WHERE title LIKE '%{term}%' AND date BETWEEN '{start_date}' AND '{end_date}' 
+            GROUP BY date
+            ORDER BY date
+            """
+            rows.extend(run_query(query))
         
-        query = f"""
-        SELECT date, title, tag
-        FROM `mythical-envoy-386309.majisemi.bussiness_it_article`
-        WHERE (date BETWEEN '{start_date}' AND '{end_date}') AND ({where_clause})
-        """
-        
-        # クエリの実行と結果の取得
-        query_job = client.query(query)
-        rows = query_job.result()  # ここで結果を取得します
-        
-        # BigQueryの結果をpandasのDataFrameに変換しますが、
-        # データ型の問題を避けるために、すべてのデータを文字列として読み込みます。
-        df = pd.DataFrame(
-            data=[list(x.values()) for x in rows],
-            columns=list(rows[0].keys())
-        )
-        
-        # 日付列をDatetime型に変換
-        df['date'] = pd.to_datetime(df['date'])
-        
-        # # 3ヶ月単位での集計
-        # df_quarterly = df.resample('3M', on='date').count()['title']
-        df = df.set_index('date')
-        
-        # 3ヶ月単位での集計
-        df_quarterly = df.resample('3M').count()['title']
-        
-        # 近似曲線の描画
-        fig, ax1 = plt.subplots(figsize=(14,7))
-        
-        # プロットのデータポイント数
-        n_plot_points = 10000
-        
-        # x軸の値を等間隔に補間（日時をエポック秒に変換）
-        xnew = np.linspace(df_trends_quarterly.index.astype(int).min(), df_trends_quarterly.index.astype(int).max(), n_plot_points)
-        
-        # スプライン補間関数の生成（日時をエポック秒に変換）と近似曲線の値を生成
-        spl_trends = make_interp_spline(df_trends_quarterly.index.astype(int), df_trends_quarterly)
-        ynew_trends = spl_trends(xnew)
-        
-        # Googleトレンドの近似曲線の描画（エポック秒を日時に戻す）
-        ax2 = ax1.twinx()
-        ax2.plot(pd.to_datetime(xnew), ynew_trends, color='tab:blue')
-        
-        if not df_quarterly.empty:
-            xnew = np.linspace(df_quarterly.index.astype(int).min(), df_quarterly.index.astype(int).max(), n_plot_points)
-            spl_quarterly = make_interp_spline(df_quarterly.index.astype(int), df_quarterly)
-            ynew_quarterly = spl_quarterly(xnew)
-            ax1.plot(pd.to_datetime(xnew), ynew_quarterly, color='tab:red')
-        
-        ax1.set_xlabel('Month')
-        ax1.set_ylabel('Number of articles', color='tab:red')
-        ax2.set_ylabel('Google Trends', color='tab:blue')
-        plt.title('Quarterly trends for keyword: {}'.format(keyword))
-        #plt.show()
-        # ただし、最後の plt.show() は以下のように書き換える必要があります。
-        st.pyplot(fig)
+        # 取得したデータをデータフレームに変換
+        df_articles = pd.DataFrame(rows)
+        df_articles['date'] = pd.to_datetime(df_articles['date'])
+        df_articles.set_index('date', inplace=True)
+        df_articles_quarterly = df_articles.resample('3M').sum()
+
+        # プロット
+        plt.plot(df_trends_quarterly.index, df_trends_quarterly, label='Google Trends')
+        plt.plot(df_articles_quarterly.index, df_articles_quarterly, label='Article Counts')
+        plt.legend(loc='best')
+        st.pyplot(plt)
 
 if __name__ == "__main__":
     main()
