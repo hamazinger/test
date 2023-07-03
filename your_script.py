@@ -58,18 +58,6 @@ def main():
     
         return related_terms
     
-    
-    
-    
-    # WHERE句を作成
-    # where_clause = " OR ".join([f"title LIKE '%{term}%' OR tag LIKE '%{term}%'" for term in related_terms])
-    
-    # query = f"""
-    # SELECT date, title, tag
-    # FROM `mythical-envoy-386309.majisemi.bussiness_it_article`
-    # WHERE (date BETWEEN '{start_date}' AND '{end_date}') AND ({where_clause})
-    # """
-    
     # if execute_button:  
     if execute_button and keyword: 
         
@@ -89,7 +77,8 @@ def main():
         end_date = df_trends_quarterly.index.max().strftime("%Y-%m-%d")
         
         #キーワードを部分文字列として含む単語は抽出しないよう改善
-        where_clause = " OR ".join([f"REGEXP_CONTAINS(title, r'\\b{term}\\b') OR REGEXP_CONTAINS(tag, r'\\b{term}\\b')" for term in related_terms])
+        #where_clause = " OR ".join([f"REGEXP_CONTAINS(title, r'\\b{term}\\b') OR REGEXP_CONTAINS(tag, r'\\b{term}\\b')" for term in related_terms])
+        where_clause = " OR ".join([f"title LIKE '%{term}%' OR tag LIKE '%{term}%'" for term in related_terms])
         
         query = f"""
         SELECT date, title, tag
