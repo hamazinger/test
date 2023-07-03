@@ -73,8 +73,20 @@ def main():
     # if execute_button:  
     if execute_button and keyword: 
         
-        # 関連キーワードを取得
+        # OpenAIより関連キーワードを取得
         related_terms = [keyword] + get_related_terms(keyword, topn=5)
+
+        # Googleトレンドのデータ取得（キーワードのトレンド）
+        pytrend = TrendReq(hl='ja', tz=540)
+        pytrend.build_payload(kw_list=[keyword])
+        df_trends = pytrend.interest_over_time()
+        
+        # データフレームからキーワードの列のみを取り出し、3ヶ月ごとにリサンプリング
+        df_trends_quarterly = df_trends[keyword].resample('3M').sum()
+        
+        # Google Trendsのデータから最初と最後の日付を取得
+        start_date = df_trends_quarterly.index.min().strftime("%Y-%m-%d")
+        end_date = df_trends_quarterly.index.max().strftime("%Y-%m-%d")
         
         #キーワードを部分文字列として含む単語は抽出しないよう改善
         where_clause = " OR ".join([f"REGEXP_CONTAINS(title, r'\\b{term}\\b') OR REGEXP_CONTAINS(tag, r'\\b{term}\\b')" for term in related_terms])
@@ -104,19 +116,6 @@ def main():
         
         # # 日付列をDatetime型に変換
         # # df['date'] = pd.to_datetime(df['date'])
-        
-
-        # Googleトレンドのデータ取得（キーワードのトレンド）
-        pytrend = TrendReq(hl='ja', tz=540)
-        pytrend.build_payload(kw_list=[keyword])
-        df_trends = pytrend.interest_over_time()
-        
-        # データフレームからキーワードの列のみを取り出し、3ヶ月ごとにリサンプリング
-        df_trends_quarterly = df_trends[keyword].resample('3M').sum()
-        
-        # Google Trendsのデータから最初と最後の日付を取得
-        start_date = df_trends_quarterly.index.min().strftime("%Y-%m-%d")
-        end_date = df_trends_quarterly.index.max().strftime("%Y-%m-%d")
         
         # # 3ヶ月単位での集計
         # df_quarterly = df.resample('3M', on='date').count()['title']
