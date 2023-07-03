@@ -70,17 +70,21 @@ def main():
     # WHERE (date BETWEEN '{start_date}' AND '{end_date}') AND ({where_clause})
     # """
     
-    #キーワードを部分文字列として含む単語は抽出しないよう改善
-    where_clause = " OR ".join([f"REGEXP_CONTAINS(title, r'\\b{term}\\b') OR REGEXP_CONTAINS(tag, r'\\b{term}\\b')" for term in related_terms])
-    
-    query = f"""
-    SELECT date, title, tag
-    FROM `mythical-envoy-386309.majisemi.bussiness_it_article`
-    WHERE (date BETWEEN '{start_date}' AND '{end_date}') AND ({where_clause})
-    """
-    
     # if execute_button:  
     if execute_button and keyword: 
+        
+        # 関連キーワードを取得
+        related_terms = [keyword] + get_related_terms(keyword, topn=5)
+        
+        #キーワードを部分文字列として含む単語は抽出しないよう改善
+        where_clause = " OR ".join([f"REGEXP_CONTAINS(title, r'\\b{term}\\b') OR REGEXP_CONTAINS(tag, r'\\b{term}\\b')" for term in related_terms])
+        
+        query = f"""
+        SELECT date, title, tag
+        FROM `mythical-envoy-386309.majisemi.bussiness_it_article`
+        WHERE (date BETWEEN '{start_date}' AND '{end_date}') AND ({where_clause})
+        """
+        
         # クエリの実行と結果の取得
         query_job = client.query(query)
         rows = query_job.result()  # ここで結果を取得します
@@ -101,8 +105,6 @@ def main():
         # # 日付列をDatetime型に変換
         # # df['date'] = pd.to_datetime(df['date'])
         
-        # 関連キーワードを取得
-        related_terms = [keyword] + get_related_terms(keyword, topn=5)
 
         # Googleトレンドのデータ取得（キーワードのトレンド）
         pytrend = TrendReq(hl='ja', tz=540)
