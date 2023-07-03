@@ -99,16 +99,9 @@ def main():
         
         # 日付列をDatetime型に変換
         df['date'] = pd.to_datetime(df['date'])
-
-        # # クエリの実行と結果の取得
-        # df = client.query(query).to_dataframe()
-        
-        # # 日付列をDatetime型に変換
-        # # df['date'] = pd.to_datetime(df['date'])
         
         # # 3ヶ月単位での集計
         # df_quarterly = df.resample('3M', on='date').count()['title']
-        df['date'] = pd.to_datetime(df['date'])
         df = df.set_index('date')
         
         # 3ヶ月単位での集計
