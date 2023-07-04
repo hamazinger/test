@@ -80,95 +80,76 @@ def main():
 
         where_clause = " OR ".join([f"title LIKE '%{term}%'" for term in related_terms])
 
+        # query = f"""
+        # SELECT date, COUNT(title) as count 
+        # FROM `{destination_table}` 
+        # WHERE ({where_clause}) AND date BETWEEN '{start_date}' AND '{end_date}' 
+        # GROUP BY date
+        # ORDER BY date
+        # """
+
         query = f"""
-        SELECT date, COUNT(title) as count 
+        SELECT date, title
         FROM `{destination_table}` 
         WHERE ({where_clause}) AND date BETWEEN '{start_date}' AND '{end_date}' 
-        GROUP BY date
         ORDER BY date
         """
         
         rows = run_query(query)
         
         df_articles = pd.DataFrame(rows)
-        
-        # # 関連キーワードについての記事数をBigQueryから取得
-        # rows = []
-        # for term in related_terms:
-        #     query = f"""
-        #     SELECT date, COUNT(title) as count 
-        #     FROM `{destination_table}` 
-        #     WHERE title LIKE '%{term}%' AND date BETWEEN '{start_date}' AND '{end_date}' 
-        #     GROUP BY date
-        #     ORDER BY date
-        #     """
-        #     rows.extend(run_query(query))
-        
-        # # 取得したデータをデータフレームに変換
-        # df_articles = pd.DataFrame(rows)
 
         if not df_articles.empty:
             df_articles['date'] = pd.to_datetime(df_articles['date'])
             df_articles.set_index('date', inplace=True)
-            df_articles_quarterly = df_articles.resample('3M').sum()
-        
+            df_articles_quarterly = df_articles.resample('3M').count()
+    
+            # プロット
             fig, ax1 = plt.subplots()
-        
+    
             color = 'tab:red'
             ax1.set_xlabel('Time (Quarterly)')
             ax1.set_ylabel('Google Trends', color=color)
             ax1.plot(df_trends_quarterly.index, df_trends_quarterly, color=color)
             ax1.tick_params(axis='y', labelcolor=color)
-        
+    
             ax2 = ax1.twinx()  
             color = 'tab:blue'
             ax2.set_ylabel('Article Counts', color=color)  
             ax2.plot(df_articles_quarterly.index, df_articles_quarterly, color=color)
             ax2.tick_params(axis='y', labelcolor=color)
-        
+    
             fig.tight_layout()  
             st.pyplot(fig)
-            st.dataframe(df_articles)
+            st.dataframe(df_articles.reset_index())
         else:
             st.write("No articles found for the related terms.")
 
-
-        # if not df_articles.empty:
-        #     df_articles['date'] = pd.to_datetime(df_articles['date'])
-        #     df_articles.set_index('date', inplace=True)
-        #     df_articles_quarterly = df_articles.resample('3M').sum()
-
-        #     plt.plot(df_trends_quarterly.index, df_trends_quarterly, label='Google Trends')
-        #     plt.plot(df_articles_quarterly.index, df_articles_quarterly, label='Article Counts')
-        #     plt.legend(loc='best')
-        #     st.pyplot(plt)
-        #     st.dataframe(df_articles)
-        # else:
-        #     st.write("No articles found for the related terms.")
-        
         # if not df_articles.empty:
         #     df_articles['date'] = pd.to_datetime(df_articles['date'])
         #     df_articles.set_index('date', inplace=True)
         #     df_articles_quarterly = df_articles.resample('3M').sum()
         
-        #     # プロット
-        #     plt.plot(df_trends_quarterly.index, df_trends_quarterly, label='Google Trends')
-        #     plt.plot(df_articles_quarterly.index, df_articles_quarterly, label='Article Counts')
-        #     plt.legend(loc='best')
-        #     st.pyplot(plt)
+        #     fig, ax1 = plt.subplots()
+        
+        #     color = 'tab:red'
+        #     ax1.set_xlabel('Time (Quarterly)')
+        #     ax1.set_ylabel('Google Trends', color=color)
+        #     ax1.plot(df_trends_quarterly.index, df_trends_quarterly, color=color)
+        #     ax1.tick_params(axis='y', labelcolor=color)
+        
+        #     ax2 = ax1.twinx()  
+        #     color = 'tab:blue'
+        #     ax2.set_ylabel('Article Counts', color=color)  
+        #     ax2.plot(df_articles_quarterly.index, df_articles_quarterly, color=color)
+        #     ax2.tick_params(axis='y', labelcolor=color)
+        
+        #     fig.tight_layout()  
+        #     st.pyplot(fig)
         #     st.dataframe(df_articles)
         # else:
         #     st.write("No articles found for the related terms.")
 
-        # df_articles['date'] = pd.to_datetime(df_articles['date'])
-        # df_articles.set_index('date', inplace=True)
-        # df_articles_quarterly = df_articles.resample('3M').sum()
-
-        # # プロット
-        # plt.plot(df_trends_quarterly.index, df_trends_quarterly, label='Google Trends')
-        # plt.plot(df_articles_quarterly.index, df_articles_quarterly, label='Article Counts')
-        # plt.legend(loc='best')
-        # st.pyplot(plt)
 
 if __name__ == "__main__":
     main()
