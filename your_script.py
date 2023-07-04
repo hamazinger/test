@@ -117,6 +117,9 @@ def main():
             ax1.plot(pd.to_datetime(xnew), ynew_articles, color=color)
             
             ax1.tick_params(axis='y', labelcolor=color)
+
+            # x軸の日付のフォーマットをyyyyに変更
+            ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
     
             ax2 = ax1.twinx()
             color = 'tab:blue'
