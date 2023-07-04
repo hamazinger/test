@@ -93,7 +93,6 @@ def main():
         # 取得したデータをデータフレームに変換
         df_articles = pd.DataFrame(rows)
         if not df_articles.empty:
-            st.dataframe(df_articles)
             df_articles['date'] = pd.to_datetime(df_articles['date'])
             df_articles.set_index('date', inplace=True)
             df_articles_quarterly = df_articles.resample('3M').sum()
@@ -103,6 +102,7 @@ def main():
             plt.plot(df_articles_quarterly.index, df_articles_quarterly, label='Article Counts')
             plt.legend(loc='best')
             st.pyplot(plt)
+            st.dataframe(df_articles)
         else:
             st.write("No articles found for the related terms.")
 
