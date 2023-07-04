@@ -12,6 +12,7 @@ from google.cloud.bigquery import SchemaField
 
 from pytrends.request import TrendReq
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import japanize_matplotlib
 
 # ここからコードを追加します。
