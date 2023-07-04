@@ -98,52 +98,67 @@ def main():
             df_articles_quarterly = df_articles.resample('3M').count()
     
             # プロット
-            # プロット
             fig, ax1 = plt.subplots()
     
             color = 'tab:red'
             ax1.set_xlabel('Time (Quarterly)')
             ax1.set_ylabel('Article Counts', color=color)
-            ax1.plot(df_articles_quarterly.index, df_articles_quarterly, color=color)
-            ax1.tick_params(axis='y', labelcolor=color)
-    
-            ax2 = ax1.twinx()
-            color = 'tab:blue'
-            ax2.set_ylabel('Google Trends', color=color)
             
             # 近似曲線の描画
             # プロットのデータポイント数
             n_plot_points = 10000
             # x軸の値を等間隔に補間（日時をエポック秒に変換）
-            xnew = np.linspace(df_trends_quarterly.index.astype(int).min(), df_trends_quarterly.index.astype(int).max(), n_plot_points)
+            xnew = np.linspace(df_articles_quarterly.index.astype(int).min(), df_articles_quarterly.index.astype(int).max(), n_plot_points)
+            # スプライン補間関数の生成（日時をエポック秒に変換）と近似曲線の値を生成
+            spl_articles = make_interp_spline(df_articles_quarterly.index.astype(int), df_articles_quarterly)
+            ynew_articles = spl_articles(xnew)
+            # 記事数の近似曲線の描画（エポック秒を日時に戻す）
+            ax1.plot(pd.to_datetime(xnew), ynew_articles, color=color)
+            
+            ax1.tick_params(axis='y', labelcolor=color)
+    
+            ax2 = ax1.twinx()
+            color = 'tab:blue'
+            ax2.set_ylabel('Google Trends', color=color)
+    
+            # Google Trendsの近似曲線の描画
             # スプライン補間関数の生成（日時をエポック秒に変換）と近似曲線の値を生成
             spl_trends = make_interp_spline(df_trends_quarterly.index.astype(int), df_trends_quarterly)
             ynew_trends = spl_trends(xnew)
             # Googleトレンドの近似曲線の描画（エポック秒を日時に戻す）
-            ax2.plot(pd.to_datetime(xnew), ynew_trends, color='tab:blue')
+            ax2.plot(pd.to_datetime(xnew), ynew_trends, color=color)
             
             ax2.tick_params(axis='y', labelcolor=color)
             
             fig.tight_layout()
-            st.pyplot(fig)
-            # plt.show()
-        
             # fig, ax1 = plt.subplots()
-
-            # color = 'tab:blue'
+    
+            # color = 'tab:red'
             # ax1.set_xlabel('Time (Quarterly)')
             # ax1.set_ylabel('Article Counts', color=color)
             # ax1.plot(df_articles_quarterly.index, df_articles_quarterly, color=color)
             # ax1.tick_params(axis='y', labelcolor=color)
     
-            # ax2 = ax1.twinx()  
-            # color = 'tab:red'
-            # ax2.set_ylabel('Google Trends', color=color)  
-            # ax2.plot(df_trends_quarterly.index, df_trends_quarterly, color=color)
+            # ax2 = ax1.twinx()
+            # color = 'tab:blue'
+            # ax2.set_ylabel('Google Trends', color=color)
+            
+            # # 近似曲線の描画
+            # # プロットのデータポイント数
+            # n_plot_points = 10000
+            # # x軸の値を等間隔に補間（日時をエポック秒に変換）
+            # xnew = np.linspace(df_trends_quarterly.index.astype(int).min(), df_trends_quarterly.index.astype(int).max(), n_plot_points)
+            # # スプライン補間関数の生成（日時をエポック秒に変換）と近似曲線の値を生成
+            # spl_trends = make_interp_spline(df_trends_quarterly.index.astype(int), df_trends_quarterly)
+            # ynew_trends = spl_trends(xnew)
+            # # Googleトレンドの近似曲線の描画（エポック秒を日時に戻す）
+            # ax2.plot(pd.to_datetime(xnew), ynew_trends, color='tab:blue')
+            
             # ax2.tick_params(axis='y', labelcolor=color)
-    
-            # fig.tight_layout()  
-            # st.pyplot(fig)
+            
+            # fig.tight_layout()
+            st.pyplot(fig)
+            
             
             st.dataframe(df_articles.reset_index())
  
