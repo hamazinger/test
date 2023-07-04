@@ -77,27 +77,41 @@ def main():
         # Google Trendsのデータから最初と最後の日付を取得
         start_date = df_trends_quarterly.index.min().strftime("%Y-%m-%d")
         end_date = df_trends_quarterly.index.max().strftime("%Y-%m-%d")
+
+        where_clause = " OR ".join([f"title LIKE '%{term}%'" for term in related_terms])
+
+        query = f"""
+        SELECT date, COUNT(title) as count 
+        FROM `{destination_table}` 
+        WHERE ({where_clause}) AND date BETWEEN '{start_date}' AND '{end_date}' 
+        GROUP BY date
+        ORDER BY date
+        """
         
-        # 関連キーワードについての記事数をBigQueryから取得
-        rows = []
-        for term in related_terms:
-            query = f"""
-            SELECT date, COUNT(title) as count 
-            FROM `{destination_table}` 
-            WHERE title LIKE '%{term}%' AND date BETWEEN '{start_date}' AND '{end_date}' 
-            GROUP BY date
-            ORDER BY date
-            """
-            rows.extend(run_query(query))
+        rows = run_query(query)
         
-        # 取得したデータをデータフレームに変換
         df_articles = pd.DataFrame(rows)
+        
+        # # 関連キーワードについての記事数をBigQueryから取得
+        # rows = []
+        # for term in related_terms:
+        #     query = f"""
+        #     SELECT date, COUNT(title) as count 
+        #     FROM `{destination_table}` 
+        #     WHERE title LIKE '%{term}%' AND date BETWEEN '{start_date}' AND '{end_date}' 
+        #     GROUP BY date
+        #     ORDER BY date
+        #     """
+        #     rows.extend(run_query(query))
+        
+        # # 取得したデータをデータフレームに変換
+        # df_articles = pd.DataFrame(rows)
+
         if not df_articles.empty:
             df_articles['date'] = pd.to_datetime(df_articles['date'])
             df_articles.set_index('date', inplace=True)
             df_articles_quarterly = df_articles.resample('3M').sum()
-        
-            # プロット
+
             plt.plot(df_trends_quarterly.index, df_trends_quarterly, label='Google Trends')
             plt.plot(df_articles_quarterly.index, df_articles_quarterly, label='Article Counts')
             plt.legend(loc='best')
@@ -105,6 +119,20 @@ def main():
             st.dataframe(df_articles)
         else:
             st.write("No articles found for the related terms.")
+        
+        # if not df_articles.empty:
+        #     df_articles['date'] = pd.to_datetime(df_articles['date'])
+        #     df_articles.set_index('date', inplace=True)
+        #     df_articles_quarterly = df_articles.resample('3M').sum()
+        
+        #     # プロット
+        #     plt.plot(df_trends_quarterly.index, df_trends_quarterly, label='Google Trends')
+        #     plt.plot(df_articles_quarterly.index, df_articles_quarterly, label='Article Counts')
+        #     plt.legend(loc='best')
+        #     st.pyplot(plt)
+        #     st.dataframe(df_articles)
+        # else:
+        #     st.write("No articles found for the related terms.")
 
         # df_articles['date'] = pd.to_datetime(df_articles['date'])
         # df_articles.set_index('date', inplace=True)
