@@ -117,6 +117,9 @@ def main():
             # 記事数の近似曲線の描画（エポック秒を日時に戻す）
             # ax1.plot(pd.to_datetime(xnew), ynew_articles, color=color)
             ax1.plot(df_articles_quarterly.index, df_articles_quarterly, color=color)
+
+            # 目盛り幅を設定します。
+            ax1.yticks(np.arange(0, df_articles_quarterly.max() + 1, 1))
         
         ax1.tick_params(axis='y', labelcolor=color)
         
