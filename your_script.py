@@ -118,7 +118,8 @@ def main():
             # ax1.plot(pd.to_datetime(xnew), ynew_articles, color=color)
             ax1.plot(df_articles_quarterly.index, df_articles_quarterly, color=color)
             # 目盛り幅を設定します。
-            ax1.yaxis.set_ticks(np.arange(0, df_articles_quarterly.max() + 1, 1))
+            # ax1.yaxis.set_ticks(np.arange(0, df_articles_quarterly.max() + 1, 1))
+            ax1.yaxis.set_ticks(np.arange(0, df_articles_quarterly.iloc[:, 0].max() + 1, 1))
         
         ax1.tick_params(axis='y', labelcolor=color)
         
