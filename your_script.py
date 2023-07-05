@@ -115,7 +115,8 @@ def main():
             spl_articles = make_interp_spline(df_articles_quarterly.index.astype(int), df_articles_quarterly)
             ynew_articles = spl_articles(xnew)
             # 記事数の近似曲線の描画（エポック秒を日時に戻す）
-            ax1.plot(pd.to_datetime(xnew), ynew_articles, color=color)
+            # ax1.plot(pd.to_datetime(xnew), ynew_articles, color=color)
+            ax1.plot(df_articles_quarterly.index, df_articles_quarterly, color=color)
         
         ax1.tick_params(axis='y', labelcolor=color)
         
@@ -131,7 +132,9 @@ def main():
         spl_trends = make_interp_spline(df_trends_quarterly.index.astype(int), df_trends_quarterly)
         ynew_trends = spl_trends(xnew)
         # Googleトレンドの近似曲線の描画（エポック秒を日時に戻す）
-        ax2.plot(pd.to_datetime(xnew), ynew_trends, color=color)
+        # ax2.plot(pd.to_datetime(xnew), ynew_trends, color=color)
+        
+        ax2.plot(df_trends_quarterly.index, df_trends_quarterly, color=color)
         ax2.tick_params(axis='y', labelcolor=color)
         fig.tight_layout()
         st.pyplot(fig)
