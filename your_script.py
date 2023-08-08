@@ -97,7 +97,7 @@ def main():
         # ORDER BY date
         # """
 
-        query1 = f"""
+        query = f"""
         SELECT *
         FROM `mythical-envoy-386309.majisemi.business_it_article_api`
         WHERE tag = "{keyword}"
@@ -114,10 +114,10 @@ def main():
            OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
         """
         
-        rows1 = run_query(query1)
+        rows = run_query(query)
         rows2 = run_query(query2)
         
-        df1 = pd.DataFrame(rows1)
+        df = pd.DataFrame(rows)
         df2 = pd.DataFrame(rows2)
 
         # 日付列をDatetime型に変換
