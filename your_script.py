@@ -147,12 +147,12 @@ def main():
         ax1.plot(df_quarterly.index, df_quarterly, color='tab:red', marker='o', label='Number of articles')
         ax1.plot(df2_quarterly.index, df2_quarterly, color='tab:green', marker='o', label='Number of seminars')
         
-        ax1.set_xlabel('Month')
+        ax1.set_xlabel('Quarter')
         ax1.set_ylabel('Number of articles and seminars', color='tab:red')
         ax2.set_ylabel('Google Trends', color='tab:blue')
         plt.title('Quarterly trends for keyword: {}'.format(keyword))
         ax1.legend(loc="upper left") # 凡例の追加
-        plt.rcParams['font.size'] = 18 # 文字サイズを設定
+        plt.rcParams['font.size'] = 14 # 文字サイズを設定
         st.pyplot(fig)
 
 
@@ -249,6 +249,7 @@ def main():
         
         fig.tight_layout()
         plt.title(f'Average Acquisition Speed and Number of Seminars Containing "{keyword}"')
+        plt.rcParams['font.size'] = 14 # 文字サイズを設定
         st.pyplot(fig)
 
 
