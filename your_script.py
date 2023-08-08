@@ -134,6 +134,8 @@ def main():
         
         df_trends_quarterly = df_trends[keyword].resample('Q').sum().loc['2021':]
         #
+
+        st.header('他社メディア記事・セミナー数&Googleトレンド')
         
         # 折れ線グラフの描画
         plt.rcParams['font.size'] = 15 # 文字サイズを14に設定
@@ -228,7 +230,8 @@ def main():
             'Acquisition_Speed': ['median', lambda x: x.quantile(0.25), lambda x: x.quantile(0.75)],
             'Seminar_Title': 'count'
         }).rename(columns={'<lambda_0>': '1Q', '<lambda_1>': '3Q', 'Seminar_Title': 'セミナー開催数'})
-        
+
+        st.header('マジセミ開催実績')
         # プロット作成
         plt.rcParams['font.size'] = 15 # 文字サイズを設定
         fig, ax1 = plt.subplots(figsize=(14, 7))
