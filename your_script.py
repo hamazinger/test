@@ -18,7 +18,7 @@ import japanize_matplotlib
 
 # ここからコードを追加します。
 def main():
-    st.title("Google Trends and Article&Seminar Analysis")
+    st.title("キーワード分析")
     keyword = st.text_input("キーワードを入力（アルファベットは小文字で入力してください）")
     execute_button = st.button("Execute Query") 
 
@@ -135,7 +135,7 @@ def main():
         df_trends_quarterly = df_trends[keyword].resample('Q').sum().loc['2021':]
         #
 
-        st.header('他社メディア記事・セミナー数&Googleトレンド')
+        st.subheader('他社メディア記事・セミナー数&Googleトレンド')
         
         # 折れ線グラフの描画
         plt.rcParams['font.size'] = 15 # 文字サイズを14に設定
@@ -231,7 +231,7 @@ def main():
             'Seminar_Title': 'count'
         }).rename(columns={'<lambda_0>': '1Q', '<lambda_1>': '3Q', 'Seminar_Title': 'セミナー開催数'})
 
-        st.header('マジセミ開催実績')
+        st.subheader('マジセミ開催実績')
         # プロット作成
         plt.rcParams['font.size'] = 15 # 文字サイズを設定
         fig, ax1 = plt.subplots(figsize=(14, 7))
