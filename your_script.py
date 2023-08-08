@@ -97,7 +97,7 @@ def main():
         # ORDER BY date
         # """
 
-        query = f"""
+        query1 = f"""
         SELECT *
         FROM `mythical-envoy-386309.majisemi.business_it_article_api`
         WHERE tag = "{keyword}"
