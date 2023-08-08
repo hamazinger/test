@@ -136,6 +136,7 @@ def main():
         #
         
         # 折れ線グラフの描画
+        plt.rcParams['font.size'] = 18 # 文字サイズを14に設定
         fig, ax1 = plt.subplots(figsize=(14,7))
         
         # Googleトレンドのデータを描画
@@ -151,6 +152,7 @@ def main():
         ax2.set_ylabel('Google Trends', color='tab:blue')
         plt.title('Quarterly trends for keyword: {}'.format(keyword))
         ax1.legend(loc="upper left") # 凡例の追加
+        plt.rcParams['font.size'] = 18 # 文字サイズを設定
         st.pyplot(fig)
 
 
@@ -269,7 +271,8 @@ def main():
 
         # 'Seminar_Date'カラムの日付を "yyyy-mm-dd" 形式に変換
         df_filtered['セミナー開催日'] = pd.to_datetime(df_filtered['セミナー開催日']).dt.strftime('%Y-%m-%d')
-
+        df_filtered['集客速度'] = df_filtered['集客速度'].round(2)
+        df_filtered['アクション回答率（%）'] = df_filtered['アクション回答率（%）'].round(2)
         
         # 表形式でStreamlitに出力
         st.dataframe(df_filtered)
