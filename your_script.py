@@ -203,6 +203,61 @@ def main():
         #     st.dataframe(df_articles.reset_index())
         # st.write(f"Related terms: {', '.join(related_terms)}")
 
+
+        #-----------セミナー結果出力----------------------
+        query = f"""
+        SELECT *
+        FROM `mythical-envoy-386309.majisemi.majisemi_seminar_api`
+        WHERE Major_Category = "{keyword}"
+           OR Category = "{keyword}"
+           OR CONCAT(',', parse_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
+           OR CONCAT(',', keyword_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
+           OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
+        """
+        
+        
+        # クエリの実行と結果の取得
+        rows = run_query(query)
+        df = pd.DataFrame(rows)
+        
+        
+        # 四半期ごとにデータを集計
+        df['Quarter'] = df['Seminar_Date'].dt.to_period('Q')
+        df_grouped = df.groupby('Quarter').agg({
+            'Acquisition_Speed': ['median', lambda x: x.quantile(0.25), lambda x: x.quantile(0.75)],
+            'Seminar_Title': 'count'
+        }).rename(columns={'<lambda_0>': '1Q', '<lambda_1>': '3Q', 'Seminar_Title': 'セミナー開催数'})
+        
+        # プロット作成
+        fig, ax1 = plt.subplots(figsize=(15, 6))
+        
+        color = 'tab:blue'
+        ax1.set_xlabel('Quarter')
+        ax1.set_ylabel('集客速度', color=color)
+        ax1.plot(df_grouped.index.to_timestamp(), df_grouped[('Acquisition_Speed', 'median')], marker='o',color=color, label='Median Acquisition Speed')
+        ax1.fill_between(df_grouped.index.to_timestamp(), df_grouped[('Acquisition_Speed', '1Q')], df_grouped[('Acquisition_Speed', '3Q')], color=color, alpha=0.1, label='Interquartile Range')
+        ax1.tick_params(axis='y', labelcolor=color)
+        ax1.legend(loc='upper left')
+        
+        ax2 = ax1.twinx()
+        color = 'tab:red'
+        ax2.set_ylabel('マジセミ開催数', color=color)
+        ax2.plot(df_grouped.index.to_timestamp(), df_grouped[('セミナー開催数', 'count')], marker='o',color=color)
+        ax2.tick_params(axis='y', labelcolor=color)
+        
+        fig.tight_layout()
+        plt.title(f'Average Acquisition Speed and Number of Seminars Containing "{keyword}"')
+        st.pyplot(fig)
+
+        # 'parse_api_result', 'keyword_extraction_api_result', 'entity_extraction_api_result'を除く
+        columns_to_exclude = ['parse_api_result', 'keyword_extraction_api_result', 'entity_extraction_api_result']
+        df_filtered = df.drop(columns=columns_to_exclude)
+        
+        # 表形式でStreamlitに出力
+        st.dataframe(df_filtered)
+
+
+
        
 
 
