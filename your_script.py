@@ -18,7 +18,7 @@ import japanize_matplotlib
 
 # ここからコードを追加します。
 def main():
-    st.title("Google Trends and Article Analysis")
+    st.title("Google Trends and Article&Seminar Analysis")
     keyword = st.text_input("Enter a keyword")
     execute_button = st.button("Execute Query") 
 
@@ -249,9 +249,27 @@ def main():
         plt.title(f'Average Acquisition Speed and Number of Seminars Containing "{keyword}"')
         st.pyplot(fig)
 
+
         # 'parse_api_result', 'keyword_extraction_api_result', 'entity_extraction_api_result'を除く
         columns_to_exclude = ['parse_api_result', 'keyword_extraction_api_result', 'entity_extraction_api_result']
         df_filtered = df.drop(columns=columns_to_exclude)
+        
+        # カラム名を英語から日本語に変更
+        df_filtered.rename(columns={
+            'Seminar_Date': 'セミナー開催日',
+            'Seminar_Title': 'セミナータイトル',
+            'Organizer_Name': '主催企業名',
+            'Major_Category': '大分類',
+            'Category': 'カテゴリ',
+            'Total_Participants': '合計集客人数',
+            'Acquisition_Speed': '集客速度',
+            'Action_Response_Count': 'アクション回答数',
+            'Action_Response_Rate': 'アクション回答率（%）'
+        }, inplace=True)
+
+        # 'Seminar_Date'カラムの日付を "yyyy-mm-dd" 形式に変換
+        df_filtered['セミナー開催日'] = pd.to_datetime(df_filtered['セミナー開催日']).dt.strftime('%Y-%m-%d')
+
         
         # 表形式でStreamlitに出力
         st.dataframe(df_filtered)
