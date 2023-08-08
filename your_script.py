@@ -20,7 +20,7 @@ import japanize_matplotlib
 def main():
     st.title("キーワード分析")
     keyword = st.text_input("キーワードを入力（アルファベットは小文字で入力してください）")
-    execute_button = st.button("Execute Query") 
+    execute_button = st.button("分析を実行") 
 
     # 変数の設定
     project_id = 'mythical-envoy-386309'
