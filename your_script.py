@@ -19,7 +19,7 @@ import japanize_matplotlib
 # ここからコードを追加します。
 def main():
     st.title("キーワード分析")
-    keyword = st.text_input("キーワードを入力（アルファベットは小文字で入力してください）")
+    keyword = st.text_input("キーワードを入力（アルファベットは「小文字」で入力してください）")
     execute_button = st.button("分析を実行") 
 
     # 変数の設定
