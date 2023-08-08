@@ -136,7 +136,7 @@ def main():
         #
         
         # 折れ線グラフの描画
-        plt.rcParams['font.size'] = 14 # 文字サイズを14に設定
+        plt.rcParams['font.size'] = 15 # 文字サイズを14に設定
         fig, ax1 = plt.subplots(figsize=(14,7))
         
         # Googleトレンドのデータを描画
@@ -230,8 +230,8 @@ def main():
         }).rename(columns={'<lambda_0>': '1Q', '<lambda_1>': '3Q', 'Seminar_Title': 'セミナー開催数'})
         
         # プロット作成
-        plt.rcParams['font.size'] = 14 # 文字サイズを設定
-        fig, ax1 = plt.subplots(figsize=(15, 6))
+        plt.rcParams['font.size'] = 15 # 文字サイズを設定
+        fig, ax1 = plt.subplots(figsize=(14, 7))
         
         color = 'tab:blue'
         ax1.set_xlabel('Quarter')
@@ -274,9 +274,26 @@ def main():
         df_filtered['セミナー開催日'] = pd.to_datetime(df_filtered['セミナー開催日']).dt.strftime('%Y-%m-%d')
         df_filtered['集客速度'] = df_filtered['集客速度'].round(2)
         df_filtered['アクション回答率（%）'] = df_filtered['アクション回答率（%）'].round(2)
+        # 'Quarter' カラムを先頭に持ってくる
+        cols = ['Quarter'] + [col for col in df_filtered.columns if col != 'Quarter']
+        df_filtered = df_filtered[cols]
         
         # 表形式でStreamlitに出力
         st.dataframe(df_filtered)
+
+
+        st.write("""
+        ※集客速度は、1日あたりの平均申し込み数を表します。
+        具体的な計算方法は以下の通りです。
+        ＜集客速度の計算方法＞
+        各セミナーについて、「最初の申し込み日」から「最後の申し込み日」までの日数を計算します。
+        （この日数は、そのセミナーが公開されてから最後の申し込みがあるまでの日数を示しています）
+        そして、「申込総数」を上記の日数で割ることで集客速度を算出します。
+        たとえば、あるセミナーが公開されてから30日後に最後の申し込みがあり、その間に合計60人が申し込んだ場合、
+        そのセミナーの集客速度は60人 / 30日 = 2人/日となります。
+        これは、そのセミナーが公開されてから最後の申し込みがあるまでの間に、1日あたり平均2人が申し込んだことを意味します。
+        """)
+
 
 
 
