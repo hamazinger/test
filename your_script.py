@@ -19,7 +19,7 @@ import japanize_matplotlib
 # ここからコードを追加します。
 def main():
     st.title("Google Trends and Article&Seminar Analysis")
-    keyword = st.text_input("Enter a keyword")
+    keyword = st.text_input("キーワードを入力（アルファベットは小文字で入力してください）")
     execute_button = st.button("Execute Query") 
 
     # 変数の設定
@@ -136,7 +136,7 @@ def main():
         #
         
         # 折れ線グラフの描画
-        plt.rcParams['font.size'] = 18 # 文字サイズを14に設定
+        plt.rcParams['font.size'] = 14 # 文字サイズを14に設定
         fig, ax1 = plt.subplots(figsize=(14,7))
         
         # Googleトレンドのデータを描画
@@ -152,7 +152,6 @@ def main():
         ax2.set_ylabel('Google Trends', color='tab:blue')
         plt.title('Quarterly trends for keyword: {}'.format(keyword))
         ax1.legend(loc="upper left") # 凡例の追加
-        plt.rcParams['font.size'] = 14 # 文字サイズを設定
         st.pyplot(fig)
 
 
@@ -231,6 +230,7 @@ def main():
         }).rename(columns={'<lambda_0>': '1Q', '<lambda_1>': '3Q', 'Seminar_Title': 'セミナー開催数'})
         
         # プロット作成
+        plt.rcParams['font.size'] = 14 # 文字サイズを設定
         fig, ax1 = plt.subplots(figsize=(15, 6))
         
         color = 'tab:blue'
