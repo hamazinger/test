@@ -275,6 +275,10 @@ def main():
             # 'Quarter' カラムを先頭に持ってくる
             cols = ['Quarter'] + [col for col in df_filtered.columns if col != 'Quarter']
             df_filtered = df_filtered[cols]
+
+            # セミナー開催日列の降順でソート
+            df_filtered = df_filtered.sort_values(by='セミナー開催日', ascending=False)
+
             
             # 表形式でStreamlitに出力
             st.dataframe(df_filtered)
