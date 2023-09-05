@@ -122,15 +122,20 @@ def main():
         # ORDER BY date
         # """
 
-        queries = []
+        queries_for_article = []
         for k in keywords:
-            queries.append(f"""
-            tag = "{k}"
-            OR CONCAT(',', parse_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
-            OR CONCAT(',', keyword_extraction_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
-            OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
-            """)
-        combined_query = " AND ".join(queries)
+            condition_for_k = f"""
+            (
+                tag = "{k}"
+                OR CONCAT(',', parse_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
+                OR CONCAT(',', keyword_extraction_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
+                OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
+            )
+            """
+            queries_for_article.append(condition_for_k)
+        
+        combined_query_for_article = " AND ".join(queries_for_article)
+
 
         # query = f"""
         # SELECT *
@@ -144,7 +149,7 @@ def main():
         query = f"""
         SELECT *
         FROM `mythical-envoy-386309.majisemi.business_it_article_api`
-        WHERE {combined_query}
+        WHERE {combined_query_for_article}
         """
         
         # query2 = f"""
@@ -157,18 +162,21 @@ def main():
 
         queries_for_seminar = []
         for k in keywords:
-            queries_for_seminar.append(f"""
-            CONCAT(',', parse_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
-            OR CONCAT(',', keyword_extraction_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
-            OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
-            """)
-
-        combined_query = " AND ".join(queries_for_seminar)
+            condition_for_k = f"""
+            (
+                CONCAT(',', parse_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
+                OR CONCAT(',', keyword_extraction_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
+                OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
+            )
+            """
+            queries_for_seminar.append(condition_for_k)
+        
+        combined_query_for_seminar = " AND ".join(queries_for_seminar)
 
         query2 = f"""
         SELECT *
         FROM `mythical-envoy-386309.majisemi.bussiness_it_seminar_api`
-        WHERE {combined_query}
+        WHERE {combined_query_for_seminar}
         """
         
         rows = run_query(query)
@@ -253,13 +261,16 @@ def main():
 
         queries_for_seminar = []
         for k in keywords:
-            queries_for_seminar.append(f"""
-            Major_Category = "{k}"
-            OR Category = "{k}"
-            OR CONCAT(',', parse_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
-            OR CONCAT(',', keyword_extraction_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
-            OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
-            """)
+            condition_for_k = f"""
+            (
+                Major_Category = "{k}"
+                OR Category = "{k}"
+                OR CONCAT(',', parse_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
+                OR CONCAT(',', keyword_extraction_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
+                OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
+            )
+            """
+            queries_for_seminar.append(condition_for_k)
         
         combined_query_for_seminar = " AND ".join(queries_for_seminar)
         
