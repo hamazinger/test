@@ -95,7 +95,7 @@ def main():
         pytrend = TrendReq(hl='ja', tz=540)
         # pytrend.build_payload(kw_list=[keyword])
         pytrend.build_payload(kw_list=keywords)
-        time.sleep(5) # 5秒待つ
+        time.sleep(10) # 10秒待つ
         df_trends = pytrend.interest_over_time()
         # df_trends_quarterly = df_trends[keyword].resample('Q').sum()
 
