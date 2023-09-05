@@ -155,6 +155,16 @@ def main():
         #    OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
         # """
 
+        queries_for_seminar = []
+        for k in keywords:
+            queries_for_seminar.append(f"""
+            CONCAT(',', parse_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
+            OR CONCAT(',', keyword_extraction_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
+            OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
+            """)
+
+        combined_query = " AND ".join(queries_for_seminar)
+
         query2 = f"""
         SELECT *
         FROM `mythical-envoy-386309.majisemi.bussiness_it_seminar_api`
