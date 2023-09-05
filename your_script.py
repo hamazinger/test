@@ -230,7 +230,8 @@ def main():
         ax1.set_xlabel('Quarter')
         ax1.set_ylabel('Number of articles and seminars', color='tab:red')
         ax2.set_ylabel('Google Trends', color='tab:blue')
-        plt.title('Quarterly trends for keyword: {}'.format(keyword))
+        #plt.title('Quarterly trends for keyword: {}'.format(keyword))
+        plt.title('Quarterly trends for keyword: {}'.format(", ".join(keywords)))
         ax1.legend(loc="upper left") # 凡例の追加
         st.pyplot(fig)
 
