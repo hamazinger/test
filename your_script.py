@@ -77,13 +77,18 @@ def main():
         # # データフレームからキーワードの列のみを取り出し、3ヶ月ごとにリサンプリング
         # df_trends_quarterly = df_trends[keyword].resample('3M').sum()
 
+        # 現在の日付を取得し、過去2年分の範囲を計算します。
+        end_date = pd.Timestamp.now()
+        start_date = end_date - pd.DateOffset(years=2)
+
         
         #------------Googleトレンドのデータ取得---------------------
         pytrend = TrendReq(hl='ja', tz=540)
         pytrend.build_payload(kw_list=[keyword])
         time.sleep(5) # 5秒待つ
         df_trends = pytrend.interest_over_time()
-        df_trends_quarterly = df_trends[keyword].resample('Q').sum()
+        # df_trends_quarterly = df_trends[keyword].resample('Q').sum()
+        df_trends_quarterly = df_trends[keyword].resample('Q').sum().loc[start_date:end_date]
                 
         # # Google Trendsのデータから最初と最後の日付を取得
         # start_date = df_trends_quarterly.index.min().strftime("%Y-%m-%d")
@@ -137,13 +142,15 @@ def main():
             df['date'] = pd.to_datetime(df['date'])
             # 3ヶ月単位での集計
             df = df.set_index('date')
-            df_quarterly = df.resample('Q').count()['title'].loc['2021':]
+            # df_quarterly = df.resample('Q').count()['title'].loc['2021':]
+            df_quarterly = df.resample('Q').count()['title'].loc[start_date:end_date]
         
 
         if not df2.empty:
             df2['date'] = pd.to_datetime(df2['date'])
             df2 = df2.set_index('date')
-            df2_quarterly = df2.resample('Q').count()['title'].loc['2021':]
+            # df2_quarterly = df2.resample('Q').count()['title'].loc['2021':]
+            df2_quarterly = df2.resample('Q').count()['title'].loc[start_date:end_date]
         
         df_trends_quarterly = df_trends[keyword].resample('Q').sum().loc['2021':]
         #
@@ -187,6 +194,7 @@ def main():
            OR CONCAT(',', parse_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
            OR CONCAT(',', keyword_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
            OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
+           AND Seminar_Date BETWEEN '{start_date}' AND '{end_date}'
         """
         
         
@@ -200,11 +208,18 @@ def main():
         
         
             # 四半期ごとにデータを集計
+            # df['Quarter'] = df['Seminar_Date'].dt.to_period('Q')
+            # df_grouped = df.groupby('Quarter').agg({
+            #     'Acquisition_Speed': ['median', lambda x: x.quantile(0.25), lambda x: x.quantile(0.75)],
+            #     'Seminar_Title': 'count'
+            # }).rename(columns={'<lambda_0>': '1Q', '<lambda_1>': '3Q', 'Seminar_Title': 'セミナー開催数'})
+
+            # 四半期ごとにデータを集計
             df['Quarter'] = df['Seminar_Date'].dt.to_period('Q')
             df_grouped = df.groupby('Quarter').agg({
                 'Acquisition_Speed': ['median', lambda x: x.quantile(0.25), lambda x: x.quantile(0.75)],
                 'Seminar_Title': 'count'
-            }).rename(columns={'<lambda_0>': '1Q', '<lambda_1>': '3Q', 'Seminar_Title': 'セミナー開催数'})
+            }).rename(columns={'<lambda_0>': '1Q', '<lambda_1>': '3Q', 'Seminar_Title': 'セミナー開催数'}).loc[start_date.to_period('Q'):end_date.to_period('Q')]
     
             st.subheader('マジセミ開催実績')
             # プロット作成
