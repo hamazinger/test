@@ -21,11 +21,11 @@ import unicodedata
 # ここからコードを追加します。
 def main():
     st.title("キーワード分析")
-    keyword = st.text_input("キーワードを入力")
+    keyword = st.text_input("キーワードを入力（カンマ区切りで複数入力可能）")
     execute_button = st.button("分析を実行")
-    # ユーザが入力したキーワードを小文字に変換し、NFKCで正規化
-    normalized_keyword = unicodedata.normalize('NFKC', keyword.lower())
-    keyword = normalized_keyword
+    # キーワードの分割と正規化
+    keywords = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keyword.split(",")]
+
 
     # 変数の設定
     project_id = 'mythical-envoy-386309'
@@ -109,21 +109,43 @@ def main():
         # ORDER BY date
         # """
 
+        queries = []
+        for k in keywords:
+            queries.append(f"""
+            tag = "{k}"
+            OR CONCAT(',', parse_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
+            OR CONCAT(',', keyword_extraction_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
+            OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
+            """)
+        combined_query = " AND ".join(queries)
+
+        # query = f"""
+        # SELECT *
+        # FROM `mythical-envoy-386309.majisemi.business_it_article_api`
+        # WHERE tag = "{keyword}"
+        #    OR CONCAT(',', parse_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
+        #    OR CONCAT(',', keyword_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
+        #    OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
+        # """
+
         query = f"""
         SELECT *
         FROM `mythical-envoy-386309.majisemi.business_it_article_api`
-        WHERE tag = "{keyword}"
-           OR CONCAT(',', parse_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
-           OR CONCAT(',', keyword_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
-           OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
+        WHERE {combined_query}
         """
         
+        # query2 = f"""
+        # SELECT *
+        # FROM `mythical-envoy-386309.majisemi.bussiness_it_seminar_api`
+        # WHERE CONCAT(',', parse_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
+        #    OR CONCAT(',', keyword_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
+        #    OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
+        # """
+
         query2 = f"""
         SELECT *
         FROM `mythical-envoy-386309.majisemi.bussiness_it_seminar_api`
-        WHERE CONCAT(',', parse_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
-           OR CONCAT(',', keyword_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
-           OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
+        WHERE {combined_query}
         """
         
         rows = run_query(query)
@@ -194,14 +216,33 @@ def main():
 
 
         #-----------セミナー結果出力----------------------
+        # query = f"""
+        # SELECT *
+        # FROM `mythical-envoy-386309.majisemi.majisemi_seminar_api`
+        # WHERE Major_Category = "{keyword}"
+        #    OR Category = "{keyword}"
+        #    OR CONCAT(',', parse_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
+        #    OR CONCAT(',', keyword_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
+        #    OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
+        #    AND Seminar_Date BETWEEN '{start_date}' AND '{end_date}'
+        # """
+
+        queries_for_seminar = []
+        for k in keywords:
+            queries_for_seminar.append(f"""
+            Major_Category = "{k}"
+            OR Category = "{k}"
+            OR CONCAT(',', parse_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
+            OR CONCAT(',', keyword_extraction_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
+            OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
+            """)
+        
+        combined_query_for_seminar = " AND ".join(queries_for_seminar)
+        
         query = f"""
         SELECT *
         FROM `mythical-envoy-386309.majisemi.majisemi_seminar_api`
-        WHERE Major_Category = "{keyword}"
-           OR Category = "{keyword}"
-           OR CONCAT(',', parse_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
-           OR CONCAT(',', keyword_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
-           OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
+        WHERE {combined_query_for_seminar}
            AND Seminar_Date BETWEEN '{start_date}' AND '{end_date}'
         """
         
