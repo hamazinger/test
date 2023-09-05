@@ -16,12 +16,16 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from matplotlib.ticker import MaxNLocator
 import japanize_matplotlib
+import unicodedata
 
 # ここからコードを追加します。
 def main():
     st.title("キーワード分析")
     keyword = st.text_input("キーワードを入力（アルファベットは「小文字」で入力してください）")
-    execute_button = st.button("分析を実行") 
+    execute_button = st.button("分析を実行")
+    # ユーザが入力したキーワードを小文字に変換し、NFKCで正規化
+    normalized_keyword = unicodedata.normalize('NFKC', keyword.lower())
+    keyword = normalized_keyword
 
     # 変数の設定
     project_id = 'mythical-envoy-386309'
