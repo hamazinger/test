@@ -315,7 +315,8 @@ def main():
             ax2.tick_params(axis='y', labelcolor=color)
             
             fig.tight_layout()
-            plt.title(f'Average Acquisition Speed and Number of Seminars Containing "{keyword}"')
+            # plt.title(f'Average Acquisition Speed and Number of Seminars Containing "{keyword}"')
+            plt.title(f'Average Acquisition Speed and Number of Seminars Containing: {", ".join(keywords)}')
             plt.rcParams['font.size'] = 14 # 文字サイズを設定
             st.pyplot(fig)
     
