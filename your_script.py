@@ -21,10 +21,14 @@ import unicodedata
 # ここからコードを追加します。
 def main():
     st.title("キーワード分析")
-    keyword = st.text_input("キーワードを入力（カンマ区切りで複数入力可能）")
+    # keyword = st.text_input("キーワードを入力（カンマ区切りで複数入力可能）")
+    # 1. キーワード入力部分
+    keyword_input = st.text_input("キーワードをカンマで区切って複数入力可能（例：python,java）")
     execute_button = st.button("分析を実行")
     # キーワードの分割と正規化
-    keywords = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keyword.split(",")]
+    # keywords = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keyword.split(",")]
+    # 2. 入力されたキーワードをリストに変換
+    keywords = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keyword_input.split(",")]
 
 
     # 変数の設定
@@ -68,7 +72,7 @@ def main():
         return rows
 
     # if execute_button:  
-    if execute_button and keyword: 
+    if execute_button and keywords: 
         
         # # OpenAIより関連キーワードを取得
         # related_terms = [keyword] + get_related_terms(keyword, topn=5)
@@ -89,12 +93,21 @@ def main():
         
         #------------Googleトレンドのデータ取得---------------------
         pytrend = TrendReq(hl='ja', tz=540)
-        pytrend.build_payload(kw_list=[keyword])
+        # pytrend.build_payload(kw_list=[keyword])
+        pytrend.build_payload(kw_list=keywords)
         time.sleep(5) # 5秒待つ
         df_trends = pytrend.interest_over_time()
         # df_trends_quarterly = df_trends[keyword].resample('Q').sum()
-        df_trends_quarterly = df_trends[keyword].resample('Q').sum().loc[start_date:end_date]
+
+        # 複数キーワードのトレンドを合成
+        df_trends_combined = df_trends[keywords].sum(axis=1)
+        
+        # 3ヶ月ごとにリサンプル
+        df_trends_quarterly = df_trends_combined.resample('Q').sum().loc[start_date:end_date]
         df_trends_quarterly = df_trends_quarterly.loc[:current_date]
+
+        # df_trends_quarterly = df_trends[keyword].resample('Q').sum().loc[start_date:end_date]
+        # df_trends_quarterly = df_trends_quarterly.loc[:current_date]
                 
         # # Google Trendsのデータから最初と最後の日付を取得
         # start_date = df_trends_quarterly.index.min().strftime("%Y-%m-%d")
