@@ -158,8 +158,11 @@ def main():
         ax2.plot(df_trends_quarterly.index, df_trends_quarterly, color='tab:blue', marker='o', label='Google Trends')
         
         # 集計した記事数を描画
-        ax1.plot(df_quarterly.index, df_quarterly, color='tab:red', marker='o', label='Number of articles')
-        ax1.plot(df2_quarterly.index, df2_quarterly, color='tab:green', marker='o', label='Number of seminars')
+        if not df.empty:
+            ax1.plot(df_quarterly.index, df_quarterly, color='tab:red', marker='o', label='Number of articles')
+        
+        if not df2.empty:
+            ax1.plot(df2_quarterly.index, df2_quarterly, color='tab:green', marker='o', label='Number of seminars')
         
         ax1.set_xlabel('Quarter')
         ax1.set_ylabel('Number of articles and seminars', color='tab:red')
