@@ -14,6 +14,7 @@ from google.cloud.bigquery import SchemaField
 from pytrends.request import TrendReq
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+from matplotlib.ticker import MaxNLocator
 import japanize_matplotlib
 
 # ここからコードを追加します。
@@ -160,9 +161,11 @@ def main():
         # 集計した記事数を描画
         if not df.empty:
             ax1.plot(df_quarterly.index, df_quarterly, color='tab:red', marker='o', label='Number of articles')
+            ax1.yaxis.set_major_locator(MaxNLocator(integer=True))
         
         if not df2.empty:
             ax1.plot(df2_quarterly.index, df2_quarterly, color='tab:green', marker='o', label='Number of seminars')
+            ax1.yaxis.set_major_locator(MaxNLocator(integer=True))
         
         ax1.set_xlabel('Quarter')
         ax1.set_ylabel('Number of articles and seminars', color='tab:red')
@@ -220,6 +223,7 @@ def main():
             color = 'tab:red'
             ax2.set_ylabel('マジセミ開催数', color=color)
             ax2.plot(df_grouped.index.to_timestamp(), df_grouped[('セミナー開催数', 'count')], marker='o',color=color)
+            ax2.yaxis.set_major_locator(MaxNLocator(integer=True))
             ax2.tick_params(axis='y', labelcolor=color)
             
             fig.tight_layout()
