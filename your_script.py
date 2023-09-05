@@ -80,6 +80,7 @@ def main():
         # 現在の日付を取得し、過去2年分の範囲を計算します。
         end_date = pd.Timestamp.now()
         start_date = end_date - pd.DateOffset(years=2)
+        current_date = pd.Timestamp.now().normalize()
 
         
         #------------Googleトレンドのデータ取得---------------------
@@ -89,6 +90,7 @@ def main():
         df_trends = pytrend.interest_over_time()
         # df_trends_quarterly = df_trends[keyword].resample('Q').sum()
         df_trends_quarterly = df_trends[keyword].resample('Q').sum().loc[start_date:end_date]
+        df_trends_quarterly = df_trends_quarterly.loc[:current_date]
                 
         # # Google Trendsのデータから最初と最後の日付を取得
         # start_date = df_trends_quarterly.index.min().strftime("%Y-%m-%d")
@@ -144,6 +146,7 @@ def main():
             df = df.set_index('date')
             # df_quarterly = df.resample('Q').count()['title'].loc['2021':]
             df_quarterly = df.resample('Q').count()['title'].loc[start_date:end_date]
+            df_quarterly = df_quarterly.loc[:current_date]
         
 
         if not df2.empty:
@@ -151,6 +154,7 @@ def main():
             df2 = df2.set_index('date')
             # df2_quarterly = df2.resample('Q').count()['title'].loc['2021':]
             df2_quarterly = df2.resample('Q').count()['title'].loc[start_date:end_date]
+            df2_quarterly = df2_quarterly.loc[:current_date]
         
         # df_trends_quarterly = df_trends[keyword].resample('Q').sum().loc['2021':]
         #
