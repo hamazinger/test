@@ -116,21 +116,33 @@ def main():
         
         rows = run_query(query)
         rows2 = run_query(query2)
-        
-        df = pd.DataFrame(rows)
-        df2 = pd.DataFrame(rows2)
 
-        # 日付列をDatetime型に変換
-        df['date'] = pd.to_datetime(df['date'])
-        df2['date'] = pd.to_datetime(df2['date'])
+        # この部分を追加
+        if not rows:
+            df = pd.DataFrame()
+        else:
+            df = pd.DataFrame(rows)
         
-        #
-        # 3ヶ月単位での集計
-        df = df.set_index('date')
-        df_quarterly = df.resample('Q').count()['title'].loc['2021':]
+        if not rows2:
+            df2 = pd.DataFrame()
+        else:
+            df2 = pd.DataFrame(rows2)
         
-        df2 = df2.set_index('date')
-        df2_quarterly = df2.resample('Q').count()['title'].loc['2021':]
+        # df = pd.DataFrame(rows)
+        # df2 = pd.DataFrame(rows2)
+
+        if not df.empty:
+            # 日付列をDatetime型に変換
+            df['date'] = pd.to_datetime(df['date'])
+            # 3ヶ月単位での集計
+            df = df.set_index('date')
+            df_quarterly = df.resample('Q').count()['title'].loc['2021':]
+        
+
+        if not df2.empty:
+            df2['date'] = pd.to_datetime(df2['date'])
+            df2 = df2.set_index('date')
+            df2_quarterly = df2.resample('Q').count()['title'].loc['2021':]
         
         df_trends_quarterly = df_trends[keyword].resample('Q').sum().loc['2021':]
         #
@@ -221,73 +233,77 @@ def main():
         
         # クエリの実行と結果の取得
         rows = run_query(query)
-        df = pd.DataFrame(rows)
+        if not rows:
+            df = pd.DataFrame()
+            st.warning("セミナーのデータが見つかりませんでした。")
+        else:
+            df = pd.DataFrame(rows)
         
         
-        # 四半期ごとにデータを集計
-        df['Quarter'] = df['Seminar_Date'].dt.to_period('Q')
-        df_grouped = df.groupby('Quarter').agg({
-            'Acquisition_Speed': ['median', lambda x: x.quantile(0.25), lambda x: x.quantile(0.75)],
-            'Seminar_Title': 'count'
-        }).rename(columns={'<lambda_0>': '1Q', '<lambda_1>': '3Q', 'Seminar_Title': 'セミナー開催数'})
+            # 四半期ごとにデータを集計
+            df['Quarter'] = df['Seminar_Date'].dt.to_period('Q')
+            df_grouped = df.groupby('Quarter').agg({
+                'Acquisition_Speed': ['median', lambda x: x.quantile(0.25), lambda x: x.quantile(0.75)],
+                'Seminar_Title': 'count'
+            }).rename(columns={'<lambda_0>': '1Q', '<lambda_1>': '3Q', 'Seminar_Title': 'セミナー開催数'})
+    
+            st.subheader('マジセミ開催実績')
+            # プロット作成
+            plt.rcParams['font.size'] = 15 # 文字サイズを設定
+            fig, ax1 = plt.subplots(figsize=(14, 7))
+            
+            color = 'tab:blue'
+            ax1.set_xlabel('Quarter')
+            ax1.set_ylabel('集客速度', color=color)
+            ax1.plot(df_grouped.index.to_timestamp(), df_grouped[('Acquisition_Speed', 'median')], marker='o',color=color, label='Median Acquisition Speed')
+            ax1.fill_between(df_grouped.index.to_timestamp(), df_grouped[('Acquisition_Speed', '1Q')], df_grouped[('Acquisition_Speed', '3Q')], color=color, alpha=0.1, label='Interquartile Range')
+            ax1.tick_params(axis='y', labelcolor=color)
+            ax1.legend(loc='upper left')
+            
+            ax2 = ax1.twinx()
+            color = 'tab:red'
+            ax2.set_ylabel('マジセミ開催数', color=color)
+            ax2.plot(df_grouped.index.to_timestamp(), df_grouped[('セミナー開催数', 'count')], marker='o',color=color)
+            ax2.tick_params(axis='y', labelcolor=color)
+            
+            fig.tight_layout()
+            plt.title(f'Average Acquisition Speed and Number of Seminars Containing "{keyword}"')
+            plt.rcParams['font.size'] = 14 # 文字サイズを設定
+            st.pyplot(fig)
+    
+    
+            # 'parse_api_result', 'keyword_extraction_api_result', 'entity_extraction_api_result'を除く
+            columns_to_exclude = ['parse_api_result', 'keyword_extraction_api_result', 'entity_extraction_api_result']
+            df_filtered = df.drop(columns=columns_to_exclude)
+            
+            # カラム名を英語から日本語に変更
+            df_filtered.rename(columns={
+                'Seminar_Date': 'セミナー開催日',
+                'Seminar_Title': 'セミナータイトル',
+                'Organizer_Name': '主催企業名',
+                'Major_Category': '大分類',
+                'Category': 'カテゴリ',
+                'Total_Participants': '合計集客人数',
+                'Acquisition_Speed': '集客速度',
+                'Action_Response_Count': 'アクション回答数',
+                'Action_Response_Rate': 'アクション回答率（%）'
+            }, inplace=True)
+    
+            # 'Seminar_Date'カラムの日付を "yyyy-mm-dd" 形式に変換
+            df_filtered['セミナー開催日'] = pd.to_datetime(df_filtered['セミナー開催日']).dt.strftime('%Y-%m-%d')
+            df_filtered['集客速度'] = df_filtered['集客速度'].round(2)
+            df_filtered['アクション回答率（%）'] = df_filtered['アクション回答率（%）'].round(2)
+            # 'Quarter' カラムを先頭に持ってくる
+            cols = ['Quarter'] + [col for col in df_filtered.columns if col != 'Quarter']
+            df_filtered = df_filtered[cols]
+            
+            # 表形式でStreamlitに出力
+            st.dataframe(df_filtered)
 
-        st.subheader('マジセミ開催実績')
-        # プロット作成
-        plt.rcParams['font.size'] = 15 # 文字サイズを設定
-        fig, ax1 = plt.subplots(figsize=(14, 7))
-        
-        color = 'tab:blue'
-        ax1.set_xlabel('Quarter')
-        ax1.set_ylabel('集客速度', color=color)
-        ax1.plot(df_grouped.index.to_timestamp(), df_grouped[('Acquisition_Speed', 'median')], marker='o',color=color, label='Median Acquisition Speed')
-        ax1.fill_between(df_grouped.index.to_timestamp(), df_grouped[('Acquisition_Speed', '1Q')], df_grouped[('Acquisition_Speed', '3Q')], color=color, alpha=0.1, label='Interquartile Range')
-        ax1.tick_params(axis='y', labelcolor=color)
-        ax1.legend(loc='upper left')
-        
-        ax2 = ax1.twinx()
-        color = 'tab:red'
-        ax2.set_ylabel('マジセミ開催数', color=color)
-        ax2.plot(df_grouped.index.to_timestamp(), df_grouped[('セミナー開催数', 'count')], marker='o',color=color)
-        ax2.tick_params(axis='y', labelcolor=color)
-        
-        fig.tight_layout()
-        plt.title(f'Average Acquisition Speed and Number of Seminars Containing "{keyword}"')
-        plt.rcParams['font.size'] = 14 # 文字サイズを設定
-        st.pyplot(fig)
 
-
-        # 'parse_api_result', 'keyword_extraction_api_result', 'entity_extraction_api_result'を除く
-        columns_to_exclude = ['parse_api_result', 'keyword_extraction_api_result', 'entity_extraction_api_result']
-        df_filtered = df.drop(columns=columns_to_exclude)
-        
-        # カラム名を英語から日本語に変更
-        df_filtered.rename(columns={
-            'Seminar_Date': 'セミナー開催日',
-            'Seminar_Title': 'セミナータイトル',
-            'Organizer_Name': '主催企業名',
-            'Major_Category': '大分類',
-            'Category': 'カテゴリ',
-            'Total_Participants': '合計集客人数',
-            'Acquisition_Speed': '集客速度',
-            'Action_Response_Count': 'アクション回答数',
-            'Action_Response_Rate': 'アクション回答率（%）'
-        }, inplace=True)
-
-        # 'Seminar_Date'カラムの日付を "yyyy-mm-dd" 形式に変換
-        df_filtered['セミナー開催日'] = pd.to_datetime(df_filtered['セミナー開催日']).dt.strftime('%Y-%m-%d')
-        df_filtered['集客速度'] = df_filtered['集客速度'].round(2)
-        df_filtered['アクション回答率（%）'] = df_filtered['アクション回答率（%）'].round(2)
-        # 'Quarter' カラムを先頭に持ってくる
-        cols = ['Quarter'] + [col for col in df_filtered.columns if col != 'Quarter']
-        df_filtered = df_filtered[cols]
-        
-        # 表形式でStreamlitに出力
-        st.dataframe(df_filtered)
-
-
-        st.write("""
-        ※集客速度は、1日あたりの平均申し込み数を表しています。
-        """)
+            st.write("""
+            ※集客速度は、1日あたりの平均申し込み数を表しています。
+            """)
 
 
 
