@@ -152,7 +152,7 @@ def main():
             # df2_quarterly = df2.resample('Q').count()['title'].loc['2021':]
             df2_quarterly = df2.resample('Q').count()['title'].loc[start_date:end_date]
         
-        df_trends_quarterly = df_trends[keyword].resample('Q').sum().loc['2021':]
+        # df_trends_quarterly = df_trends[keyword].resample('Q').sum().loc['2021':]
         #
 
         st.subheader('他社メディア記事・セミナー数&Googleトレンド')
