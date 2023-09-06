@@ -115,7 +115,7 @@ def main():
     client = bigquery.Client(credentials=credentials)
 
     if execute_button:
-        col1, col2 = st.beta_columns(2)
+        col1, col2 = st.columns(2)
         with col1:
             fetch_and_plot_data(keyword1, client)
         with col2:
