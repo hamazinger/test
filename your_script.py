@@ -18,6 +18,25 @@ from matplotlib.ticker import MaxNLocator
 import japanize_matplotlib
 import unicodedata
 
+import streamlit as st
+import os
+import time
+import pandas as pd
+import numpy as np
+from scipy.interpolate import make_interp_spline, BSpline
+from google.cloud import bigquery
+import json
+from google.oauth2 import service_account
+from google.cloud.bigquery import SchemaField
+from pytrends.request import TrendReq
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from matplotlib.ticker import MaxNLocator
+import japanize_matplotlib
+import unicodedata
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.ensemble import RandomForestRegressor
+
 # 認証情報の設定
 credentials = service_account.Credentials.from_service_account_info(
     st.secrets["gcp_service_account"]
@@ -335,5 +354,27 @@ def analyze_keyword(keyword):
 
     return f"{keyword}の分析結果"
 
+
+
+def get_related_keywords_for_input(input_keyword, num_related_keywords=5):
+    data_cleaned = data.dropna(subset=['Acquisition_Speed'])
+    subset_data = data_cleaned[data_cleaned['keyword_extraction_api_result'].str.contains(input_keyword, case=False, na=False)]
+    custom_stopwords = ["セミナー", "web", "開催", "日時", "参加", "申し込み", "無料", "オンライン"]
+    tfidf_vectorizer_subset = TfidfVectorizer(max_df=1.0, min_df=0.005, ngram_range=(1, 2), stop_words=custom_stopwords)
+    tfidf_matrix_subset = tfidf_vectorizer_subset.fit_transform(subset_data['keyword_extraction_api_result'].fillna(""))
+    X_subset = pd.DataFrame(tfidf_matrix_subset.toarray(), columns=tfidf_vectorizer_subset.get_feature_names_out())
+    y_speed_subset = subset_data['Acquisition_Speed'].values
+    rf_speed_subset = RandomForestRegressor(n_estimators=100, random_state=42)
+    rf_speed_subset.fit(X_subset, y_speed_subset)
+    feature_importances_speed_subset = rf_speed_subset.feature_importances_
+    keywords_importance_speed_subset_df = pd.DataFrame({
+        'Keyword': X_subset.columns,
+        'Importance': feature_importances_speed_subset
+    }).sort_values(by='Importance', ascending=False)
+    input_keyword_importance = keywords_importance_speed_subset_df[keywords_importance_speed_subset_df['Keyword'] == input_keyword]
+    related_keywords_subset = keywords_importance_speed_subset_df[keywords_importance_speed_subset_df['Keyword'] != input_keyword].head(num_related_keywords)
+    return input_keyword_importance, related_keywords_subset
+
+    
 if __name__ == "__main__":
     main()
