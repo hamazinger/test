@@ -1,8 +1,8 @@
 import streamlit as st
 import os
 import time
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.ensemble import RandomForestRegressor
+# from sklearn.feature_extraction.text import TfidfVectorizer
+# from sklearn.ensemble import RandomForestRegressor
 
 import numpy as np
 from scipy.interpolate import make_interp_spline, BSpline
@@ -20,24 +20,6 @@ from matplotlib.ticker import MaxNLocator
 import japanize_matplotlib
 import unicodedata
 
-import streamlit as st
-import os
-import time
-import pandas as pd
-import numpy as np
-from scipy.interpolate import make_interp_spline, BSpline
-from google.cloud import bigquery
-import json
-from google.oauth2 import service_account
-from google.cloud.bigquery import SchemaField
-from pytrends.request import TrendReq
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-from matplotlib.ticker import MaxNLocator
-import japanize_matplotlib
-import unicodedata
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.ensemble import RandomForestRegressor
 
 # 認証情報の設定
 credentials = service_account.Credentials.from_service_account_info(
