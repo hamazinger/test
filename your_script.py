@@ -67,11 +67,19 @@ def main():
         st.write("## キーワード1の結果")
         result1 = analyze_keyword(keyword1)
         # st.write(result1)
+        st.write("### キーワード1に関連するキーワードの集客速度への影響")
+        input_keyword_importance1, related_keywords_result1 = get_related_keywords_for_input(keyword1)
+        st.write(related_keywords_result1)
 
         # キーワード2に基づくデータ取得および分析
         st.write("## キーワード2の結果")
         result2 = analyze_keyword(keyword2)
+        st.write("### キーワード2に関連するキーワードの集客速度への影響")
+        input_keyword_importance2, related_keywords_result2 = get_related_keywords_for_input(keyword2)
+        st.write(related_keywords_result2)
         # st.write(result2)
+
+
 
 def analyze_keyword(keyword):
     keywords = [keyword]  # 単一のキーワードをリストに変換
