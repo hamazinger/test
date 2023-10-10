@@ -45,14 +45,14 @@ def main():
         keyword2 = unicodedata.normalize('NFKC', keyword_input2.strip().lower())
 
         # キーワード1に基づくデータ取得および分析
+        st.write("## キーワード1の結果")
         result1 = analyze_keyword(keyword1)
-        st.write("### キーワード1の結果")
-        st.write(result1)
+        # st.write(result1)
 
         # キーワード2に基づくデータ取得および分析
+        st.write("## キーワード2の結果")
         result2 = analyze_keyword(keyword2)
-        st.write("### キーワード2の結果")
-        st.write(result2)
+        # st.write(result2)
 
 def analyze_keyword(keyword):
     keywords = [keyword]  # 単一のキーワードをリストに変換
