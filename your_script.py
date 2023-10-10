@@ -21,14 +21,37 @@ import unicodedata
 # ここからコードを追加します。
 def main():
     st.title("キーワード分析")
-    # keyword = st.text_input("キーワードを入力（カンマ区切りで複数入力可能）")
-    # 1. キーワード入力部分
-    keyword_input = st.text_input("キーワードをカンマで区切って複数入力可能（例：python,java）")
+
+    # 2つのキーワード入力ボックスを配置
+    keyword_input1 = st.text_input("キーワード1を入力")
+    keyword_input2 = st.text_input("キーワード2を入力")
     execute_button = st.button("分析を実行")
-    # キーワードの分割と正規化
-    # keywords = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keyword.split(",")]
-    # 2. 入力されたキーワードをリストに変換
-    keywords = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keyword_input.split(",")]
+
+    if execute_button:
+        # それぞれのキーワードの取得と正規化
+        keyword1 = unicodedata.normalize('NFKC', keyword_input1.strip().lower())
+        keyword2 = unicodedata.normalize('NFKC', keyword_input2.strip().lower())
+
+        # キーワード1に基づくデータ取得および分析
+        result1 = analyze_keyword(keyword1)
+        st.write("### キーワード1の結果")
+        st.write(result1)
+
+        # キーワード2に基づくデータ取得および分析
+        result2 = analyze_keyword(keyword2)
+        st.write("### キーワード2の結果")
+        st.write(result2)
+
+
+    # st.title("キーワード分析")
+    # # keyword = st.text_input("キーワードを入力（カンマ区切りで複数入力可能）")
+    # # 1. キーワード入力部分
+    # keyword_input = st.text_input("キーワードをカンマで区切って複数入力可能（例：python,java）")
+    # execute_button = st.button("分析を実行")
+    # # キーワードの分割と正規化
+    # # keywords = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keyword.split(",")]
+    # # 2. 入力されたキーワードをリストに変換
+    # keywords = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keyword_input.split(",")]
 
 
     # 変数の設定
@@ -42,25 +65,11 @@ def main():
     )
     client = bigquery.Client(credentials=credentials)
 
-    # 残りのコードをここに追加します。
-    # import openai
-
-    # openai.api_key = st.secrets["openai"]["api_key"]
-    
-    # def get_related_terms(token, topn=20):
-    #     """
-    #     Look up the topn most similar terms to token and print them as a formatted list.
-    #     """
-    #     response = openai.Completion.create(
-    #         engine="text-davinci-002",
-    #         prompt=f"'{token}' と同じ意味で使われる単語（日本語）を {topn} 個リストアップして、改行せずにカンマ区切りで出力してください。",
-    #         temperature=0.3,
-    #         max_tokens=60
-    #     )
-        
-    #     related_terms = response.choices[0].text.strip().split(', ')
-    
-    #     return related_terms
+def analyze_keyword(keyword):
+    # ここにキーワードに基づくデータ取得および分析のロジックを実装
+    # 最初に提供されたコードのロジックを使用
+    # この関数はキーワードを引数として受け取り、分析結果を返す
+    # TODO: 実際のロジックをここに実装
     
     # Use st.cache_data to only rerun when the query changes or after 10 min.
     @st.cache_data(ttl=600)
@@ -389,6 +398,8 @@ def main():
             st.write("""
             ※集客速度は、1日あたりの平均申し込み数を表しています。
             """)
+
+            return f"{keyword}の分析結果"
 
 
 
