@@ -34,34 +34,59 @@ def run_query(query):
     rows = [dict(row) for row in rows_raw]
     return rows
 
+# def main():
+#     st.title("キーワード分析")
+
+#     # 2つのキーワード入力ボックスを配置
+#     keyword_input1 = st.text_input("キーワード1を入力")
+#     keyword_input2 = st.text_input("キーワード2を入力")
+#     execute_button = st.button("分析を実行")
+
+#     if execute_button:
+#         # それぞれのキーワードの取得と正規化
+#         keyword1 = unicodedata.normalize('NFKC', keyword_input1.strip().lower())
+#         keyword2 = unicodedata.normalize('NFKC', keyword_input2.strip().lower())
+
+#         # キーワード1に基づくデータ取得および分析
+#         st.write("## キーワード1の結果")
+#         result1 = analyze_keyword(keyword1)
+#         # st.write(result1)
+#         # st.write("### キーワード1に関連するキーワードの集客速度への影響")
+#         # input_keyword_importance1, related_keywords_result1 = get_related_keywords_for_input(keyword1)
+#         # st.write(related_keywords_result1)
+
+#         # キーワード2に基づくデータ取得および分析
+#         st.write("## キーワード2の結果")
+#         result2 = analyze_keyword(keyword2)
+#         # st.write("### キーワード2に関連するキーワードの集客速度への影響")
+#         # input_keyword_importance2, related_keywords_result2 = get_related_keywords_for_input(keyword2)
+#         # st.write(related_keywords_result2)
+#         # # st.write(result2)
+
+
+#---------------------------------
+
 def main():
     st.title("キーワード分析")
 
-    # 2つのキーワード入力ボックスを配置
-    keyword_input1 = st.text_input("キーワード1を入力")
-    keyword_input2 = st.text_input("キーワード2を入力")
+    # キーワード入力ボックスの配置と注意書きの追加
+    st.write("※複数キーワードを検索する場合はカンマ区切りで入力してください。")
+    keyword_input1 = st.text_input("キーワード1を入力（例: AI,機械学習）")
+    keyword_input2 = st.text_input("キーワード2を入力（例: データ分析,ビッグデータ）")
     execute_button = st.button("分析を実行")
 
     if execute_button:
-        # それぞれのキーワードの取得と正規化
-        keyword1 = unicodedata.normalize('NFKC', keyword_input1.strip().lower())
-        keyword2 = unicodedata.normalize('NFKC', keyword_input2.strip().lower())
+        # キーワードの取得と正規化、さらにカンマで分割してリスト化
+        keywords1 = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keyword_input1.split(',')]
+        keywords2 = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keyword_input2.split(',')]
+        
+        # キーワード1とキーワード2のリストを結合
+        combined_keywords = list(set(keywords1 + keywords2))  # 重複を避けるためsetに変換してからリストに戻す
 
-        # キーワード1に基づくデータ取得および分析
-        st.write("## キーワード1の結果")
-        result1 = analyze_keyword(keyword1)
-        # st.write(result1)
-        # st.write("### キーワード1に関連するキーワードの集客速度への影響")
-        # input_keyword_importance1, related_keywords_result1 = get_related_keywords_for_input(keyword1)
-        # st.write(related_keywords_result1)
-
-        # キーワード2に基づくデータ取得および分析
-        st.write("## キーワード2の結果")
-        result2 = analyze_keyword(keyword2)
-        # st.write("### キーワード2に関連するキーワードの集客速度への影響")
-        # input_keyword_importance2, related_keywords_result2 = get_related_keywords_for_input(keyword2)
-        # st.write(related_keywords_result2)
-        # # st.write(result2)
+        # キーワードに基づくデータ取得および分析
+        st.write("## キーワードの結果")
+        result = analyze_keyword(combined_keywords)
+        st.write(result)
 
 
 
