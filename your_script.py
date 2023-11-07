@@ -61,11 +61,8 @@ def main():
         st.write("## キーワード1の結果")
         result1 = analyze_keyword(keyword1)
 
-        # キーワード2に基づくデータ取得および分析
-        st.write("## キーワード2の結果")
-        result2 = analyze_keyword(keyword2)
-
-        #--------------11/7(火)追加----------------------
+        
+        #--------------↓11/7(火)追加↓----------------------
         # キーワード1に基づくタイトルの検索結果
         st.write("### キーワード1に基づく記事の検索結果")
         results_articles_kw1 = search_titles_with_keyword(keyword1, 'mythical-envoy-386309.ex_media.article')
@@ -81,6 +78,13 @@ def main():
             st.write(pd.DataFrame(results_seminars_kw1))
         else:
             st.write("キーワード1にマッチするセミナーはありませんでした。")
+        #--------------↑11/7(火)追加↑----------------------
+
+        # キーワード2に基づくデータ取得および分析
+        st.write("## キーワード2の結果")
+        result2 = analyze_keyword(keyword2)
+
+        #--------------↓11/7(火)追加↓----------------------
 
         # キーワード2に基づくタイトルの検索結果
         st.write("### キーワード2に基づく記事の検索結果")
@@ -97,7 +101,7 @@ def main():
             st.write(pd.DataFrame(results_seminars_kw2))
         else:
             st.write("キーワード2にマッチするセミナーはありませんでした。")
-        #---------------------------------
+        #--------------↑11/7(火)追加↑----------------------
 
 
 
