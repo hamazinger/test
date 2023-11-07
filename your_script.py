@@ -27,6 +27,16 @@ credentials = service_account.Credentials.from_service_account_info(
 )
 client = bigquery.Client(credentials=credentials)
 
+def search_titles_with_keyword(keyword, table_name):
+    # クエリを構築してタイトルにキーワードが含まれるレコードを検索
+    query = f"""
+    SELECT *
+    FROM `{table_name}`
+    WHERE LOWER(title) LIKE '%{keyword}%'
+    """
+    results = run_query(query)
+    return results
+
 @st.cache(ttl=600)
 def run_query(query):
     query_job = client.query(query)
@@ -50,44 +60,44 @@ def main():
         # キーワード1に基づくデータ取得および分析
         st.write("## キーワード1の結果")
         result1 = analyze_keyword(keyword1)
-        # st.write(result1)
-        # st.write("### キーワード1に関連するキーワードの集客速度への影響")
-        # input_keyword_importance1, related_keywords_result1 = get_related_keywords_for_input(keyword1)
-        # st.write(related_keywords_result1)
 
         # キーワード2に基づくデータ取得および分析
         st.write("## キーワード2の結果")
         result2 = analyze_keyword(keyword2)
-        # st.write("### キーワード2に関連するキーワードの集客速度への影響")
-        # input_keyword_importance2, related_keywords_result2 = get_related_keywords_for_input(keyword2)
-        # st.write(related_keywords_result2)
-        # # st.write(result2)
 
+        #--------------11/7(火)追加----------------------
+        # キーワード1に基づくタイトルの検索結果
+        st.write("### キーワード1に基づく記事の検索結果")
+        results_articles_kw1 = search_titles_with_keyword(keyword1, 'mythical-envoy-386309.ex_media.article')
+        if results_articles_kw1:
+            st.write(pd.DataFrame(results_articles_kw1))
+        else:
+            st.write("キーワード1にマッチする記事はありませんでした。")
 
-#---------------------------------
+        # キーワード1に基づくセミナーの検索結果
+        st.write("### キーワード1に基づくセミナーの検索結果")
+        results_seminars_kw1 = search_titles_with_keyword(keyword1, 'mythical-envoy-386309.ex_media.seminar')
+        if results_seminars_kw1:
+            st.write(pd.DataFrame(results_seminars_kw1))
+        else:
+            st.write("キーワード1にマッチするセミナーはありませんでした。")
 
-#11/7(火)編集
-# def main():
-#     st.title("キーワード分析")
+        # キーワード2に基づくタイトルの検索結果
+        st.write("### キーワード2に基づく記事の検索結果")
+        results_articles_kw2 = search_titles_with_keyword(keyword2, 'mythical-envoy-386309.ex_media.article')
+        if results_articles_kw2:
+            st.write(pd.DataFrame(results_articles_kw2))
+        else:
+            st.write("キーワード2にマッチする記事はありませんでした。")
 
-#     # キーワード入力ボックスの配置と注意書きの追加
-#     st.write("※複数キーワードを検索する場合はカンマ区切りで入力してください。")
-#     keyword_input1 = st.text_input("キーワード1を入力（例: AI,機械学習）")
-#     keyword_input2 = st.text_input("キーワード2を入力（例: データ分析,ビッグデータ）")
-#     execute_button = st.button("分析を実行")
-
-#     if execute_button:
-#         # キーワードの取得と正規化、さらにカンマで分割してリスト化
-#         keywords1 = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keyword_input1.split(',')]
-#         keywords2 = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keyword_input2.split(',')]
-        
-#         # キーワード1とキーワード2のリストを結合
-#         combined_keywords = list(set(keywords1 + keywords2))  # 重複を避けるためsetに変換してからリストに戻す
-
-#         # キーワードに基づくデータ取得および分析
-#         st.write("## キーワードの結果")
-#         result = analyze_keyword(combined_keywords)
-#         st.write(result)
+        # キーワード2に基づくセミナーの検索結果
+        st.write("### キーワード2に基づくセミナーの検索結果")
+        results_seminars_kw2 = search_titles_with_keyword(keyword2, 'mythical-envoy-386309.ex_media.seminar')
+        if results_seminars_kw2:
+            st.write(pd.DataFrame(results_seminars_kw2))
+        else:
+            st.write("キーワード2にマッチするセミナーはありませんでした。")
+        #---------------------------------
 
 
 
@@ -125,39 +135,12 @@ def analyze_keyword(keyword):
     
     combined_query_for_article = " AND ".join(queries_for_article)
 
-
-    # query = f"""
-    # SELECT *
-    # FROM `mythical-envoy-386309.majisemi.business_it_article_api`
-    # WHERE tag = "{keyword}"
-    #    OR CONCAT(',', parse_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
-    #    OR CONCAT(',', keyword_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
-    #    OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
-    # """
-
     query = f"""
     SELECT *
     FROM `mythical-envoy-386309.majisemi.business_it_article_api`
     WHERE {combined_query_for_article}
     """
     
-    # query2 = f"""
-    # SELECT *
-    # FROM `mythical-envoy-386309.majisemi.bussiness_it_seminar_api`
-    # WHERE CONCAT(',', parse_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
-    #    OR CONCAT(',', keyword_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
-    #    OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
-    # """
-
-    # queries_for_seminar = []
-    # for k in keywords:
-    #     queries_for_seminar.append(f"""
-    #     CONCAT(',', parse_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
-    #     OR CONCAT(',', keyword_extraction_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
-    #     OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{k}", ',%')
-    #     """)
-
-    # combined_query = " AND ".join(queries_for_seminar)
 
     queries_for_seminar = []
     for k in keywords:
@@ -247,16 +230,6 @@ def analyze_keyword(keyword):
 
 
     #-----------セミナー結果出力----------------------
-    # query = f"""
-    # SELECT *
-    # FROM `mythical-envoy-386309.majisemi.majisemi_seminar_api`
-    # WHERE Major_Category = "{keyword}"
-    #    OR Category = "{keyword}"
-    #    OR CONCAT(',', parse_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
-    #    OR CONCAT(',', keyword_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
-    #    OR CONCAT(',', entity_extraction_api_result, ',') LIKE CONCAT('%,', "{keyword}", ',%')
-    #    AND Seminar_Date BETWEEN '{start_date}' AND '{end_date}'
-    # """
 
     queries_for_seminar = []
     for k in keywords:
@@ -290,13 +263,6 @@ def analyze_keyword(keyword):
     else:
         df = pd.DataFrame(rows)
     
-    
-        # 四半期ごとにデータを集計
-        # df['Quarter'] = df['Seminar_Date'].dt.to_period('Q')
-        # df_grouped = df.groupby('Quarter').agg({
-        #     'Acquisition_Speed': ['median', lambda x: x.quantile(0.25), lambda x: x.quantile(0.75)],
-        #     'Seminar_Title': 'count'
-        # }).rename(columns={'<lambda_0>': '1Q', '<lambda_1>': '3Q', 'Seminar_Title': 'セミナー開催数'})
 
         # 四半期ごとにデータを集計
         df['Quarter'] = df['Seminar_Date'].dt.to_period('Q')
@@ -372,26 +338,6 @@ def analyze_keyword(keyword):
 
     return f"{keyword}の分析結果"
 
-
-
-# def get_related_keywords_for_input(input_keyword, num_related_keywords=5):
-#     data_cleaned = data.dropna(subset=['Acquisition_Speed'])
-#     subset_data = data_cleaned[data_cleaned['keyword_extraction_api_result'].str.contains(input_keyword, case=False, na=False)]
-#     custom_stopwords = ["セミナー", "web", "開催", "日時", "参加", "申し込み", "無料", "オンライン"]
-#     tfidf_vectorizer_subset = TfidfVectorizer(max_df=1.0, min_df=0.005, ngram_range=(1, 2), stop_words=custom_stopwords)
-#     tfidf_matrix_subset = tfidf_vectorizer_subset.fit_transform(subset_data['keyword_extraction_api_result'].fillna(""))
-#     X_subset = pd.DataFrame(tfidf_matrix_subset.toarray(), columns=tfidf_vectorizer_subset.get_feature_names_out())
-#     y_speed_subset = subset_data['Acquisition_Speed'].values
-#     rf_speed_subset = RandomForestRegressor(n_estimators=100, random_state=42)
-#     rf_speed_subset.fit(X_subset, y_speed_subset)
-#     feature_importances_speed_subset = rf_speed_subset.feature_importances_
-#     keywords_importance_speed_subset_df = pd.DataFrame({
-#         'Keyword': X_subset.columns,
-#         'Importance': feature_importances_speed_subset
-#     }).sort_values(by='Importance', ascending=False)
-#     input_keyword_importance = keywords_importance_speed_subset_df[keywords_importance_speed_subset_df['Keyword'] == input_keyword]
-#     related_keywords_subset = keywords_importance_speed_subset_df[keywords_importance_speed_subset_df['Keyword'] != input_keyword].head(num_related_keywords)
-#     return input_keyword_importance, related_keywords_subset
 
     
 if __name__ == "__main__":
