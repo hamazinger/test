@@ -103,45 +103,47 @@ def analyze_keyword(keyword):
     df_trends_combined = df_trends[keywords].sum(axis=1)
     df_trends_quarterly = df_trends_combined.resample('Q').sum()
 
-    # タイトル検索
+    # 記事とセミナーの検索
     articles_query = f"""
-    SELECT *
+    SELECT TIMESTAMP_TRUNC(publish_date, QUARTER) as quarter, COUNT(*) as count
     FROM `mythical-envoy-386309.ex_media.article`
-    WHERE REGEXP_CONTAINS(title, r'\\b{keyword}\\b')
+    WHERE title LIKE '%{keyword}%'
+    GROUP BY quarter
+    ORDER BY quarter
     """
     articles = run_query(articles_query)
+    df_articles = pd.DataFrame(articles)
 
     seminar_query = f"""
-    SELECT *
+    SELECT TIMESTAMP_TRUNC(event_date, QUARTER) as quarter, COUNT(*) as count
     FROM `mythical-envoy-386309.ex_media.seminar`
-    WHERE REGEXP_CONTAINS(title, r'\\b{keyword}\\b')
+    WHERE title LIKE '%{keyword}%'
+    GROUP BY quarter
+    ORDER BY quarter
     """
     seminars = run_query(seminar_query)
-
-    # 結果をデータフレームに変換
-    df_articles = pd.DataFrame(articles)
     df_seminars = pd.DataFrame(seminars)
 
-    # Google Trendsグラフの描画
-    st.subheader('Google Trends')
-    plt.figure(figsize=(10, 4))
-    plt.plot(df_trends_quarterly.index, df_trends_quarterly, color='blue', marker='o')
-    plt.title(f'Google Trends for "{keyword}"')
-    plt.xlabel('Date')
-    plt.ylabel('Trends Score')
-    st.pyplot(plt)
+    # Google Trendsグラフと記事・セミナー数の描画
+    st.subheader(f'Google Trends and Number of Articles/Seminars for "{keyword}"')
+    plt.figure(figsize=(10, 6))
 
-    # 記事とセミナーの結果の表示
+    # Google Trends
+    plt.plot(df_trends_quarterly.index, df_trends_quarterly, color='blue', marker='o', label='Google Trends')
+
+    # 記事数
     if not df_articles.empty:
-        st.subheader('関連記事')
-        st.dataframe(df_articles)
+        plt.plot(pd.to_datetime(df_articles['quarter']), df_articles['count'], color='green', marker='x', label='Articles')
 
+    # セミナー数
     if not df_seminars.empty:
-        st.subheader('関連セミナー')
-        st.dataframe(df_seminars)
+        plt.plot(pd.to_datetime(df_seminars['quarter']), df_seminars['count'], color='red', marker='^', label='Seminars')
 
-    if df_articles.empty and df_seminars.empty:
-        st.write(f'"{keyword}"に関連する記事やセミナーは見つかりませんでした。')
+    plt.title(f'Google Trends and Number of Articles/Seminars for "{keyword}"')
+    plt.xlabel('Quarter')
+    plt.ylabel('Counts/Trends Score')
+    plt.legend()
+    st.pyplot(plt)
 
     return f"{keyword}の分析結果"
 
