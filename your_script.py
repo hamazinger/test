@@ -82,9 +82,31 @@ def analyze_keyword(keywords):
     plt.title(f'Google Trends and Number of Articles/Seminars for "{", ".join(keywords)}"')
     st.pyplot(plt)
 
-    # マジセミセミナー情報の取得
+    # 検索条件に一致した記事・セミナーの一覧
+    articles_full_query = f"""
+    SELECT *
+    FROM `mythical-envoy-386309.ex_media.article`
+    WHERE {combined_condition}
+    """
+    df_articles_full = pd.DataFrame(run_query(articles_full_query))
+
+    seminars_full_query = f"""
+    SELECT *
+    FROM `mythical-envoy-386309.ex_media.seminar`
+    WHERE {combined_condition}
+    """
+    df_seminars_full = pd.DataFrame(run_query(seminars_full_query))
+
+    st.subheader('Matched Articles')
+    st.dataframe(df_articles_full)
+
+    st.subheader('Matched Seminars')
+    st.dataframe(df_seminars_full)
+
+    # マジセミセミナーの検索条件
     conditions_majisemi = [f"REGEXP_CONTAINS(Seminar_Title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords]
     combined_condition_majisemi = ' AND '.join(conditions_majisemi)
+
     seminar_query = f"""
     SELECT *
     FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
@@ -93,8 +115,33 @@ def analyze_keyword(keywords):
     """
     df_seminar = pd.DataFrame(run_query(seminar_query))
 
-    # セミナー情報の表示
     if not df_seminar.empty:
+        df_seminar['Quarter'] = pd.to_datetime(df_seminar['Seminar_Date']).dt.to_period('Q')
+        df_grouped = df_seminar.groupby('Quarter').agg({
+            'Acquisition_Speed': ['median', lambda x: x.quantile(0.25), lambda x: x.quantile(0.75)],
+            'Seminar_Title': 'count'
+        })
+
+        df_grouped.columns = ['Median_Speed', 'Q1_Speed', 'Q3_Speed', 'Num_Seminars']
+
+        plt.figure(figsize=(14, 7))
+        ax1 = plt.gca()
+        ax2 = ax1.twinx()
+
+        ax1.plot(df_grouped.index.to_timestamp(), df_grouped['Median_Speed'], marker='o', color='blue', label='Median Acquisition Speed')
+        ax1.fill_between(df_grouped.index.to_timestamp(), df_grouped['Q1_Speed'], df_grouped['Q3_Speed'], color='blue', alpha=0.1, label='Interquartile Range')
+        ax1.set_xlabel('Quarter')
+        ax1.set_ylabel('Acquisition Speed', color='blue')
+        ax1.tick_params(axis='y', labelcolor='blue')
+        ax1.legend(loc='upper left')
+
+        ax2.plot(df_grouped.index.to_timestamp(), df_grouped['Num_Seminars'], marker='o', color='red', label='Number of Seminars')
+        ax2.set_ylabel('Number of Seminars', color='red')
+        ax2.tick_params(axis='y', labelcolor='red')
+        ax2.legend(loc='upper right')
+
+        st.pyplot(plt)
+
         st.subheader('Matched Majisemi Seminars')
         st.dataframe(df_seminar)
     else:
