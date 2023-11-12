@@ -149,6 +149,13 @@ def analyze_keyword(keywords):
 
     return f"Analysis results for {', '.join(keywords)}"
 
+def convert_df_to_html_with_links(df, url_col_name):
+    df_html = df.to_html(escape=False)
+    for idx, row in df.iterrows():
+        url = row[url_col_name]
+        df_html = df_html.replace(url, f'<a href="{url}" target="_blank">{url}</a>')
+    return df_html
+
 def main():
     st.title("キーワード分析")
 
@@ -160,13 +167,30 @@ def main():
         keyword1 = unicodedata.normalize('NFKC', keyword_input1.strip().lower())
         keyword2 = unicodedata.normalize('NFKC', keyword_input2.strip().lower())
 
+        # st.write("## キーワード1の結果")
+        # result1 = analyze_keyword(keyword1)
+        # st.write(result1)
+
+        # st.write("## キーワード2の結果")
+        # result2 = analyze_keyword(keyword2)
+        # st.write(result2)
         st.write("## キーワード1の結果")
         result1 = analyze_keyword(keyword1)
         st.write(result1)
 
+        # 検索条件に一致した記事の一覧を表示（リンク付き）
+        st.markdown("### Matched Articles")
+        html_articles = convert_df_to_html_with_links(df_articles_full, 'url')
+        st.markdown(html_articles, unsafe_allow_html=True)
+
         st.write("## キーワード2の結果")
         result2 = analyze_keyword(keyword2)
         st.write(result2)
+
+        # 検索条件に一致したセミナーの一覧を表示（リンク付き）
+        st.markdown("### Matched Seminars")
+        html_seminars = convert_df_to_html_with_links(df_seminars_full, 'url')
+        st.markdown(html_seminars, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
