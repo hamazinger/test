@@ -65,20 +65,29 @@ def analyze_keyword(keywords):
     df_seminars = pd.DataFrame(run_query(seminars_query))
     df_seminars_quarterly = df_seminars.set_index('quarter').resample('Q').sum().loc[start_date:end_date]
 
+    # プロットの描画
     plt.figure(figsize=(12, 6))
     ax1 = plt.gca()
     ax2 = ax1.twinx()
-
-    ax1.plot(df_articles_quarterly.index, df_articles_quarterly['count'], color='green', marker='x', label='Articles')
-    ax1.plot(df_seminars_quarterly.index, df_seminars_quarterly['count'], color='red', marker='^', label='Seminars')
+    
+    if not df_articles.empty:
+        ax1.plot(df_articles_quarterly.index, df_articles_quarterly['count'], color='green', marker='x', label='Articles')
+    else:
+        st.write("No article count data found.")
+    
+    if not df_seminars.empty:
+        ax1.plot(df_seminars_quarterly.index, df_seminars_quarterly['count'], color='red', marker='^', label='Seminars')
+    else:
+        st.write("No seminar count data found.")
+    
     ax1.set_xlabel('Quarter')
     ax1.set_ylabel('Counts of Articles and Seminars', color='black')
     ax1.legend(loc='upper left')
-
+    
     ax2.plot(df_trends_quarterly.index, df_trends_quarterly, color='blue', marker='o', label='Google Trends')
     ax2.set_ylabel('Google Trends Score', color='blue')
     ax2.legend(loc='upper right')
-
+    
     plt.title(f'Google Trends and Number of Articles/Seminars for "{", ".join(keywords)}"')
     st.pyplot(plt)
 
