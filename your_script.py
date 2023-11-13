@@ -53,7 +53,13 @@ def analyze_keyword(keywords):
     ORDER BY quarter
     """
     df_articles = pd.DataFrame(run_query(articles_query))
-    df_articles_quarterly = df_articles.set_index('quarter').resample('Q').sum().loc[start_date:end_date]
+    # df_articles_quarterly = df_articles.set_index('quarter').resample('Q').sum().loc[start_date:end_date]
+
+    # エラーハンドリングを追加
+    if not df_articles.empty and 'quarter' in df_articles.columns:
+        df_articles_quarterly = df_articles.set_index('quarter').resample('Q').sum().loc[start_date:end_date]
+    else:
+        df_articles_quarterly = pd.DataFrame()  # 空のデータフレームを作成
 
     seminars_query = f"""
     SELECT TIMESTAMP_TRUNC(date, QUARTER) as quarter, COUNT(*) as count
@@ -63,7 +69,13 @@ def analyze_keyword(keywords):
     ORDER BY quarter
     """
     df_seminars = pd.DataFrame(run_query(seminars_query))
-    df_seminars_quarterly = df_seminars.set_index('quarter').resample('Q').sum().loc[start_date:end_date]
+    # df_seminars_quarterly = df_seminars.set_index('quarter').resample('Q').sum().loc[start_date:end_date]
+
+    # エラーハンドリングを追加
+    if not df_seminars.empty and 'quarter' in df_seminars.columns:
+        df_seminars_quarterly = df_seminars.set_index('quarter').resample('Q').sum().loc[start_date:end_date]
+    else:
+        df_seminars_quarterly = pd.DataFrame()  # 空のデータフレームを作成
 
     # プロットの描画
     plt.figure(figsize=(12, 6))
