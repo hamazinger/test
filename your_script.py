@@ -97,11 +97,17 @@ def analyze_keyword(keywords):
     """
     df_seminars_full = pd.DataFrame(run_query(seminars_full_query))
 
-    st.subheader('Matched Articles')
-    st.dataframe(df_articles_full)
-
-    st.subheader('Matched Seminars')
-    st.dataframe(df_seminars_full)
+    if not df_articles_full.empty:
+        st.subheader('Matched Articles')
+        st.dataframe(df_articles_full)
+    else:
+        st.write("No matched articles found.")
+    
+    if not df_seminars_full.empty:
+        st.subheader('Matched Seminars')
+        st.dataframe(df_seminars_full)
+    else:
+        st.write("No matched seminars found.")
 
     # マジセミセミナーの検索条件
     conditions_majisemi = [f"REGEXP_CONTAINS(Seminar_Title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords]
