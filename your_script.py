@@ -202,8 +202,8 @@ def analyze_keyword(keywords):
 def main():
     st.title("キーワード分析")
 
-    keyword_input1 = st.text_input("キーワード1を入力（カンマ区切りでand検索可能（例：AI, ChatGPT）)")
-    keyword_input2 = st.text_input("キーワード2を入力（カンマ区切りでand検索可能（例：AI, ChatGPT）)")
+    keyword_input1 = st.text_input("キーワード1を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
+    keyword_input2 = st.text_input("キーワード2を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
     execute_button = st.button("分析を実行")
 
     if execute_button:
