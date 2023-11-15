@@ -171,8 +171,22 @@ def analyze_keyword(keywords):
 
         st.pyplot(plt)
 
-        st.subheader('Matched Majisemi Seminars')
+        st.subheader('検索条件に一致したマジセミのセミナー一覧')
+        df_seminar.rename(columns={
+            'Seminar_Date': 'セミナー開催日',
+            'Seminar_Title': 'セミナータイトル',
+            'Organizer_Name': '主催企業名',
+            'Major_Category': '大分類',
+            'Category': 'カテゴリ',
+            'Total_Participants': '合計集客人数',
+            'Acquisition_Speed': '集客速度',
+            'Action_Response_Count': 'アクション回答数',
+            'Action_Response_Rate': 'アクション回答率（%）'
+        }, inplace=True)
         st.dataframe(df_seminar)
+        st.write("""
+        ※集客速度は、1日あたりの平均申し込み数を表しています。
+        """)
     else:
         st.write("No matched seminars found.")
 
@@ -188,8 +202,8 @@ def analyze_keyword(keywords):
 def main():
     st.title("キーワード分析")
 
-    keyword_input1 = st.text_input("キーワード1を入力")
-    keyword_input2 = st.text_input("キーワード2を入力")
+    keyword_input1 = st.text_input("キーワード1を入力（カンマ区切りでand検索可能（例：AI, ChatGPT）)")
+    keyword_input2 = st.text_input("キーワード2を入力（カンマ区切りでand検索可能（例：AI, ChatGPT）)")
     execute_button = st.button("分析を実行")
 
     if execute_button:
