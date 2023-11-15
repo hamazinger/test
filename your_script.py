@@ -119,13 +119,13 @@ def analyze_keyword(keywords):
     df_seminars_full = pd.DataFrame(run_query(seminars_full_query))
 
     if not df_articles_full.empty:
-        st.subheader('Matched Articles')
+        st.subheader('検索条件に一致した記事')
         st.dataframe(df_articles_full)
     else:
         st.write("No matched articles found.")
     
     if not df_seminars_full.empty:
-        st.subheader('Matched Seminars')
+        st.subheader('検索条件に一致したセミナー')
         st.dataframe(df_seminars_full)
     else:
         st.write("No matched seminars found.")
@@ -141,6 +141,8 @@ def analyze_keyword(keywords):
        AND Seminar_Date BETWEEN '{start_date}' AND '{end_date}'
     """
     df_seminar = pd.DataFrame(run_query(seminar_query))
+
+    st.subheader('マジセミ開催実績')
 
     if not df_seminar.empty:
         df_seminar['Quarter'] = pd.to_datetime(df_seminar['Seminar_Date']).dt.to_period('Q')
