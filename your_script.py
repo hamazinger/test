@@ -205,18 +205,38 @@ def main():
     keyword_input2 = st.text_input("キーワード2を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
     execute_button = st.button("分析を実行")
 
+    # if execute_button:
+    #     if keyword_input1:
+    #         keyword1 = unicodedata.normalize('NFKC', keyword_input1.strip().lower())
+    #         st.write("## キーワード1の結果")
+    #         result1 = analyze_keyword(keyword1)
+    #         st.write(result1)
+        
+    #     if keyword_input2:
+    #         keyword2 = unicodedata.normalize('NFKC', keyword_input2.strip().lower())
+    #         st.write("## キーワード2の結果")
+    #         result2 = analyze_keyword(keyword2)
+    #         st.write(result2)
+
     if execute_button:
+        # 画面を2つの列に分ける
+        col1, col2 = st.beta_columns(2)
+
+        # キーワード1の分析結果を左の列に表示
         if keyword_input1:
             keyword1 = unicodedata.normalize('NFKC', keyword_input1.strip().lower())
-            st.write("## キーワード1の結果")
-            result1 = analyze_keyword(keyword1)
-            st.write(result1)
-        
+            with col1:
+                st.write(f"## キーワード1: {keyword1} の結果")
+                result1 = analyze_keyword(keyword1)
+                st.write(result1)
+
+        # キーワード2の分析結果を右の列に表示
         if keyword_input2:
             keyword2 = unicodedata.normalize('NFKC', keyword_input2.strip().lower())
-            st.write("## キーワード2の結果")
-            result2 = analyze_keyword(keyword2)
-            st.write(result2)
+            with col2:
+                st.write(f"## キーワード2: {keyword2} の結果")
+                result2 = analyze_keyword(keyword2)
+                st.write(result2)
 
 if __name__ == "__main__":
     main()
