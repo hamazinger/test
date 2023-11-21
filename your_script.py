@@ -197,6 +197,8 @@ def analyze_keyword(keywords):
 
     return f"Analysis results for {', '.join(keywords)}"
 
+# Streamlitのページ設定
+st.set_page_config(layout="wide")
 
 def main():
     st.title("キーワード分析")
@@ -220,7 +222,7 @@ def main():
 
     if execute_button:
         # 画面を2つの列に分ける
-        col1, col2 = st.columns([3,2])
+        col1, col2 = st.columns(2)
 
         # キーワード1の分析結果を左の列に表示
         if keyword_input1:
