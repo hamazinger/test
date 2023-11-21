@@ -219,12 +219,9 @@ def main():
     #         result2 = analyze_keyword(keyword2)
     #         st.write(result2)
 
-    # Streamlitのページ設定
-    st.set_page_config(layout="wide")
-
     if execute_button:
         # 画面を2つの列に分ける
-        col1, col2 = st.columns(2)
+        col1, col2 = st.columns([1,1])
 
         # キーワード1の分析結果を左の列に表示
         if keyword_input1:
