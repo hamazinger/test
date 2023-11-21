@@ -77,6 +77,33 @@ def analyze_keyword(keywords):
     else:
         df_seminars_quarterly = pd.DataFrame()  # 空のデータフレームを作成
 
+    # # プロットの描画
+    # plt.figure(figsize=(12, 6))
+    # ax1 = plt.gca()
+    # ax2 = ax1.twinx()
+    
+    # if not df_articles.empty:
+    #     ax1.plot(df_articles_quarterly.index, df_articles_quarterly['count'], color='green', marker='x', label='Articles')
+    # else:
+    #     st.write("No article count data found.")
+    
+    # if not df_seminars.empty:
+    #     ax1.plot(df_seminars_quarterly.index, df_seminars_quarterly['count'], color='red', marker='^', label='Seminars')
+    # else:
+    #     st.write("No seminar count data found.")
+    
+    # ax1.set_xlabel('Quarter')
+    # ax1.set_ylabel('Counts of Articles and Seminars', color='black')
+    # ax1.legend(loc='upper left')
+    
+    # # ax2.plot(df_trends_quarterly.index, df_trends_quarterly, color='blue', marker='o', label='Google Trends')
+    # # ax2.set_ylabel('Google Trends Score', color='blue')
+    # # ax2.legend(loc='upper right')
+    
+    # # plt.title(f'Google Trends and Number of Articles/Seminars for "{", ".join(keywords)}"')
+    # plt.title(f'Number of Articles/Seminars for "{", ".join(keywords)}"')
+    # st.pyplot(plt)
+
     # プロットの描画
     plt.figure(figsize=(12, 6))
     ax1 = plt.gca()
@@ -88,20 +115,20 @@ def analyze_keyword(keywords):
         st.write("No article count data found.")
     
     if not df_seminars.empty:
-        ax1.plot(df_seminars_quarterly.index, df_seminars_quarterly['count'], color='red', marker='^', label='Seminars')
+        ax2.plot(df_seminars_quarterly.index, df_seminars_quarterly['count'], color='red', marker='^', label='Seminars')
     else:
         st.write("No seminar count data found.")
     
     ax1.set_xlabel('Quarter')
-    ax1.set_ylabel('Counts of Articles and Seminars', color='black')
+    ax1.set_ylabel('Counts of Articles', color='green')
+    ax1.tick_params(axis='y', labelcolor='green')
     ax1.legend(loc='upper left')
     
-    # ax2.plot(df_trends_quarterly.index, df_trends_quarterly, color='blue', marker='o', label='Google Trends')
-    # ax2.set_ylabel('Google Trends Score', color='blue')
-    # ax2.legend(loc='upper right')
-    
-    # plt.title(f'Google Trends and Number of Articles/Seminars for "{", ".join(keywords)}"')
-    plt.title(f'Number of Articles/Seminars for "{", ".join(keywords)}"')
+    ax2.set_ylabel('Counts of Seminars', color='red')
+    ax2.tick_params(axis='y', labelcolor='red')
+    ax2.legend(loc='upper right')
+
+    plt.title(f'Number of Articles and Seminars for "{", ".join(keywords)}"')
     st.pyplot(plt)
 
     # 検索条件に一致した記事・セミナーの一覧
@@ -207,17 +234,17 @@ def main():
     keyword_input2 = st.text_input("キーワード2を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
     execute_button = st.button("分析を実行")
 
-    if execute_button:
-        keyword1 = unicodedata.normalize('NFKC', keyword_input1.strip().lower())
-        keyword2 = unicodedata.normalize('NFKC', keyword_input2.strip().lower())
+    # if execute_button:
+    #     keyword1 = unicodedata.normalize('NFKC', keyword_input1.strip().lower())
+    #     keyword2 = unicodedata.normalize('NFKC', keyword_input2.strip().lower())
 
-        st.write("## キーワード1の結果")
-        result1 = analyze_keyword(keyword1)
-        st.write(result1)
+    #     st.write("## キーワード1の結果")
+    #     result1 = analyze_keyword(keyword1)
+    #     st.write(result1)
 
-        st.write("## キーワード2の結果")
-        result2 = analyze_keyword(keyword2)
-        st.write(result2)
+    #     st.write("## キーワード2の結果")
+    #     result2 = analyze_keyword(keyword2)
+    #     st.write(result2)
         
         # st.write("## キーワード1の結果")
         # result1 = analyze_keyword(keyword1)
@@ -236,6 +263,19 @@ def main():
         # st.markdown("### Matched Seminars")
         # html_seminars = convert_df_to_html_with_links(df_seminars_full, 'url')
         # st.markdown(html_seminars, unsafe_allow_html=True)
+
+    if execute_button:
+        if keyword_input1:
+            keyword1 = unicodedata.normalize('NFKC', keyword_input1.strip().lower())
+            st.write("## キーワード1の結果")
+            result1 = analyze_keyword(keyword1)
+            st.write(result1)
+        
+        if keyword_input2:
+            keyword2 = unicodedata.normalize('NFKC', keyword_input2.strip().lower())
+            st.write("## キーワード2の結果")
+            result2 = analyze_keyword(keyword2)
+            st.write(result2)
 
 if __name__ == "__main__":
     main()
