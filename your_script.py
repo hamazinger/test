@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from google.cloud import bigquery
 from google.oauth2 import service_account
-from pytrends.request import TrendReq
+# from pytrends.request import TrendReq
 import matplotlib.pyplot as plt
 import japanize_matplotlib
 import unicodedata
@@ -36,11 +36,11 @@ def analyze_keyword(keywords):
     end_date = pd.Timestamp.now()
     start_date = end_date - pd.DateOffset(years=2)
 
-    pytrend = TrendReq(hl='ja', tz=540)
-    pytrend.build_payload(kw_list=keywords, timeframe=f'{start_date.strftime("%Y-%m-%d")} {end_date.strftime("%Y-%m-%d")}')
-    df_trends = pytrend.interest_over_time()
-    df_trends_combined = df_trends[keywords].sum(axis=1)
-    df_trends_quarterly = df_trends_combined.resample('Q').sum().loc[start_date:end_date]
+    # pytrend = TrendReq(hl='ja', tz=540)
+    # pytrend.build_payload(kw_list=keywords, timeframe=f'{start_date.strftime("%Y-%m-%d")} {end_date.strftime("%Y-%m-%d")}')
+    # df_trends = pytrend.interest_over_time()
+    # df_trends_combined = df_trends[keywords].sum(axis=1)
+    # df_trends_quarterly = df_trends_combined.resample('Q').sum().loc[start_date:end_date]
 
     conditions = [f"REGEXP_CONTAINS(title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords]
     combined_condition = ' AND '.join(conditions)
@@ -96,11 +96,12 @@ def analyze_keyword(keywords):
     ax1.set_ylabel('Counts of Articles and Seminars', color='black')
     ax1.legend(loc='upper left')
     
-    ax2.plot(df_trends_quarterly.index, df_trends_quarterly, color='blue', marker='o', label='Google Trends')
-    ax2.set_ylabel('Google Trends Score', color='blue')
-    ax2.legend(loc='upper right')
+    # ax2.plot(df_trends_quarterly.index, df_trends_quarterly, color='blue', marker='o', label='Google Trends')
+    # ax2.set_ylabel('Google Trends Score', color='blue')
+    # ax2.legend(loc='upper right')
     
-    plt.title(f'Google Trends and Number of Articles/Seminars for "{", ".join(keywords)}"')
+    # plt.title(f'Google Trends and Number of Articles/Seminars for "{", ".join(keywords)}"')
+    plt.title(f'Number of Articles/Seminars for "{", ".join(keywords)}"')
     st.pyplot(plt)
 
     # 検索条件に一致した記事・セミナーの一覧
