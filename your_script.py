@@ -128,7 +128,7 @@ def analyze_keyword(keywords):
     ax2.tick_params(axis='y', labelcolor='red')
     ax2.legend(loc='upper right')
 
-    ax1.xaxis.set_major_locator(MaxNLocator(integer=True))
+    # ax1.xaxis.set_major_locator(MaxNLocator(integer=True))
     ax1.yaxis.set_major_locator(MaxNLocator(integer=True))
     ax2.yaxis.set_major_locator(MaxNLocator(integer=True))
 
