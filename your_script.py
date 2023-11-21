@@ -220,7 +220,7 @@ def main():
 
     if execute_button:
         # 画面を2つの列に分ける
-        col1, col2 = st.columns(2)
+        col1, col2 = st.columns(3,2)
 
         # キーワード1の分析結果を左の列に表示
         if keyword_input1:
