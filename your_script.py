@@ -198,12 +198,19 @@ def analyze_keyword(keywords):
     return f"Analysis results for {', '.join(keywords)}"
 
 
+# Streamlitのページ設定をワイドモードに設定
+st.set_page_config(layout="wide")
 
 def main():
     st.title("キーワード分析")
-
-    keyword_input1 = st.text_input("キーワード1を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
-    keyword_input2 = st.text_input("キーワード2を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
+    
+    # キーワード入力ボックスを小さな幅の列に配置
+    col_input1, col_input2 = st.columns([1, 4])
+    with col_input1:
+        keyword_input1 = st.text_input("キーワード1を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
+    with col_input2:
+        keyword_input2 = st.text_input("キーワード2を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
+    
     execute_button = st.button("分析を実行")
 
     # if execute_button:
