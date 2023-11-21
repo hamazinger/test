@@ -218,7 +218,8 @@ def analyze_keyword(keywords):
         # 'セミナー開催日'列を日付型に変換
         df_seminar['セミナー開催日'] = pd.to_datetime(df_seminar['セミナー開催日'])
         df_seminar['セミナー開催日'] = df_seminar['セミナー開催日'].dt.strftime('%Y-%m-%d')
-        st.dataframe(df_seminar)
+        #st.dataframe(df_seminar)
+        st.dataframe(df_seminar.sort_values(by='セミナー開催日', ascending=False))
         st.write("""
         ※集客速度は、1日あたりの平均申し込み数を表しています。
         """)
