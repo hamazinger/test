@@ -215,6 +215,9 @@ def analyze_keyword(keywords):
             'Action_Response_Count': 'アクション回答数',
             'Action_Response_Rate': 'アクション回答率（%）'
         }, inplace=True)
+        # 'セミナー開催日'列を日付型に変換
+        df_seminar['セミナー開催日'] = pd.to_datetime(df_seminar['セミナー開催日'])
+        df_seminar['セミナー開催日'] = df_seminar['セミナー開催日'].dt.strftime('%Y-%m-%d')
         st.dataframe(df_seminar)
         st.write("""
         ※集客速度は、1日あたりの平均申し込み数を表しています。
