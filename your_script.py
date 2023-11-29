@@ -246,7 +246,7 @@ def main():
     col_input1, col_input2 = st.columns([2, 2])
     with col_input1:
         keyword_input1 = st.text_input("キーワード1を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
-    with col_input2:
+    # with col_input2:
         keyword_input2 = st.text_input("キーワード2を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
     
     execute_button = st.button("分析を実行")
@@ -278,7 +278,7 @@ def main():
 
         # キーワード2の結果を右の列に表示
         if keyword_input2:
-            with col1:
+            with col2:
                 st.write(f"## キーワード2: {keyword2} の結果")
                 analyze_keyword(keyword2, max_counts)
 
