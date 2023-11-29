@@ -278,7 +278,7 @@ def main():
 
         # キーワード2の結果を右の列に表示
         if keyword_input2:
-            with col2:
+            with col1:
                 st.write(f"## キーワード2: {keyword2} の結果")
                 analyze_keyword(keyword2, max_counts)
 
