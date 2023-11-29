@@ -34,7 +34,7 @@ def run_query(query):
 def analyze_keyword(keywords):
     keywords = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keywords.split(',')]
     end_date = pd.Timestamp.now()
-    start_date = end_date - pd.DateOffset(years=2)
+    start_date = end_date - pd.DateOffset(years=3)
 
     conditions = [f"REGEXP_CONTAINS(title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords]
     combined_condition = ' AND '.join(conditions)
