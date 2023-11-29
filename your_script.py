@@ -25,34 +25,46 @@ def get_max_count(keyword, data_type):
     query = ""
     if data_type == "articles":
         query = f"""
-        SELECT COUNT(*) as count
-        FROM `mythical-envoy-386309.ex_media.article`
-        WHERE REGEXP_CONTAINS(title, r'(?i)(^|\\W){keyword}(\\W|$)')
+        SELECT MAX(count) as max_count
+        FROM (
+            SELECT TIMESTAMP_TRUNC(date, QUARTER) as quarter, COUNT(*) as count
+            FROM `mythical-envoy-386309.ex_media.article`
+            WHERE REGEXP_CONTAINS(title, r'(?i)(^|\\W){keyword}(\\W|$)')
+            GROUP BY quarter
+        )
         """
     elif data_type == "seminars":
         query = f"""
-        SELECT COUNT(*) as count
-        FROM `mythical-envoy-386309.ex_media.seminar`
-        WHERE REGEXP_CONTAINS(title, r'(?i)(^|\\W){keyword}(\\W|$)')
+        SELECT MAX(count) as max_count
+        FROM (
+            SELECT TIMESTAMP_TRUNC(date, QUARTER) as quarter, COUNT(*) as count
+            FROM `mythical-envoy-386309.ex_media.seminar`
+            WHERE REGEXP_CONTAINS(title, r'(?i)(^|\\W){keyword}(\\W|$)')
+            GROUP BY quarter
+        )
         """
-    # 他の指標についても同様にクエリを設定（マジセミのセミナー数、集客速度など）
     elif data_type == "majisemi_seminars":
         query = f"""
-        SELECT COUNT(*) as count
-        FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
-        WHERE REGEXP_CONTAINS(Seminar_Title, r'(?i)(^|\\W){keyword}(\\W|$)')
+        SELECT MAX(count) as max_count
+        FROM (
+            SELECT TIMESTAMP_TRUNC(Seminar_Date, QUARTER) as quarter, COUNT(*) as count
+            FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
+            WHERE REGEXP_CONTAINS(Seminar_Title, r'(?i)(^|\\W){keyword}(\\W|$)')
+            GROUP BY quarter
+        )
         """
     elif data_type == "acquisition_speed":
         query = f"""
-        SELECT MAX(Acquisition_Speed) as count
+        SELECT MAX(Acquisition_Speed) as max_count
         FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
         WHERE REGEXP_CONTAINS(Seminar_Title, r'(?i)(^|\\W){keyword}(\\W|$)')
         """
 
     df = pd.DataFrame(run_query(query))
-    if df.empty or 'count' not in df.columns:
+    if df.empty or 'max_count' not in df.columns:
         return 0
-    return df['count'].max()
+    return df['max_count'].max()
+
 
 def analyze_keyword(keywords,max_counts):
     keywords = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keywords.split(',')]
