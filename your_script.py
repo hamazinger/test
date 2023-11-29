@@ -31,6 +31,38 @@ def run_query(query):
     rows = [dict(row) for row in rows_raw]
     return rows
 
+def get_max_count(keyword, data_type):
+    query = ""
+    if data_type == "articles":
+        query = f"""
+        SELECT COUNT(*) as count
+        FROM `mythical-envoy-386309.ex_media.article`
+        WHERE REGEXP_CONTAINS(title, r'(?i)(^|\\W){keyword}(\\W|$)')
+        """
+    elif data_type == "seminars":
+        query = f"""
+        SELECT COUNT(*) as count
+        FROM `mythical-envoy-386309.ex_media.seminar`
+        WHERE REGEXP_CONTAINS(title, r'(?i)(^|\\W){keyword}(\\W|$)')
+        """
+    elif data_type == "majisemi_seminars":
+        query = f"""
+        SELECT COUNT(*) as count
+        FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
+        WHERE REGEXP_CONTAINS(Seminar_Title, r'(?i)(^|\\W){keyword}(\\W|$)')
+        """
+    elif data_type == "acquisition_speed":
+        query = f"""
+        SELECT MAX(Acquisition_Speed) as count
+        FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
+        WHERE REGEXP_CONTAINS(Seminar_Title, r'(?i)(^|\\W){keyword}(\\W|$)')
+        """
+    
+    df = pd.DataFrame(run_query(query))
+    if df.empty or 'count' not in df.columns:
+        return 0
+    return df['count'].max()
+
 def analyze_keyword(keywords):
     keywords = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keywords.split(',')]
     end_date = pd.Timestamp.now()
@@ -87,6 +119,9 @@ def analyze_keyword(keywords):
         ax2.plot(df_seminars_quarterly.index, df_seminars_quarterly['count'], color='red', marker='^', label='Seminars')
     else:
         st.write("No seminar count data found.")
+
+    ax1.set_ylim(0, max_counts["articles"])
+    ax2.set_ylim(0, max_counts["seminars"])
     
     ax1.set_xlabel('Quarter')
     ax1.set_ylabel('Counts of Articles', color='green')
@@ -158,6 +193,9 @@ def analyze_keyword(keywords):
         ax1 = plt.gca()
         ax2 = ax1.twinx()
 
+        ax1.set_ylim(0, max_counts["acquisition_speed"])
+        ax2.set_ylim(0, max_counts["majisemi_seminars"])
+
         ax1.plot(df_grouped.index.to_timestamp(), df_grouped['Median_Speed'], marker='o', color='blue', label='Median Acquisition Speed')
         ax1.fill_between(df_grouped.index.to_timestamp(), df_grouped['Q1_Speed'], df_grouped['Q3_Speed'], color='blue', alpha=0.1, label='Interquartile Range')
         ax1.set_xlabel('Quarter')
@@ -204,48 +242,46 @@ st.set_page_config(layout="wide")
 def main():
     st.title("キーワード分析")
     
-    # キーワード入力ボックスを小さな幅の列に配置
+    # キーワード入力ボックスを配置
     col_input1, col_input2 = st.columns([2, 2])
     with col_input1:
         keyword_input1 = st.text_input("キーワード1を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
+    with col_input2:
         keyword_input2 = st.text_input("キーワード2を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
-    # with col_input2:
-    #     keyword_input2 = st.text_input("キーワード2を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
     
     execute_button = st.button("分析を実行")
 
-    # if execute_button:
-    #     if keyword_input1:
-    #         keyword1 = unicodedata.normalize('NFKC', keyword_input1.strip().lower())
-    #         st.write("## キーワード1の結果")
-    #         result1 = analyze_keyword(keyword1)
-    #         st.write(result1)
-        
-    #     if keyword_input2:
-    #         keyword2 = unicodedata.normalize('NFKC', keyword_input2.strip().lower())
-    #         st.write("## キーワード2の結果")
-    #         result2 = analyze_keyword(keyword2)
-    #         st.write(result2)
-
     if execute_button:
+        # 各指標の最大値を格納する辞書
+        max_counts = {"articles": 0, "seminars": 0, "majisemi_seminars": 0, "acquisition_speed": 0}
+
+        if keyword_input1:
+            keyword1 = unicodedata.normalize('NFKC', keyword_input1.strip().lower())
+            for data_type in max_counts.keys():
+                max_count = get_max_count(keyword1, data_type)
+                max_counts[data_type] = max(max_counts[data_type], max_count)
+
+        if keyword_input2:
+            keyword2 = unicodedata.normalize('NFKC', keyword_input2.strip().lower())
+            for data_type in max_counts.keys():
+                max_count = get_max_count(keyword2, data_type)
+                max_counts[data_type] = max(max_counts[data_type], max_count)
+
         # 画面を2つの列に分ける
         col1, col2 = st.columns([1,1])
 
-        # キーワード1の分析結果を左の列に表示
+        # キーワード1の結果を左の列に表示
         if keyword_input1:
-            keyword1 = unicodedata.normalize('NFKC', keyword_input1.strip().lower())
             with col1:
                 st.write(f"## キーワード1: {keyword1} の結果")
-                result1 = analyze_keyword(keyword1)
-                st.write(result1)
+                analyze_keyword(keyword1, max_counts)
 
-        # キーワード2の分析結果を右の列に表示
+        # キーワード2の結果を右の列に表示
         if keyword_input2:
-            keyword2 = unicodedata.normalize('NFKC', keyword_input2.strip().lower())
             with col2:
                 st.write(f"## キーワード2: {keyword2} の結果")
-                result2 = analyze_keyword(keyword2)
-                st.write(result2)
+                analyze_keyword(keyword2, max_counts)
+
 
 if __name__ == "__main__":
     main()
