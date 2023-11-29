@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 from google.cloud import bigquery
 from google.oauth2 import service_account
-# from pytrends.request import TrendReq
 import matplotlib.pyplot as plt
 import japanize_matplotlib
 import unicodedata
@@ -14,15 +13,6 @@ credentials = service_account.Credentials.from_service_account_info(
     st.secrets["gcp_service_account"]
 )
 client = bigquery.Client(credentials=credentials)
-
-def search_titles_with_keyword(keyword, table_name):
-    query = f"""
-    SELECT *
-    FROM `{table_name}`
-    WHERE REGEXP_CONTAINS(title, r'(?i)(^|\\W){keyword}(\\W|$)')
-    """
-    results = run_query(query)
-    return results
 
 @st.cache(ttl=600)
 def run_query(query):
@@ -45,6 +35,7 @@ def get_max_count(keyword, data_type):
         FROM `mythical-envoy-386309.ex_media.seminar`
         WHERE REGEXP_CONTAINS(title, r'(?i)(^|\\W){keyword}(\\W|$)')
         """
+    # 他の指標についても同様にクエリを設定（マジセミのセミナー数、集客速度など）
     elif data_type == "majisemi_seminars":
         query = f"""
         SELECT COUNT(*) as count
@@ -57,13 +48,13 @@ def get_max_count(keyword, data_type):
         FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
         WHERE REGEXP_CONTAINS(Seminar_Title, r'(?i)(^|\\W){keyword}(\\W|$)')
         """
-    
+
     df = pd.DataFrame(run_query(query))
     if df.empty or 'count' not in df.columns:
         return 0
     return df['count'].max()
 
-def analyze_keyword(keywords):
+def analyze_keyword(keywords,max_counts):
     keywords = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keywords.split(',')]
     end_date = pd.Timestamp.now()
     start_date = end_date - pd.DateOffset(years=3)
@@ -109,6 +100,9 @@ def analyze_keyword(keywords):
     plt.figure(figsize=(12, 6))
     ax1 = plt.gca()
     ax2 = ax1.twinx()
+
+    ax1.set_ylim(0, max_counts["articles"])
+    ax2.set_ylim(0, max_counts["seminars"])
     
     if not df_articles.empty:
         ax1.plot(df_articles_quarterly.index, df_articles_quarterly['count'], color='green', marker='x', label='Articles')
@@ -119,9 +113,6 @@ def analyze_keyword(keywords):
         ax2.plot(df_seminars_quarterly.index, df_seminars_quarterly['count'], color='red', marker='^', label='Seminars')
     else:
         st.write("No seminar count data found.")
-
-    ax1.set_ylim(0, max_counts["articles"])
-    ax2.set_ylim(0, max_counts["seminars"])
     
     ax1.set_xlabel('Quarter')
     ax1.set_ylabel('Counts of Articles', color='green')
@@ -235,7 +226,6 @@ def analyze_keyword(keywords):
 
     return f"Analysis results for {', '.join(keywords)}"
 
-
 # Streamlitのページ設定をワイドモードに設定
 st.set_page_config(layout="wide")
 
@@ -281,7 +271,6 @@ def main():
             with col2:
                 st.write(f"## キーワード2: {keyword2} の結果")
                 analyze_keyword(keyword2, max_counts)
-
 
 if __name__ == "__main__":
     main()
