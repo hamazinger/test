@@ -31,15 +31,7 @@ def run_query(query):
     rows = [dict(row) for row in rows_raw]
     return rows
 
-def get_max_min_count(keyword):
-    # ここで、キーワードに基づいてデータを取得し、最大値と最小値を計算します。
-    # 実際のデータに基づいて、ここに適切なロジックを実装してください。
-    # この例では、仮の値を返しています。
-    max_count = 100  # 仮の最大値
-    min_count = 0    # 仮の最小値
-    return max_count, min_count
-
-def analyze_keyword(keywords, max_count, min_count):
+def analyze_keyword(keywords):
     keywords = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keywords.split(',')]
     end_date = pd.Timestamp.now()
     start_date = end_date - pd.DateOffset(years=3)
@@ -95,10 +87,6 @@ def analyze_keyword(keywords, max_count, min_count):
         ax2.plot(df_seminars_quarterly.index, df_seminars_quarterly['count'], color='red', marker='^', label='Seminars')
     else:
         st.write("No seminar count data found.")
-    
-    # y軸のレンジを揃える
-    ax1.set_ylim(min_count, max_count)
-    ax2.set_ylim(min_count, max_count)
     
     ax1.set_xlabel('Quarter')
     ax1.set_ylabel('Counts of Articles', color='green')
@@ -239,58 +227,24 @@ def main():
     #         result2 = analyze_keyword(keyword2)
     #         st.write(result2)
 
-    # if execute_button:
-    #     # 画面を2つの列に分ける
-    #     col1, col2 = st.columns([1,1])
-
-    #     # キーワード1の分析結果を左の列に表示
-    #     if keyword_input1:
-    #         keyword1 = unicodedata.normalize('NFKC', keyword_input1.strip().lower())
-    #         with col1:
-    #             st.write(f"## キーワード1: {keyword1} の結果")
-    #             result1 = analyze_keyword(keyword1)
-    #             st.write(result1)
-
-    #     # キーワード2の分析結果を右の列に表示
-    #     if keyword_input2:
-    #         keyword2 = unicodedata.normalize('NFKC', keyword_input2.strip().lower())
-    #         with col2:
-    #             st.write(f"## キーワード2: {keyword2} の結果")
-    #             result2 = analyze_keyword(keyword2)
-    #             st.write(result2)
-
     if execute_button:
-        # 最大値と最小値を取得
-        max_count = 0
-        min_count = float('inf')
-
-        if keyword_input1:
-            keyword1 = unicodedata.normalize('NFKC', keyword_input1.strip().lower())
-            max_count_keyword1, min_count_keyword1 = get_max_min_count(keyword1)
-            max_count = max(max_count, max_count_keyword1)
-            min_count = min(min_count, min_count_keyword1)
-
-        if keyword_input2:
-            keyword2 = unicodedata.normalize('NFKC', keyword_input2.strip().lower())
-            max_count_keyword2, min_count_keyword2 = get_max_min_count(keyword2)
-            max_count = max(max_count, max_count_keyword2)
-            min_count = min(min_count, min_count_keyword2)
-
         # 画面を2つの列に分ける
         col1, col2 = st.columns([1,1])
 
-        # キーワード1の結果を左の列に表示
+        # キーワード1の分析結果を左の列に表示
         if keyword_input1:
+            keyword1 = unicodedata.normalize('NFKC', keyword_input1.strip().lower())
             with col1:
                 st.write(f"## キーワード1: {keyword1} の結果")
-                result1 = analyze_keyword(keyword1, max_count, min_count)
+                result1 = analyze_keyword(keyword1)
                 st.write(result1)
 
-        # キーワード2の結果を右の列に表示
+        # キーワード2の分析結果を右の列に表示
         if keyword_input2:
+            keyword2 = unicodedata.normalize('NFKC', keyword_input2.strip().lower())
             with col2:
                 st.write(f"## キーワード2: {keyword2} の結果")
-                result2 = analyze_keyword(keyword2, max_count, min_count)
+                result2 = analyze_keyword(keyword2)
                 st.write(result2)
 
 if __name__ == "__main__":
