@@ -250,6 +250,12 @@ def main():
         keyword_input1 = st.text_input("キーワード1を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
     # with col_input2:
         keyword_input2 = st.text_input("キーワード2を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
+    with col_input2:
+        st.subheader("Latest updates")
+        st.markdown("""
+        - 2023/11/29(水) グラフ縦軸のスケールがキーワード1,2で揃うように修正
+        - 2023/11/28(火) 外部メディアの記事・セミナー情報を「2022年以降」から「2021年以降」に拡充
+        """)
     
     execute_button = st.button("分析を実行")
 
@@ -284,10 +290,7 @@ def main():
                 st.write(f"## キーワード2: {keyword2} の結果")
                 analyze_keyword(keyword2, max_counts)
 
-    with col_input1:
-        st.subheader("Latest updates")
-        st.write("2023/11/29(水) グラフ縦軸のスケールがキーワード1,2で揃うように修正")
-        st.write("2023/11/28(火) 外部メディアの記事・セミナー情報を「2022年以降」から「2021年以降」に拡充")
+    
 
 if __name__ == "__main__":
     main()
