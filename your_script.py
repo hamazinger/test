@@ -111,12 +111,10 @@ def get_max_count(keywords, data_type):
         FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
         WHERE {combined_condition}
         """
-    st.write(query)
-    # df = pd.DataFrame(run_query(query))
-    # if df.empty or 'max_count' not in df.columns:
-    #     return 0
-    # return df['max_count'].max()*1.1
-    return 100
+    df = pd.DataFrame(run_query(query))
+    if df.empty or 'max_count' not in df.columns:
+        return 0
+    return df['max_count'].max()*1.1
 
 
 def analyze_keyword(keywords,max_counts):
@@ -159,8 +157,8 @@ def analyze_keyword(keywords,max_counts):
     else:
         df_seminars_quarterly = pd.DataFrame()  # 空のデータフレームを作成
 
-    st.write(articles_query)
-    st.write(seminars_query)
+    # st.write(articles_query)
+    # st.write(seminars_query)
 
     # プロットの描画
     plt.figure(figsize=(12, 6))
