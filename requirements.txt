@@ -9,3 +9,4 @@ matplotlib
 japanize_matplotlib
 openai
 wordcloud
+janome
