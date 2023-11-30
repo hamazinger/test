@@ -203,17 +203,13 @@ def analyze_keyword(keywords,max_counts):
     # ワードクラウドの生成
     wordcloud = WordCloud(
         font_path=font_path,
-        background_color='white'
+        background_color='white',
+        width=1600,  # 幅を増やす
+        height=800   # 高さを増やす
     ).generate(' '.join(words))
 
-    # ワードクラウドの表示（記事とセミナーのタイトル用）
-    # plt.figure(figsize=(8, 8), facecolor=None)
-    # plt.imshow(wordcloud_combined)
-    # plt.axis("off")
-    # plt.tight_layout(pad=0)
-
     # ワードクラウドの表示
-    plt.figure(figsize=(8, 8))
+    plt.figure(figsize=(10, 10))
     plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis('off')
     plt.show()
