@@ -314,7 +314,7 @@ def analyze_keyword(keywords,max_counts):
     return f"Analysis results for {', '.join(keywords)}"
 
 # Streamlitのページ設定をワイドモードに設定
-st.set_page_config(layout="wide")
+st.set_page_config(page_title="Keyword Analytics", layout="wide")
 
 def main():
     # st.title("※※※メンテナンス作業中※※※")
