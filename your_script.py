@@ -207,7 +207,8 @@ def analyze_keyword(keywords,max_counts):
         width=1600,  # 幅を増やす
         height=800   # 高さを増やす
     ).generate(' '.join(words))
-
+    
+    st.subheader('ワードクラウド：外部メディア')
     # ワードクラウドの表示
     plt.figure(figsize=(10, 10))
     plt.imshow(wordcloud, interpolation='bilinear')
@@ -279,6 +280,34 @@ def analyze_keyword(keywords,max_counts):
         st.write("""
         ※集客速度は、1日あたりの平均申し込み数を表しています。
         """)
+
+        # マジセミのセミナータイトルに対するワードクラウドの生成
+        seminar_titles = ' '.join(df_seminar['Seminar_Title'])  # セミナータイトルの結合
+        
+        # 形態素解析の実行
+        t = Tokenizer()
+        tokens = t.tokenize(seminar_titles)
+        words_seminar = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]  # 名詞と動詞のみを抽出
+        
+        # キーワードの除外
+        words_seminar = [word for word in words_seminar if word not in exclude_words]
+        
+        # ワードクラウドの生成（セミナータイトル用）
+        wordcloud_seminar = WordCloud(
+            font_path=font_path,
+            background_color='white',
+            width=1600,  # 幅
+            height=800   # 高さ
+        ).generate(' '.join(words_seminar))
+        
+        # ワードクラウドの表示（セミナータイトル用）
+        st.subheader('ワードクラウド：マジセミ')
+        plt.figure(figsize=(10, 10))
+        plt.imshow(wordcloud_seminar, interpolation='bilinear')
+        plt.axis('off')
+        plt.show()
+        st.pyplot(plt)
+
     else:
         st.write("No matched seminars found.")
 
