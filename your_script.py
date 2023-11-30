@@ -282,7 +282,7 @@ def analyze_keyword(keywords,max_counts):
         """)
 
         # マジセミのセミナータイトルに対するワードクラウドの生成
-        seminar_titles = ' '.join(df_seminar['Seminar_Title'])  # セミナータイトルの結合
+        seminar_titles = ' '.join(df_seminar['セミナータイトル'])  # セミナータイトルの結合
         
         # 形態素解析の実行
         t = Tokenizer()
