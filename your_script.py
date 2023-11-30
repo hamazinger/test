@@ -298,7 +298,7 @@ def analyze_keyword(keywords,max_counts):
 st.set_page_config(layout="wide")
 
 def main():
-    st.title("※※※メンテナンス作業中※※※")
+    # st.title("※※※メンテナンス作業中※※※")
     st.title("キーワード分析")
     
     # キーワード入力ボックスを配置
@@ -308,7 +308,7 @@ def main():
     # with col_input2:
         keyword_input2 = st.text_input("キーワード2を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
     with col_input2:
-        st.subheader("<Latest updates>")
+        st.subheader("＜Latest updates＞")
         st.markdown("""
         - 2023/11/29(水) グラフ縦軸のスケールがキーワード1,2で揃うように修正
         - 2023/11/28(火) 外部メディアの記事・セミナー情報を「2022年以降」から「2021年以降」に拡充
