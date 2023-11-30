@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import japanize_matplotlib
 import unicodedata
 from matplotlib.ticker import MaxNLocator
+from wordcloud import WordCloud
 
 # 認証情報の設定
 credentials = service_account.Credentials.from_service_account_info(
@@ -224,6 +225,19 @@ def analyze_keyword(keywords,max_counts):
         st.dataframe(df_seminars_full.sort_values(by='date', ascending=False))
     else:
         st.write("No matched seminars found.")
+
+    # 記事とセミナーのタイトルを結合
+    combined_titles = ' '.join(df_articles_full['title']) + ' ' + ' '.join(df_seminars_full['title'])
+
+    # ワードクラウドの生成（記事とセミナーのタイトル用）
+    wordcloud_combined = WordCloud(width=800, height=800, background_color='white', min_font_size=10).generate(combined_titles)
+
+    # ワードクラウドの表示（記事とセミナーのタイトル用）
+    plt.figure(figsize=(8, 8), facecolor=None)
+    plt.imshow(wordcloud_combined)
+    plt.axis("off")
+    plt.tight_layout(pad=0)
+    st.pyplot(plt)
 
     # マジセミセミナーの検索条件
     conditions_majisemi = [f"REGEXP_CONTAINS(Seminar_Title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords]
