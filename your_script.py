@@ -318,7 +318,7 @@ st.set_page_config(layout="wide")
 
 def main():
     # st.title("※※※メンテナンス作業中※※※")
-    st.title("キーワード分析")
+    st.title("Keyword Analytics")
     
     # キーワード入力ボックスを配置
     col_input1, col_input2 = st.columns([2, 2])
@@ -329,6 +329,7 @@ def main():
     with col_input2:
         st.subheader("＜Latest Updates＞")
         st.markdown("""
+        - 2023/11/30(木) ワードクラウドを実装
         - 2023/11/29(水) グラフ縦軸のスケールがキーワード1,2で揃うように修正
         - 2023/11/28(火) 外部メディアの記事・セミナー情報を「2022年以降」から「2021年以降」に拡充
         """)
