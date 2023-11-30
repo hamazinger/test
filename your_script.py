@@ -31,6 +31,7 @@ def get_max_count(keyword, data_type):
             FROM `mythical-envoy-386309.ex_media.article`
             WHERE REGEXP_CONTAINS(title, r'(?i)(^|\\W){keyword}(\\W|$)')
             GROUP BY quarter
+            
         )
         """
     elif data_type == "seminars":
