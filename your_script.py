@@ -111,7 +111,7 @@ def get_max_count(keywords, data_type):
         FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
         WHERE {combined_condition}
         """
-    print(query)
+    st.write(query)
     # df = pd.DataFrame(run_query(query))
     # if df.empty or 'max_count' not in df.columns:
     #     return 0
