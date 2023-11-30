@@ -66,8 +66,11 @@ def run_query(query):
 #     return df['max_count'].max()*1.1
 
 def get_max_count(keywords, data_type):
-    keywords_conditions = [f"REGEXP_CONTAINS(title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords.split(',')]
-    combined_keywords_condition = ' AND '.join(keywords_conditions)
+    # keywords_conditions = [f"REGEXP_CONTAINS(title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords.split(',')]
+    # combined_keywords_condition = ' AND '.join(keywords_conditions)
+    keywords = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keywords.split(',')]
+    conditions = [f"REGEXP_CONTAINS(title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords]
+    combined_condition = ' AND '.join(conditions)
 
     query = ""
     if data_type == "articles":
@@ -76,7 +79,7 @@ def get_max_count(keywords, data_type):
         FROM (
             SELECT TIMESTAMP_TRUNC(date, QUARTER) as quarter, COUNT(*) as count
             FROM `mythical-envoy-386309.ex_media.article`
-            WHERE {combined_keywords_condition}
+            WHERE {combined_condition}
             GROUP BY quarter
         )
         """
@@ -86,7 +89,7 @@ def get_max_count(keywords, data_type):
         FROM (
             SELECT TIMESTAMP_TRUNC(date, QUARTER) as quarter, COUNT(*) as count
             FROM `mythical-envoy-386309.ex_media.seminar`
-            WHERE {combined_keywords_condition}
+            WHERE {combined_condition}
             GROUP BY quarter
         )
         """
@@ -97,7 +100,7 @@ def get_max_count(keywords, data_type):
         FROM (
             SELECT TIMESTAMP_TRUNC(Seminar_Date, QUARTER) as quarter, COUNT(*) as count
             FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
-            WHERE {combined_keywords_condition}
+            WHERE {combined_condition}
             GROUP BY quarter
         )
         """
@@ -105,7 +108,7 @@ def get_max_count(keywords, data_type):
         query = f"""
         SELECT MAX(Acquisition_Speed) as max_count
         FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
-        WHERE {combined_keywords_condition}
+        WHERE {combined_condition}
         """
 
     df = pd.DataFrame(run_query(query))
