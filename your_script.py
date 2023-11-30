@@ -229,8 +229,11 @@ def analyze_keyword(keywords,max_counts):
     # 記事とセミナーのタイトルを結合
     combined_titles = ' '.join(df_articles_full['title']) + ' ' + ' '.join(df_seminars_full['title'])
 
+    # フォントファイルのパス指定
+    font_path = 'NotoSansJP-Regular.ttf'
+
     # ワードクラウドの生成（記事とセミナーのタイトル用）
-    wordcloud_combined = WordCloud(width=800, height=800, background_color='white', min_font_size=10).generate(combined_titles)
+    wordcloud_combined = WordCloud(font_path=font_path,width=800, height=800, background_color='white', min_font_size=10).generate(combined_titles)
 
     # ワードクラウドの表示（記事とセミナーのタイトル用）
     plt.figure(figsize=(8, 8), facecolor=None)
