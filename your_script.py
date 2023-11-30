@@ -116,6 +116,7 @@ def get_max_count(keywords, data_type):
     # if df.empty or 'max_count' not in df.columns:
     #     return 0
     # return df['max_count'].max()*1.1
+    return 100
 
 
 def analyze_keyword(keywords,max_counts):
