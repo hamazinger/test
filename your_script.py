@@ -21,58 +21,7 @@ def run_query(query):
     rows = [dict(row) for row in rows_raw]
     return rows
 
-def get_max_count(keyword, data_type):
-    query = ""
-    if data_type == "articles":
-        query = f"""
-        SELECT MAX(count) as max_count
-        FROM (
-            SELECT TIMESTAMP_TRUNC(date, QUARTER) as quarter, COUNT(*) as count
-            FROM `mythical-envoy-386309.ex_media.article`
-            WHERE REGEXP_CONTAINS(title, r'(?i)(^|\\W){keyword}(\\W|$)')
-            GROUP BY quarter
-            
-        )
-        """
-    elif data_type == "seminars":
-        query = f"""
-        SELECT MAX(count) as max_count
-        FROM (
-            SELECT TIMESTAMP_TRUNC(date, QUARTER) as quarter, COUNT(*) as count
-            FROM `mythical-envoy-386309.ex_media.seminar`
-            WHERE REGEXP_CONTAINS(title, r'(?i)(^|\\W){keyword}(\\W|$)')
-            GROUP BY quarter
-        )
-        """
-    elif data_type == "majisemi_seminars":
-        query = f"""
-        SELECT MAX(count) as max_count
-        FROM (
-            SELECT TIMESTAMP_TRUNC(Seminar_Date, QUARTER) as quarter, COUNT(*) as count
-            FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
-            WHERE REGEXP_CONTAINS(Seminar_Title, r'(?i)(^|\\W){keyword}(\\W|$)')
-            GROUP BY quarter
-        )
-        """
-    elif data_type == "acquisition_speed":
-        query = f"""
-        SELECT MAX(Acquisition_Speed) as max_count
-        FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
-        WHERE REGEXP_CONTAINS(Seminar_Title, r'(?i)(^|\\W){keyword}(\\W|$)')
-        """
-
-    df = pd.DataFrame(run_query(query))
-    if df.empty or 'max_count' not in df.columns:
-        return 0
-    return df['max_count'].max()*1.1
-
-# def get_max_count(keywords, data_type):
-#     # keywords_conditions = [f"REGEXP_CONTAINS(title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords.split(',')]
-#     # combined_keywords_condition = ' AND '.join(keywords_conditions)
-#     keywords = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keywords.split(',')]
-#     conditions = [f"REGEXP_CONTAINS(title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords]
-#     combined_condition = ' AND '.join(conditions)
-
+# def get_max_count(keyword, data_type):
 #     query = ""
 #     if data_type == "articles":
 #         query = f"""
@@ -80,8 +29,9 @@ def get_max_count(keyword, data_type):
 #         FROM (
 #             SELECT TIMESTAMP_TRUNC(date, QUARTER) as quarter, COUNT(*) as count
 #             FROM `mythical-envoy-386309.ex_media.article`
-#             WHERE {combined_condition}
+#             WHERE REGEXP_CONTAINS(title, r'(?i)(^|\\W){keyword}(\\W|$)')
 #             GROUP BY quarter
+            
 #         )
 #         """
 #     elif data_type == "seminars":
@@ -90,18 +40,17 @@ def get_max_count(keyword, data_type):
 #         FROM (
 #             SELECT TIMESTAMP_TRUNC(date, QUARTER) as quarter, COUNT(*) as count
 #             FROM `mythical-envoy-386309.ex_media.seminar`
-#             WHERE {combined_condition}
+#             WHERE REGEXP_CONTAINS(title, r'(?i)(^|\\W){keyword}(\\W|$)')
 #             GROUP BY quarter
 #         )
 #         """
-#     # 他のデータタイプについても同様にクエリを設定
 #     elif data_type == "majisemi_seminars":
 #         query = f"""
 #         SELECT MAX(count) as max_count
 #         FROM (
 #             SELECT TIMESTAMP_TRUNC(Seminar_Date, QUARTER) as quarter, COUNT(*) as count
 #             FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
-#             WHERE {combined_condition}
+#             WHERE REGEXP_CONTAINS(Seminar_Title, r'(?i)(^|\\W){keyword}(\\W|$)')
 #             GROUP BY quarter
 #         )
 #         """
@@ -109,13 +58,64 @@ def get_max_count(keyword, data_type):
 #         query = f"""
 #         SELECT MAX(Acquisition_Speed) as max_count
 #         FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
-#         WHERE {combined_condition}
+#         WHERE REGEXP_CONTAINS(Seminar_Title, r'(?i)(^|\\W){keyword}(\\W|$)')
 #         """
 
 #     df = pd.DataFrame(run_query(query))
 #     if df.empty or 'max_count' not in df.columns:
 #         return 0
 #     return df['max_count'].max()*1.1
+
+def get_max_count(keywords, data_type):
+    # keywords_conditions = [f"REGEXP_CONTAINS(title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords.split(',')]
+    # combined_keywords_condition = ' AND '.join(keywords_conditions)
+    keywords = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keywords.split(',')]
+    conditions = [f"REGEXP_CONTAINS(title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords]
+    combined_condition = ' AND '.join(conditions)
+
+    query = ""
+    if data_type == "articles":
+        query = f"""
+        SELECT MAX(count) as max_count
+        FROM (
+            SELECT TIMESTAMP_TRUNC(date, QUARTER) as quarter, COUNT(*) as count
+            FROM `mythical-envoy-386309.ex_media.article`
+            WHERE {combined_condition}
+            GROUP BY quarter
+        )
+        """
+    elif data_type == "seminars":
+        query = f"""
+        SELECT MAX(count) as max_count
+        FROM (
+            SELECT TIMESTAMP_TRUNC(date, QUARTER) as quarter, COUNT(*) as count
+            FROM `mythical-envoy-386309.ex_media.seminar`
+            WHERE {combined_condition}
+            GROUP BY quarter
+        )
+        """
+    # 他のデータタイプについても同様にクエリを設定
+    elif data_type == "majisemi_seminars":
+        query = f"""
+        SELECT MAX(count) as max_count
+        FROM (
+            SELECT TIMESTAMP_TRUNC(Seminar_Date, QUARTER) as quarter, COUNT(*) as count
+            FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
+            WHERE {combined_condition}
+            GROUP BY quarter
+        )
+        """
+    elif data_type == "acquisition_speed":
+        query = f"""
+        SELECT MAX(Acquisition_Speed) as max_count
+        FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
+        WHERE {combined_condition}
+        """
+
+    df = pd.DataFrame(run_query(query))
+    if df.empty or 'max_count' not in df.columns:
+        return 0
+    return df['max_count'].max()*1.1
 
 
 def analyze_keyword(keywords,max_counts):
