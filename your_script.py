@@ -190,6 +190,10 @@ def analyze_keyword(keywords,max_counts):
     tokens = t.tokenize(combined_titles)
     words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]  # 名詞と動詞のみを抽出
 
+    # キーワードの除外
+    exclude_words = set(keywords)
+    words = [word for word in words if word not in exclude_words]
+
     # フォントファイルのパス指定
     font_path = 'NotoSansJP-Regular.ttf'
 
