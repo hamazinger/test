@@ -8,6 +8,7 @@ import japanize_matplotlib
 import unicodedata
 from matplotlib.ticker import MaxNLocator
 from wordcloud import WordCloud
+from janome.tokenizer import Tokenizer
 
 # 認証情報の設定
 credentials = service_account.Credentials.from_service_account_info(
@@ -21,51 +22,6 @@ def run_query(query):
     rows_raw = query_job.result()
     rows = [dict(row) for row in rows_raw]
     return rows
-
-# def get_max_count(keyword, data_type):
-#     query = ""
-#     if data_type == "articles":
-#         query = f"""
-#         SELECT MAX(count) as max_count
-#         FROM (
-#             SELECT TIMESTAMP_TRUNC(date, QUARTER) as quarter, COUNT(*) as count
-#             FROM `mythical-envoy-386309.ex_media.article`
-#             WHERE REGEXP_CONTAINS(title, r'(?i)(^|\\W){keyword}(\\W|$)')
-#             GROUP BY quarter
-            
-#         )
-#         """
-#     elif data_type == "seminars":
-#         query = f"""
-#         SELECT MAX(count) as max_count
-#         FROM (
-#             SELECT TIMESTAMP_TRUNC(date, QUARTER) as quarter, COUNT(*) as count
-#             FROM `mythical-envoy-386309.ex_media.seminar`
-#             WHERE REGEXP_CONTAINS(title, r'(?i)(^|\\W){keyword}(\\W|$)')
-#             GROUP BY quarter
-#         )
-#         """
-#     elif data_type == "majisemi_seminars":
-#         query = f"""
-#         SELECT MAX(count) as max_count
-#         FROM (
-#             SELECT TIMESTAMP_TRUNC(Seminar_Date, QUARTER) as quarter, COUNT(*) as count
-#             FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
-#             WHERE REGEXP_CONTAINS(Seminar_Title, r'(?i)(^|\\W){keyword}(\\W|$)')
-#             GROUP BY quarter
-#         )
-#         """
-#     elif data_type == "acquisition_speed":
-#         query = f"""
-#         SELECT MAX(Acquisition_Speed) as max_count
-#         FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
-#         WHERE REGEXP_CONTAINS(Seminar_Title, r'(?i)(^|\\W){keyword}(\\W|$)')
-#         """
-
-#     df = pd.DataFrame(run_query(query))
-#     if df.empty or 'max_count' not in df.columns:
-#         return 0
-#     return df['max_count'].max()*1.1
 
 def get_max_count(keywords, data_type):
     # keywords_conditions = [f"REGEXP_CONTAINS(title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords.split(',')]
@@ -229,17 +185,34 @@ def analyze_keyword(keywords,max_counts):
     # 記事とセミナーのタイトルを結合
     combined_titles = ' '.join(df_articles_full['title']) + ' ' + ' '.join(df_seminars_full['title'])
 
+    # 形態素解析の実行
+    t = Tokenizer()
+    tokens = t.tokenize(combined_titles)
+    words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]  # 名詞と動詞のみを抽出
+
     # フォントファイルのパス指定
     font_path = 'NotoSansJP-Regular.ttf'
 
     # ワードクラウドの生成（記事とセミナーのタイトル用）
-    wordcloud_combined = WordCloud(font_path=font_path,width=800, height=800, background_color='white', min_font_size=10).generate(combined_titles)
+    # wordcloud_combined = WordCloud(font_path=font_path,width=800, height=800, background_color='white', min_font_size=10).generate(combined_titles)
+
+    # ワードクラウドの生成
+    wordcloud = WordCloud(
+        font_path=font_path,
+        background_color='white'
+    ).generate(' '.join(words))
 
     # ワードクラウドの表示（記事とセミナーのタイトル用）
-    plt.figure(figsize=(8, 8), facecolor=None)
-    plt.imshow(wordcloud_combined)
-    plt.axis("off")
-    plt.tight_layout(pad=0)
+    # plt.figure(figsize=(8, 8), facecolor=None)
+    # plt.imshow(wordcloud_combined)
+    # plt.axis("off")
+    # plt.tight_layout(pad=0)
+
+    # ワードクラウドの表示
+    plt.figure(figsize=(8, 8))
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.axis('off')
+    plt.show()
     st.pyplot(plt)
 
     # マジセミセミナーの検索条件
