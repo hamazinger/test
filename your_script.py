@@ -296,6 +296,7 @@ def analyze_keyword(keywords,max_counts):
 st.set_page_config(layout="wide")
 
 def main():
+    st.title("※※※メンテナンス作業中※※※")
     st.title("キーワード分析")
     
     # キーワード入力ボックスを配置
