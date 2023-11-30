@@ -159,7 +159,8 @@ def analyze_keyword(keywords,max_counts):
     else:
         df_seminars_quarterly = pd.DataFrame()  # 空のデータフレームを作成
 
-
+    st.write(articles_query)
+    st.write(seminars_query)
 
     # プロットの描画
     plt.figure(figsize=(12, 6))
