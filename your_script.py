@@ -73,6 +73,10 @@ def get_max_count(keywords, data_type):
     conditions = [f"REGEXP_CONTAINS(title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords]
     combined_condition = ' AND '.join(conditions)
 
+    # マジセミセミナーの検索条件
+    conditions_majisemi = [f"REGEXP_CONTAINS(Seminar_Title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords]
+    combined_condition_majisemi = ' AND '.join(conditions_majisemi)
+
     query = ""
     if data_type == "articles":
         query = f"""
@@ -101,7 +105,7 @@ def get_max_count(keywords, data_type):
         FROM (
             SELECT TIMESTAMP_TRUNC(Seminar_Date, QUARTER) as quarter, COUNT(*) as count
             FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
-            WHERE {combined_condition}
+            WHERE {combined_condition_majisemi}
             GROUP BY quarter
         )
         """
@@ -109,7 +113,7 @@ def get_max_count(keywords, data_type):
         query = f"""
         SELECT MAX(Acquisition_Speed) as max_count
         FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
-        WHERE {combined_condition}
+        WHERE {combined_condition_majisemi}
         """
     df = pd.DataFrame(run_query(query))
     if df.empty or 'max_count' not in df.columns:
