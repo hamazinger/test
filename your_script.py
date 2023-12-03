@@ -130,15 +130,55 @@ def analyze_keyword(keywords,max_counts):
     ax2.set_ylim(0, max_counts["seminars"])
     
     if not df_articles.empty:
-        ax1.plot(df_articles_quarterly.index, df_articles_quarterly['count'], color='green', marker='x', label='Articles')
+        # ax1.plot(df_articles_quarterly.index, df_articles_quarterly['count'], color='green', marker='x', label='Articles')
+        x_articles = np.arange(len(df_articles_quarterly))
+        y_articles = df_articles_quarterly['count'].values
+
+        # 多項式回帰（例：2次）
+        z_articles = np.polyfit(x_articles, y_articles, 2)
+        p_articles = np.poly1d(z_articles)
+
+        # 元のデータのプロット
+        ax1.plot(df_articles_quarterly.index, y_articles, color='green', marker='x', label='Articles')
+
+        # 近似曲線のプロット
+        ax1.plot(df_articles_quarterly.index, p_articles(x_articles), color='green', linestyle='--', label='Articles Approximation')
+        
     else:
         st.write("No article count data found.")
     
     if not df_seminars.empty:
-        ax2.plot(df_seminars_quarterly.index, df_seminars_quarterly['count'], color='red', marker='^', label='Seminars')
+        # ax2.plot(df_seminars_quarterly.index, df_seminars_quarterly['count'], color='red', marker='^', label='Seminars')
+        x_seminars = np.arange(len(df_seminars_quarterly))
+        y_seminars = df_seminars_quarterly['count'].values
+
+        # 多項式回帰（例：2次）
+        z_seminars = np.polyfit(x_seminars, y_seminars, 2)
+        p_seminars = np.poly1d(z_seminars)
+
+        # 元のデータのプロット
+        ax2.plot(df_seminars_quarterly.index, y_seminars, color='red', marker='^', label='Seminars')
+
+        # 近似曲線のプロット
+        ax2.plot(df_seminars_quarterly.index, p_seminars(x_seminars), color='red', linestyle='--', label='Seminars Approximation')
+        
     else:
         st.write("No seminar count data found.")
     
+    # ax1.set_xlabel('Quarter')
+    # ax1.set_ylabel('Counts of Articles', color='green')
+    # ax1.tick_params(axis='y', labelcolor='green')
+    # ax1.legend(loc='upper left')
+    
+    # ax2.set_ylabel('Counts of Seminars', color='red')
+    # ax2.tick_params(axis='y', labelcolor='red')
+    # ax2.legend(loc='upper right')
+
+    # # ax1.xaxis.set_major_locator(MaxNLocator(integer=True))
+    # ax1.yaxis.set_major_locator(MaxNLocator(integer=True))
+    # ax2.yaxis.set_major_locator(MaxNLocator(integer=True))
+
+    # plt.title(f'Number of Articles and Seminars for "{", ".join(keywords)}"')
     ax1.set_xlabel('Quarter')
     ax1.set_ylabel('Counts of Articles', color='green')
     ax1.tick_params(axis='y', labelcolor='green')
