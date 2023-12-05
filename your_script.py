@@ -134,15 +134,18 @@ def analyze_keyword(keywords,max_counts):
         x_articles = np.arange(len(df_articles_quarterly))
         y_articles = df_articles_quarterly['count'].values
 
-        # 多項式回帰（例：2次）
-        z_articles = np.polyfit(x_articles, y_articles, 2)
-        p_articles = np.poly1d(z_articles)
+        try:
+            # 多項式回帰（例：2次）
+            z_articles = np.polyfit(x_articles, y_articles, 2)
+            p_articles = np.poly1d(z_articles)
+
+            # 近似曲線のプロット
+            ax1.plot(df_articles_quarterly.index, p_articles(x_articles), color='green', linestyle='--', label='Articles Approximation')
+        except np.linalg.LinAlgError:
+            print("エラー: 多項式回帰が収束しませんでした。Articlesの近似曲線は表示されません。")
 
         # 元のデータのプロット
-        ax1.plot(df_articles_quarterly.index, y_articles, color='green', marker='x', label='Articles')
-
-        # 近似曲線のプロット
-        ax1.plot(df_articles_quarterly.index, p_articles(x_articles), color='green', linestyle='--', label='Articles Approximation')
+        ax1.plot(df_articles_quarterly.index, y_articles, color='green', marker='x', label='Articles')       
         
     else:
         st.write("No article count data found.")
@@ -152,15 +155,18 @@ def analyze_keyword(keywords,max_counts):
         x_seminars = np.arange(len(df_seminars_quarterly))
         y_seminars = df_seminars_quarterly['count'].values
 
-        # 多項式回帰（例：2次）
-        z_seminars = np.polyfit(x_seminars, y_seminars, 2)
-        p_seminars = np.poly1d(z_seminars)
+        try:
+            # 多項式回帰（例：2次）
+            z_seminars = np.polyfit(x_seminars, y_seminars, 2)
+            p_seminars = np.poly1d(z_seminars)
+            
+            # 近似曲線のプロット
+            ax2.plot(df_seminars_quarterly.index, p_seminars(x_seminars), color='red', linestyle='--', label='Seminars Approximation')
+        except np.linalg.LinAlgError:
+            print("エラー: 多項式回帰が収束しませんでした。Seminarsの近似曲線は表示されません。")
 
         # 元のデータのプロット
         ax2.plot(df_seminars_quarterly.index, y_seminars, color='red', marker='^', label='Seminars')
-
-        # 近似曲線のプロット
-        ax2.plot(df_seminars_quarterly.index, p_seminars(x_seminars), color='red', linestyle='--', label='Seminars Approximation')
         
     else:
         st.write("No seminar count data found.")
