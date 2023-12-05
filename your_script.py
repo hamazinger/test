@@ -222,39 +222,40 @@ def analyze_keyword(keywords,max_counts):
     else:
         st.write("No matched seminars found.")
 
-    # 記事とセミナーのタイトルを結合
-    combined_titles = ' '.join(df_articles_full['title']) + ' ' + ' '.join(df_seminars_full['title'])
-
-    # 形態素解析の実行
-    t = Tokenizer()
-    tokens = t.tokenize(combined_titles)
-    words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]  # 名詞と動詞のみを抽出
-
-    # キーワードの除外
-    exclude_words = set(keywords)
-    words = [word for word in words if word not in exclude_words]
-
-    # フォントファイルのパス指定
-    font_path = 'NotoSansJP-Regular.ttf'
-
-    # ワードクラウドの生成（記事とセミナーのタイトル用）
-    # wordcloud_combined = WordCloud(font_path=font_path,width=800, height=800, background_color='white', min_font_size=10).generate(combined_titles)
-
-    # ワードクラウドの生成
-    wordcloud = WordCloud(
-        font_path=font_path,
-        background_color='white',
-        width=1600,  # 幅を増やす
-        height=800   # 高さを増やす
-    ).generate(' '.join(words))
+    if not df_articles_full.empty or not df_seminars_full.empty:
+        # 記事とセミナーのタイトルを結合
+        combined_titles = ' '.join(df_articles_full['title']) + ' ' + ' '.join(df_seminars_full['title'])
     
-    st.subheader('ワードクラウド：外部メディア')
-    # ワードクラウドの表示
-    plt.figure(figsize=(10, 10))
-    plt.imshow(wordcloud, interpolation='bilinear')
-    plt.axis('off')
-    plt.show()
-    st.pyplot(plt)
+        # 形態素解析の実行
+        t = Tokenizer()
+        tokens = t.tokenize(combined_titles)
+        words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]  # 名詞と動詞のみを抽出
+    
+        # キーワードの除外
+        exclude_words = set(keywords)
+        words = [word for word in words if word not in exclude_words]
+    
+        # フォントファイルのパス指定
+        font_path = 'NotoSansJP-Regular.ttf'
+    
+        # ワードクラウドの生成（記事とセミナーのタイトル用）
+        # wordcloud_combined = WordCloud(font_path=font_path,width=800, height=800, background_color='white', min_font_size=10).generate(combined_titles)
+    
+        # ワードクラウドの生成
+        wordcloud = WordCloud(
+            font_path=font_path,
+            background_color='white',
+            width=1600,  # 幅を増やす
+            height=800   # 高さを増やす
+        ).generate(' '.join(words))
+        
+        st.subheader('ワードクラウド：外部メディア')
+        # ワードクラウドの表示
+        plt.figure(figsize=(10, 10))
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.axis('off')
+        plt.show()
+        st.pyplot(plt)
 
     # マジセミセミナーの検索条件
     conditions_majisemi = [f"REGEXP_CONTAINS(Seminar_Title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords]
