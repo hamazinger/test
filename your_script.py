@@ -417,9 +417,9 @@ def main():
     if 'authenticated' not in st.session_state:
         st.session_state['authenticated'] = False
 
-    # st.sidebar.title("Login")
+    st.sidebar.title("Login")
     if not st.session_state['authenticated']:
-        st.sidebar.title("Login")
+        # st.sidebar.title("Login")
         username = st.sidebar.text_input("Username")
         password = st.sidebar.text_input("Password", type='password')
         if st.sidebar.button('Login'):
@@ -430,7 +430,7 @@ def main():
                 st.sidebar.error("Invalid username or password")
 
     if st.session_state['authenticated']:
-        st.sidebar.title("authenticated")
+        # st.sidebar.title("authenticated")
         show_analytics()    
 
 if __name__ == "__main__":
