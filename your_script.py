@@ -362,8 +362,8 @@ def authenticate(username, password):
 
 def main():
     # セッション状態の初期化
-    if 'authenticated' not in st.session_state:
-        st.session_state['authenticated'] = False
+    # if 'authenticated' not in st.session_state:
+    #     st.session_state['authenticated'] = False
 
     st.sidebar.title("Login")
 
