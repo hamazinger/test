@@ -142,7 +142,7 @@ def analyze_keyword(keywords,max_counts):
             # 近似曲線のプロット
             ax1.plot(df_articles_quarterly.index, p_articles(x_articles), color='green', linestyle='--', label='Articles Approximation')
         except np.linalg.LinAlgError:
-            st.write("エラー: 多項式回帰が収束しませんでした。Articlesの近似曲線は表示されません。")
+            st.write("※多項式回帰が収束しませんでした。Articlesの近似曲線は表示されません。")
 
         # 元のデータのプロット
         ax1.plot(df_articles_quarterly.index, y_articles, color='green', marker='x', label='Articles')       
@@ -163,7 +163,7 @@ def analyze_keyword(keywords,max_counts):
             # 近似曲線のプロット
             ax2.plot(df_seminars_quarterly.index, p_seminars(x_seminars), color='red', linestyle='--', label='Seminars Approximation')
         except np.linalg.LinAlgError:
-            st.write("エラー: 多項式回帰が収束しませんでした。Seminarsの近似曲線は表示されません。")
+            st.write("※多項式回帰が収束しませんでした。Seminarsの近似曲線は表示されません。")
 
         # 元のデータのプロット
         ax2.plot(df_seminars_quarterly.index, y_seminars, color='red', marker='^', label='Seminars')
