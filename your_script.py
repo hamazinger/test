@@ -226,10 +226,10 @@ def analyze_keyword(keywords,max_counts):
     if not df_articles_full.empty or not df_seminars_full.empty:
 
         if df_seminars_full.empty:
-            combined_titles = ' '.join(df_articles_full['title']) + ' ')
+            combined_titles = ' '.join(df_articles_full['title']) + ' '
 
         elif df_articles_full.empty:
-            combined_titles = ' '.join(df_seminars_full['title']) + ' ')
+            combined_titles = ' '.join(df_seminars_full['title']) + ' '
 
         elif not df_articles_full.empty and not df_seminars_full.empty:
             # 記事とセミナーのタイトルを結合
