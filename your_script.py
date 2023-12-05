@@ -361,20 +361,28 @@ def authenticate(username, password):
     return username != "" and password != ""
 
 def main():
+    # セッション状態の初期化
+    if 'authenticated' not in st.session_state:
+        st.session_state['authenticated'] = False
+
     st.sidebar.title("Login")
-    username = st.sidebar.text_input("Username")
-    password = st.sidebar.text_input("Password", type='password')
 
-    authenticated = False
-    if st.sidebar.button('Login'):
-        if authenticate(username, password):
-            st.success("You are authenticated")
-            authenticated = True
-        else:
-            st.error("Invalid username or password")
+    if not st.session_state['authenticated']:
+        username = st.sidebar.text_input("Username")
+        password = st.sidebar.text_input("Password", type='password')
 
-    if authenticated:
-        # st.title("※※※メンテナンス作業中※※※")
+        if st.sidebar.button('Login'):
+            if authenticate(username, password):
+                st.success("You are authenticated")
+                st.session_state['authenticated'] = True
+            else:
+                st.error("Invalid username or password")
+
+    if st.session_state['authenticated']:
+        # 認証済みのユーザーに対して表示されるコンテンツ
+        # st.title("Keyword Analytics")
+        # ここに分析機能などのコンテンツを配置
+
         st.title("Keyword Analytics")
         
         # キーワード入力ボックスを配置
@@ -425,57 +433,6 @@ def main():
                     st.write(f"## キーワード2: {keyword2} の結果")
                     analyze_keyword(keyword2, max_counts)
 
-# def main():
-#     # st.title("※※※メンテナンス作業中※※※")
-#     st.title("Keyword Analytics")
-    
-#     # キーワード入力ボックスを配置
-#     col_input1, col_input2 = st.columns([2, 2])
-#     with col_input1:
-#         keyword_input1 = st.text_input("キーワード1を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
-#     # with col_input2:
-#         keyword_input2 = st.text_input("キーワード2を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
-#     with col_input2:
-#         st.subheader("＜Latest Updates＞")
-#         st.markdown("""
-#         - 2023/12/03(日) 2023年11月分の外部メディア・記事のデータを追加、チャートに近似曲線を追加
-#         - 2023/11/30(木) ワードクラウドを実装
-#         - 2023/11/29(水) グラフ縦軸のスケールがキーワード1,2で揃うように修正
-#         - 2023/11/28(火) 外部メディアの記事・セミナー情報を「2022年以降」から「2021年以降」に拡充
-#         """)
-    
-#     execute_button = st.button("分析を実行")
-
-#     if execute_button:
-#         # 各指標の最大値を格納する辞書
-#         max_counts = {"articles": 0, "seminars": 0, "majisemi_seminars": 0, "acquisition_speed": 0}
-
-#         if keyword_input1:
-#             keyword1 = unicodedata.normalize('NFKC', keyword_input1.strip().lower())
-#             for data_type in max_counts.keys():
-#                 max_count = get_max_count(keyword1, data_type)
-#                 max_counts[data_type] = max(max_counts[data_type], max_count)
-
-#         if keyword_input2:
-#             keyword2 = unicodedata.normalize('NFKC', keyword_input2.strip().lower())
-#             for data_type in max_counts.keys():
-#                 max_count = get_max_count(keyword2, data_type)
-#                 max_counts[data_type] = max(max_counts[data_type], max_count)
-
-#         # 画面を2つの列に分ける
-#         col1, col2 = st.columns([1,1])
-
-#         # キーワード1の結果を左の列に表示
-#         if keyword_input1:
-#             with col1:
-#                 st.write(f"## キーワード1: {keyword1} の結果")
-#                 analyze_keyword(keyword1, max_counts)
-
-#         # キーワード2の結果を右の列に表示
-#         if keyword_input2:
-#             with col2:
-#                 st.write(f"## キーワード2: {keyword2} の結果")
-#                 analyze_keyword(keyword2, max_counts)
 
     
 
