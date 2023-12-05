@@ -221,10 +221,19 @@ def analyze_keyword(keywords,max_counts):
         st.dataframe(df_seminars_full.sort_values(by='date', ascending=False))
     else:
         st.write("No matched seminars found.")
-
+    
+    # ワードクラウド作成
     if not df_articles_full.empty or not df_seminars_full.empty:
-        # 記事とセミナーのタイトルを結合
-        combined_titles = ' '.join(df_articles_full['title']) + ' ' + ' '.join(df_seminars_full['title'])
+
+        if df_seminars_full.empty:
+            combined_titles = ' '.join(df_articles_full['title']) + ' ')
+
+        elif df_articles_full.empty:
+            combined_titles = ' '.join(df_seminars_full['title']) + ' ')
+
+        elif not df_articles_full.empty and not df_seminars_full.empty:
+            # 記事とセミナーのタイトルを結合
+            combined_titles = ' '.join(df_articles_full['title']) + ' ' + ' '.join(df_seminars_full['title'])
     
         # 形態素解析の実行
         t = Tokenizer()
