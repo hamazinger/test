@@ -421,6 +421,12 @@ def show_analytics():
     # キーワード入力ボックスを配置
     col_input1, col_input2 = st.columns([2, 2])
     with col_input1:
+        st.subheader("＜Latest Updates＞")
+        st.markdown("""
+        - 2023/12/08(金) 直近3ヶ月の全記事・セミナーのワードクラウドを実装
+        - 2023/12/03(日) 2023年11月分の外部メディア・記事のデータを追加、チャートに近似曲線を追加
+        - 2023/11/30(木) ワードクラウドを実装
+        """)
         keyword_input1 = st.text_input("キーワード1を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
     # with col_input2:
         keyword_input2 = st.text_input("キーワード2を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
@@ -431,12 +437,6 @@ def show_analytics():
         plt.axis('off')
         plt.show()
         st.pyplot(plt)
-        st.subheader("＜Latest Updates＞")
-        st.markdown("""
-        - 2023/12/03(日) 2023年11月分の外部メディア・記事のデータを追加、チャートに近似曲線を追加
-        - 2023/11/30(木) ワードクラウドを実装
-        - 2023/11/29(水) グラフ縦軸のスケールがキーワード1,2で揃うように修正
-        """)
     
     execute_button = st.button("分析を実行")
 
