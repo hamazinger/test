@@ -9,6 +9,7 @@ import unicodedata
 from matplotlib.ticker import MaxNLocator
 from wordcloud import WordCloud
 from janome.tokenizer import Tokenizer
+from datetime import datetime, timedelta
 
 # 認証情報の設定
 credentials = service_account.Credentials.from_service_account_info(
