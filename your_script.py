@@ -9,7 +9,7 @@ import unicodedata
 from matplotlib.ticker import MaxNLocator
 from wordcloud import WordCloud
 from janome.tokenizer import Tokenizer
-from datetime import datetime, timedelta
+# from datetime import datetime, timedelta
 
 # 認証情報の設定
 credentials = service_account.Credentials.from_service_account_info(
@@ -380,24 +380,24 @@ def authenticate(username, password):
 def show_analytics():
     st.title("Keyword Analytics")
 
-    # 現在の日付を取得
-    current_date = datetime.now()
-    # 3ヶ月前の日付を計算
-    three_months_ago = current_date - timedelta(days=90)
-    # 日付をYYYY-MM-DD形式に変換
-    three_months_ago_str = three_months_ago.strftime('%Y-%m-%d')
+    # # 現在の日付を取得
+    # current_date = datetime.now()
+    # # 3ヶ月前の日付を計算
+    # three_months_ago = current_date - timedelta(days=90)
+    # # 日付をYYYY-MM-DD形式に変換
+    # three_months_ago_str = three_months_ago.strftime('%Y-%m-%d')
     # 記事のクエリ
     articles_3m_query = f"""
     SELECT *
     FROM `mythical-envoy-386309.ex_media.article`
-    WHERE date >= '{three_months_ago_str}'
+    WHERE date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
     """
     df_articles_3m = pd.DataFrame(run_query(articles_3m_query))
     # セミナーのクエリ
     seminars_3m_query = f"""
     SELECT *
     FROM `mythical-envoy-386309.ex_media.seminar`
-    WHERE date >= '{three_months_ago_str}'
+    WHERE date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
     """
     df_seminars_3m = pd.DataFrame(run_query(seminars_3m_query))
     combined_titles = ' '.join(df_articles_3m['title']) + ' ' + ' '.join(df_seminars_3m['title'])
