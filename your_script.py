@@ -410,12 +410,12 @@ def show_analytics():
     # フォントファイルのパス指定
     font_path = 'NotoSansJP-Regular.ttf'
     # ワードクラウドの生成
-        wordcloud = WordCloud(
-            font_path=font_path,
-            background_color='white',
-            width=1600,  # 幅を増やす
-            height=800   # 高さを増やす
-        ).generate(' '.join(words))
+    wordcloud = WordCloud(
+        font_path=font_path,
+        background_color='white',
+        width=1600,  # 幅を増やす
+        height=800   # 高さを増やす
+    ).generate(' '.join(words))
 
     # キーワード入力ボックスを配置
     col_input1, col_input2 = st.columns([2, 2])
