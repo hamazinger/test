@@ -380,44 +380,6 @@ def authenticate(username, password):
 def show_analytics():
     st.title("Keyword Analytics")
 
-    # # 現在の日付を取得
-    # current_date = datetime.now()
-    # # 3ヶ月前の日付を計算
-    # three_months_ago = current_date - timedelta(days=90)
-    # # 日付をYYYY-MM-DD形式に変換
-    # three_months_ago_str = three_months_ago.strftime('%Y-%m-%d')
-    # 記事のクエリ
-    articles_3m_query = f"""
-    SELECT *
-    FROM `mythical-envoy-386309.ex_media.article`
-    WHERE date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
-    """
-    df_articles_3m = pd.DataFrame(run_query(articles_3m_query))
-    # セミナーのクエリ
-    seminars_3m_query = f"""
-    SELECT *
-    FROM `mythical-envoy-386309.ex_media.seminar`
-    WHERE date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
-    """
-    df_seminars_3m = pd.DataFrame(run_query(seminars_3m_query))
-    combined_titles = ' '.join(df_articles_3m['title']) + ' ' + ' '.join(df_seminars_3m['title'])
-    # 形態素解析の実行
-    t = Tokenizer()
-    tokens = t.tokenize(combined_titles)
-    words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]  # 名詞と動詞のみを抽出
-    # キーワードの除外
-    exclude_words = {'する'}
-    words = [word for word in words if word not in exclude_words]
-    # フォントファイルのパス指定
-    font_path = 'NotoSansJP-Regular.ttf'
-    # ワードクラウドの生成
-    wordcloud = WordCloud(
-        font_path=font_path,
-        background_color='white',
-        width=1600,  # 幅を増やす
-        height=800   # 高さを増やす
-    ).generate(' '.join(words))
-
     # キーワード入力ボックスを配置
     col_input1, col_input2 = st.columns([2, 2])
     with col_input1:
@@ -427,10 +389,43 @@ def show_analytics():
         - 2023/12/03(日) 2023年11月分の外部メディア・記事のデータを追加、チャートに近似曲線を追加
         - 2023/11/30(木) ワードクラウドを実装
         """)
+        st.markdown("---")
         keyword_input1 = st.text_input("キーワード1を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
     # with col_input2:
         keyword_input2 = st.text_input("キーワード2を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
     with col_input2:
+        # 記事のクエリ
+        articles_3m_query = f"""
+        SELECT *
+        FROM `mythical-envoy-386309.ex_media.article`
+        WHERE date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
+        """
+        df_articles_3m = pd.DataFrame(run_query(articles_3m_query))
+        # セミナーのクエリ
+        seminars_3m_query = f"""
+        SELECT *
+        FROM `mythical-envoy-386309.ex_media.seminar`
+        WHERE date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
+        """
+        df_seminars_3m = pd.DataFrame(run_query(seminars_3m_query))
+        combined_titles = ' '.join(df_articles_3m['title']) + ' ' + ' '.join(df_seminars_3m['title'])
+        # 形態素解析の実行
+        t = Tokenizer()
+        tokens = t.tokenize(combined_titles)
+        words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]  # 名詞と動詞のみを抽出
+        # キーワードの除外
+        exclude_words = {'する'}
+        words = [word for word in words if word not in exclude_words]
+        # フォントファイルのパス指定
+        font_path = 'NotoSansJP-Regular.ttf'
+        # ワードクラウドの生成
+        wordcloud = WordCloud(
+            font_path=font_path,
+            background_color='white',
+            width=1600,  # 幅を増やす
+            height=800   # 高さを増やす
+        ).generate(' '.join(words))
+
         st.subheader('ワードクラウド：直近3ヶ月')
         plt.figure(figsize=(10, 10))
         plt.imshow(wordcloud, interpolation='bilinear')
