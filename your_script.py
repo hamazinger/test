@@ -26,53 +26,88 @@ def run_query(query):
 
 # 直近3ヶ月のワードクラウドを生成する関数
 def generate_three_month_wordcloud():
-    if 'wordcloud_image' in st.session_state:
-        # セッション状態に保存されたワードクラウドを表示
-        st.image(st.session_state['wordcloud_image'])
-
-    else:
-        # 記事のクエリ
-        articles_3m_query = f"""
-        SELECT *
-        FROM `mythical-envoy-386309.ex_media.article`
-        WHERE date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
+    if 'combined_titles' not in st.session_state:
+        # データがセッション状態にない場合は、クエリを実行してデータを取得
+        articles_3m_query = """
+            SELECT * FROM `mythical-envoy-386309.ex_media.article`
+            WHERE date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
         """
         df_articles_3m = pd.DataFrame(run_query(articles_3m_query))
-        # セミナーのクエリ
-        seminars_3m_query = f"""
-        SELECT *
-        FROM `mythical-envoy-386309.ex_media.seminar`
-        WHERE date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
+
+        seminars_3m_query = """
+            SELECT * FROM `mythical-envoy-386309.ex_media.seminar`
+            WHERE date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
         """
         df_seminars_3m = pd.DataFrame(run_query(seminars_3m_query))
-        combined_titles = ' '.join(df_articles_3m['title']) + ' ' + ' '.join(df_seminars_3m['title'])
-        # 形態素解析の実行
-        t = Tokenizer()
-        tokens = t.tokenize(combined_titles)
-        words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]  # 名詞と動詞のみを抽出
-        # キーワードの除外
-        exclude_words = {'する'}
-        words = [word for word in words if word not in exclude_words]
-        # フォントファイルのパス指定
-        font_path = 'NotoSansJP-Regular.ttf'
-        # ワードクラウドの生成
-        wordcloud = WordCloud(
-            font_path=font_path,
-            background_color='white',
-            width=1600,  # 幅を増やす
-            height=800   # 高さを増やす
-        ).generate(' '.join(words))
-    
-        st.subheader('ワードクラウド：直近3ヶ月')
-        plt.figure(figsize=(10, 10))
-        plt.imshow(wordcloud, interpolation='bilinear')
-        plt.axis('off')
-        plt.show()
 
-        # 生成したワードクラウドをセッション状態に保存
-        st.session_state['wordcloud_image'] = plt.gcf()
+        # タイトルを結合してセッション状態に保存
+        combined_titles = ' '.join(df_articles_3m['title']) + ' ' + ' '.join(df_seminars_3m['title'])
+        st.session_state['combined_titles'] = combined_titles
+
+    # 保存されたタイトルを使用してワードクラウドを生成
+    t = Tokenizer()
+    tokens = t.tokenize(st.session_state['combined_titles'])
+    words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]
+    exclude_words = {'する'}
+    words = [word for word in words if word not in exclude_words]
+
+    font_path = 'NotoSansJP-Regular.ttf'
+    wordcloud = WordCloud(font_path=font_path, background_color='white', width=1600, height=800).generate(' '.join(words))
+
+    st.subheader('ワードクラウド：直近3ヶ月')
+    plt.figure(figsize=(10, 10))
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.axis('off')
+    plt.show()
+    st.pyplot(plt)
+    
+    # if 'wordcloud_image' in st.session_state:
+    #     # セッション状態に保存されたワードクラウドを表示
+    #     st.image(st.session_state['wordcloud_image'])
+
+    # else:
+    #     # 記事のクエリ
+    #     articles_3m_query = f"""
+    #     SELECT *
+    #     FROM `mythical-envoy-386309.ex_media.article`
+    #     WHERE date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
+    #     """
+    #     df_articles_3m = pd.DataFrame(run_query(articles_3m_query))
+    #     # セミナーのクエリ
+    #     seminars_3m_query = f"""
+    #     SELECT *
+    #     FROM `mythical-envoy-386309.ex_media.seminar`
+    #     WHERE date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
+    #     """
+    #     df_seminars_3m = pd.DataFrame(run_query(seminars_3m_query))
+    #     combined_titles = ' '.join(df_articles_3m['title']) + ' ' + ' '.join(df_seminars_3m['title'])
+    #     # 形態素解析の実行
+    #     t = Tokenizer()
+    #     tokens = t.tokenize(combined_titles)
+    #     words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]  # 名詞と動詞のみを抽出
+    #     # キーワードの除外
+    #     exclude_words = {'する'}
+    #     words = [word for word in words if word not in exclude_words]
+    #     # フォントファイルのパス指定
+    #     font_path = 'NotoSansJP-Regular.ttf'
+    #     # ワードクラウドの生成
+    #     wordcloud = WordCloud(
+    #         font_path=font_path,
+    #         background_color='white',
+    #         width=1600,  # 幅を増やす
+    #         height=800   # 高さを増やす
+    #     ).generate(' '.join(words))
+    
+    #     st.subheader('ワードクラウド：直近3ヶ月')
+    #     plt.figure(figsize=(10, 10))
+    #     plt.imshow(wordcloud, interpolation='bilinear')
+    #     plt.axis('off')
+    #     plt.show()
+
+    #     # 生成したワードクラウドをセッション状態に保存
+    #     st.session_state['wordcloud_image'] = plt.gcf()
         
-        st.pyplot(plt)
+    #     st.pyplot(plt)
         
 def get_max_count(keywords, data_type):
     # keywords_conditions = [f"REGEXP_CONTAINS(title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords.split(',')]
