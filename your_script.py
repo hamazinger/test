@@ -24,6 +24,47 @@ def run_query(query):
     rows = [dict(row) for row in rows_raw]
     return rows
 
+# 直近3ヶ月のワードクラウドを生成する関数
+def generate_three_month_wordcloud():
+    # 記事のクエリ
+    articles_3m_query = f"""
+    SELECT *
+    FROM `mythical-envoy-386309.ex_media.article`
+    WHERE date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
+    """
+    df_articles_3m = pd.DataFrame(run_query(articles_3m_query))
+    # セミナーのクエリ
+    seminars_3m_query = f"""
+    SELECT *
+    FROM `mythical-envoy-386309.ex_media.seminar`
+    WHERE date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
+    """
+    df_seminars_3m = pd.DataFrame(run_query(seminars_3m_query))
+    combined_titles = ' '.join(df_articles_3m['title']) + ' ' + ' '.join(df_seminars_3m['title'])
+    # 形態素解析の実行
+    t = Tokenizer()
+    tokens = t.tokenize(combined_titles)
+    words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]  # 名詞と動詞のみを抽出
+    # キーワードの除外
+    exclude_words = {'する'}
+    words = [word for word in words if word not in exclude_words]
+    # フォントファイルのパス指定
+    font_path = 'NotoSansJP-Regular.ttf'
+    # ワードクラウドの生成
+    wordcloud = WordCloud(
+        font_path=font_path,
+        background_color='white',
+        width=1600,  # 幅を増やす
+        height=800   # 高さを増やす
+    ).generate(' '.join(words))
+
+    st.subheader('ワードクラウド：直近3ヶ月')
+    plt.figure(figsize=(10, 10))
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.axis('off')
+    plt.show()
+    st.pyplot(plt)
+        
 def get_max_count(keywords, data_type):
     # keywords_conditions = [f"REGEXP_CONTAINS(title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords.split(',')]
     # combined_keywords_condition = ' AND '.join(keywords_conditions)
@@ -394,44 +435,13 @@ def show_analytics():
     # with col_input2:
         keyword_input2 = st.text_input("キーワード2を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
     with col_input2:
-        # 記事のクエリ
-        articles_3m_query = f"""
-        SELECT *
-        FROM `mythical-envoy-386309.ex_media.article`
-        WHERE date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
-        """
-        df_articles_3m = pd.DataFrame(run_query(articles_3m_query))
-        # セミナーのクエリ
-        seminars_3m_query = f"""
-        SELECT *
-        FROM `mythical-envoy-386309.ex_media.seminar`
-        WHERE date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
-        """
-        df_seminars_3m = pd.DataFrame(run_query(seminars_3m_query))
-        combined_titles = ' '.join(df_articles_3m['title']) + ' ' + ' '.join(df_seminars_3m['title'])
-        # 形態素解析の実行
-        t = Tokenizer()
-        tokens = t.tokenize(combined_titles)
-        words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]  # 名詞と動詞のみを抽出
-        # キーワードの除外
-        exclude_words = {'する'}
-        words = [word for word in words if word not in exclude_words]
-        # フォントファイルのパス指定
-        font_path = 'NotoSansJP-Regular.ttf'
-        # ワードクラウドの生成
-        wordcloud = WordCloud(
-            font_path=font_path,
-            background_color='white',
-            width=1600,  # 幅を増やす
-            height=800   # 高さを増やす
-        ).generate(' '.join(words))
-
-        st.subheader('ワードクラウド：直近3ヶ月')
-        plt.figure(figsize=(10, 10))
-        plt.imshow(wordcloud, interpolation='bilinear')
-        plt.axis('off')
-        plt.show()
-        st.pyplot(plt)
+        # ボタンが押された場合、セッション状態を更新
+        if st.button('直近3ヶ月のワードクラウドを表示'):
+            st.session_state['show_three_month_wordcloud'] = True
+    
+        # セッション状態に基づいてワードクラウドを表示
+        if st.session_state.get('show_three_month_wordcloud'):
+            generate_three_month_wordcloud()
     
     execute_button = st.button("分析を実行")
 
@@ -471,6 +481,10 @@ def main():
     # セッション状態の初期化
     if 'authenticated' not in st.session_state:
         st.session_state['authenticated'] = False
+
+    # セッション状態の初期化
+    if 'show_three_month_wordcloud' not in st.session_state:
+        st.session_state['show_three_month_wordcloud'] = False
 
     # st.sidebar.title("Login")
     # if not st.session_state['authenticated']:
