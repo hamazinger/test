@@ -318,6 +318,13 @@ def analyze_keyword(keywords,max_counts):
         t = Tokenizer()
         tokens = t.tokenize(combined_titles)
         words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]  # 名詞と動詞のみを抽出
+
+        # フィルタリング条件
+        # 1文字の単語を除外
+        words = [word for word in words if len(word) > 1]
+        # ひらがな2文字の単語を除外
+        words = [word for word in words if not re.match('^[ぁ-ん]{2}$', word)]
+        words = [word for word in words if not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
     
         # キーワードの除外
         exclude_words = set(keywords)
@@ -417,6 +424,14 @@ def analyze_keyword(keywords,max_counts):
         t = Tokenizer()
         tokens = t.tokenize(seminar_titles)
         words_seminar = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]  # 名詞と動詞のみを抽出
+
+        # フィルタリング条件
+        # 1文字の単語を除外
+        words_seminar = [word for word in words_seminar if len(word) > 1]
+        # ひらがな2文字の単語を除外
+        words_seminar = [word for word in words_seminar if not re.match('^[ぁ-ん]{2}$', word)]
+        # 漢字1文字とひらがな1文字から成る2文字の単語を除外
+        words_seminar = [word for word in words_seminar if not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
         
         # キーワードの除外
         words_seminar = [word for word in words_seminar if word not in exclude_words]
