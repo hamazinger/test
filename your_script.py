@@ -58,6 +58,7 @@ def generate_three_month_wordcloud():
         words = [word for word in words if len(word) > 1]
         # ひらがな2文字の単語を除外
         words = [word for word in words if not re.match('^[ぁ-ん]{2}$', word)]
+        words = [word for word in words if not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
         # キーワードの除外
         exclude_words = {'する'}
         words = [word for word in words if word not in exclude_words]
