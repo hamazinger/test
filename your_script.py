@@ -51,6 +51,12 @@ def generate_three_month_wordcloud():
         t = Tokenizer()
         tokens = t.tokenize(combined_titles)
         words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]  # 名詞と動詞のみを抽出
+        
+        # フィルタリング条件
+        # 1文字の単語を除外
+        words = [word for word in words if len(word) > 1]
+        # ひらがな2文字の単語を除外
+        words = [word for word in words if not re.match('^[ぁ-ん]{2}$', word)]
         # キーワードの除外
         exclude_words = {'する'}
         words = [word for word in words if word not in exclude_words]
