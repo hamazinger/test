@@ -6,6 +6,7 @@ from google.oauth2 import service_account
 import matplotlib.pyplot as plt
 import japanize_matplotlib
 import unicodedata
+import re
 from matplotlib.ticker import MaxNLocator
 from wordcloud import WordCloud
 from janome.tokenizer import Tokenizer
