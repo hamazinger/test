@@ -12,6 +12,7 @@ from wordcloud import WordCloud
 from janome.tokenizer import Tokenizer
 from PIL import Image
 from io import BytesIO
+from collections import defaultdict
 # from datetime import datetime, timedelta
 
 # 認証情報の設定
@@ -446,6 +447,40 @@ def analyze_keyword(keywords,max_counts):
         
         # ワードクラウドの表示（セミナータイトル用）
         st.subheader('ワードクラウド：マジセミ')
+        plt.figure(figsize=(10, 10))
+        plt.imshow(wordcloud_seminar, interpolation='bilinear')
+        plt.axis('off')
+        plt.show()
+        st.pyplot(plt)
+
+        # ワードクラウド：マジセミ（集客重み付け版）
+        st.subheader('ワードクラウド：マジセミ（集客重み付け版）')
+        # 単語の重み付け頻度を格納する辞書
+        weighted_word_freqs = defaultdict(int)
+        
+        # 各セミナーのタイトルと集客速度をループ処理
+        for title, speed in zip(df_seminar['セミナータイトル'], df_seminar['集客速度']):
+            # 形態素解析
+            tokens = t.tokenize(title)
+            words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]
+            
+            # フィルタリング条件
+            words = [word for word in words if len(word) > 1 and not re.match('^[ぁ-ん]{2}$', word) and not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
+            words = [word for word in words if word not in exclude_words]
+        
+            # 単語に対して重み（集客速度）を掛け、辞書に加算
+            for word in words:
+                weighted_word_freqs[word] += speed
+        
+        # ワードクラウドの生成
+        wordcloud_seminar = WordCloud(
+            font_path=font_path,
+            background_color='white',
+            width=1600,
+            height=800
+        ).generate_from_frequencies(weighted_word_freqs)
+
+        
         plt.figure(figsize=(10, 10))
         plt.imshow(wordcloud_seminar, interpolation='bilinear')
         plt.axis('off')
