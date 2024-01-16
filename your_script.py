@@ -29,9 +29,6 @@ def run_query(query):
     rows = [dict(row) for row in rows_raw]
     return rows
 
-# Streamlitのページ設定をワイドモードに設定
-st.set_page_config(page_title="Keyword Analytics", layout="wide")
-
 # 認証関数（APIを使用）
 def authenticate(username, password):
     url = 'https://stg1.majisemi.com/e/api/check_user'
@@ -510,7 +507,8 @@ def main_page():
         return f"Analysis results for {', '.join(keywords)}"
     
     
-        
+    # Streamlitのページ設定をワイドモードに設定
+    st.set_page_config(page_title="Keyword Analytics", layout="wide")
     
     def show_analytics():
         st.title("Keyword Analytics")
