@@ -589,7 +589,7 @@ def login_page():
     # 認証が成功していない場合のみ、ユーザー名とパスワードの入力欄を表示
     if not st.session_state.login_checked:
         # 空のカラム（左）、ログインフォームのカラム（中央）、空のカラム（右）を作成
-        col1, col2, col3 = st.beta_columns([1,2,1])
+        col1, col2, col3 = st.columns([1,2,1])
 
         with col2:
             username_placeholder = st.empty()
