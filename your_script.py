@@ -598,9 +598,7 @@ def login_page():
             password_placeholder = st.empty()
             username = username_placeholder.text_input("ユーザー名")
             password = password_placeholder.text_input("パスワード", type="password")
-            st.write("""
-            ※マジカンのアカウントでログインできます
-            """)
+            login_message_placeholder.write("※マジカンのアカウントでログインできます")
 
             login_button_placeholder = st.empty()
             if login_button_placeholder.button("ログイン"):
@@ -611,6 +609,7 @@ def login_page():
                     username_placeholder.empty()  # ユーザー名入力欄をクリア
                     password_placeholder.empty()  # パスワード入力欄をクリア
                     login_button_placeholder.empty()  # ログインボタンをクリア
+                    login_message_placeholder.empty()  # ログインメッセージをクリア
                 else:
                     st.error("認証に失敗しました。")
 
