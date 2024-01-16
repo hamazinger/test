@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import japanize_matplotlib
 import unicodedata
 import re
+import requests 
 from matplotlib.ticker import MaxNLocator
 from wordcloud import WordCloud
 from janome.tokenizer import Tokenizer
@@ -497,7 +498,25 @@ st.set_page_config(page_title="Keyword Analytics", layout="wide")
 
 def authenticate(username, password):
     # ユーザー名とパスワードが空でない場合に認証成功
-    return username != "" and password != ""
+    # return username != "" and password != ""
+    
+    # APIのURL
+    url = 'https://stg1.majisemi.com/e/api/check_user'
+
+    # リクエストに含めるパラメータ
+    data = {
+        'name': username,
+        'pass': password
+    }
+
+    # POSTリクエストを送信
+    response = requests.post(url, data=data)
+
+    # レスポンスのJSONを解析
+    response_json = response.json()
+
+    # ステータスが'ok'の場合のみ認証成功と見なす
+    return response_json.get('status') == 'ok'
 
 def show_analytics():
     st.title("Keyword Analytics")
