@@ -36,7 +36,7 @@ def authenticate(username, password):
     response = requests.post(url, data=data)
     response_json = response.json()
     # if response.status_code == 200:
-    if response_json.get('status') == 'ok'
+    if response_json.get('status') == 'ok':
         return True
     else:
         return False
