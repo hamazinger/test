@@ -521,9 +521,9 @@ def main_page():
         with col_input1:
             st.subheader("＜Latest Updates＞")
             st.markdown("""
+            - 2024/01/16(火) 認証機能を実装
             - 2024/01/09(火) 2023年12月分の外部メディアのデータを追加
             - 2023/12/17(日) 集客重み付け版ワードクラウドを実装
-            - 2023/12/08(金) 直近3ヶ月の全記事・セミナーのワードクラウドを実装
             """)
             st.markdown("---")
             keyword_input1 = st.text_input("キーワード1を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
