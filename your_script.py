@@ -598,6 +598,7 @@ def login_page():
             password_placeholder = st.empty()
             username = username_placeholder.text_input("ユーザー名")
             password = password_placeholder.text_input("パスワード", type="password")
+            login_message_placeholder = st.empty()
             login_message_placeholder.write("※マジカンのアカウントでログインできます")
 
             login_button_placeholder = st.empty()
