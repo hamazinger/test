@@ -41,6 +41,7 @@ def authenticate(username, password):
         
 # メインページの関数
 def main_page():
+    show_analytics()
     
     # 直近3ヶ月のワードクラウドを生成する関数
     def generate_three_month_wordcloud():
