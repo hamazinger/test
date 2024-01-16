@@ -580,6 +580,8 @@ def main_page():
 
 # ログインページの関数
 def login_page():
+    title_placeholder = st.empty()
+    title_placeholder.title("ログイン")
     
     # ログイン状態を保持するための非表示のチェックボックス
     if "login_checked" not in st.session_state:
@@ -591,8 +593,6 @@ def login_page():
         col1, col2, col3 = st.beta_columns([1,2,1])
 
         with col2:
-            title_placeholder = st.empty()
-            title_placeholder.title("ログイン")
             username_placeholder = st.empty()
             password_placeholder = st.empty()
             username = username_placeholder.text_input("ユーザー名")
