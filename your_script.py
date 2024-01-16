@@ -581,12 +581,22 @@ def login_page():
     st.title("ログイン")
     username = st.text_input("ユーザー名")
     password = st.text_input("パスワード", type="password")
+    
+    # ログイン状態を保持するための非表示のチェックボックス
+    if "login_checked" not in st.session_state:
+        st.session_state.login_checked = False
+
     if st.button("ログイン"):
         if authenticate(username, password):
             st.session_state['authenticated'] = True
+            st.session_state.login_checked = True  # 認証成功時にチェック
         else:
             st.error("認証に失敗しました。")
-            
+
+    # 認証後にセッション状態が更新されたことを確認し、メインページに遷移する
+    if st.session_state.login_checked:
+        main_page()
+
 def main():
     if 'authenticated' not in st.session_state:
         st.session_state['authenticated'] = False
