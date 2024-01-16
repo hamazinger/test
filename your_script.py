@@ -517,6 +517,7 @@ def authenticate(username, password):
 
     # ステータスが'ok'の場合のみ認証成功と見なす
     return response_json.get('status') == 'ok'
+    
 
 def show_analytics():
     st.title("Keyword Analytics")
