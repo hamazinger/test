@@ -595,7 +595,8 @@ def login_page():
 
     # 認証後にセッション状態が更新されたことを確認し、メインページに遷移する
     if st.session_state.login_checked:
-        main_page()
+        # main_page()
+        main()
 
 def main():
     if 'authenticated' not in st.session_state:
