@@ -580,7 +580,8 @@ def main_page():
 
 # ログインページの関数
 def login_page():
-    st.title("ログイン")
+    title_placeholder = st.empty()
+    title_placeholder.title("ログイン")
     
     # ログイン状態を保持するための非表示のチェックボックス
     if "login_checked" not in st.session_state:
@@ -593,12 +594,15 @@ def login_page():
         username = username_placeholder.text_input("ユーザー名")
         password = password_placeholder.text_input("パスワード", type="password")
 
-        if st.button("ログイン"):
+        login_button_placeholder = st.empty()
+        if login_button_placeholder.button("ログイン"):
             if authenticate(username, password):
                 st.session_state['authenticated'] = True
                 st.session_state.login_checked = True  # 認証成功時にチェック
+                title_placeholder.empty()  # タイトルをクリア
                 username_placeholder.empty()  # ユーザー名入力欄をクリア
                 password_placeholder.empty()  # パスワード入力欄をクリア
+                login_button_placeholder.empty()  # ログインボタンをクリア
             else:
                 st.error("認証に失敗しました。")
 
@@ -614,7 +618,6 @@ def main():
         main_page()
     else:
         login_page()
-
 
 if __name__ == "__main__":
     main()
