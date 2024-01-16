@@ -593,11 +593,14 @@ def login_page():
 
         with col2:
             title_placeholder = st.empty()
-            title_placeholder.title("ログイン")
+            title_placeholder.title("Keyword Analytics")
             username_placeholder = st.empty()
             password_placeholder = st.empty()
             username = username_placeholder.text_input("ユーザー名")
             password = password_placeholder.text_input("パスワード", type="password")
+            st.write("""
+            ※マジカンのアカウントでログインできます
+            """)
 
             login_button_placeholder = st.empty()
             if login_button_placeholder.button("ログイン"):
