@@ -572,7 +572,7 @@ def main_page():
                 with col2:
                     st.write(f"## キーワード2: {keyword2} の結果")
                     analyze_keyword(keyword2, max_counts)
-    main()
+    
     show_analytics()
     
 
@@ -597,14 +597,22 @@ def login_page():
     if st.session_state.login_checked:
         main_page()
 
-def main():
-    if 'authenticated' not in st.session_state:
-        st.session_state['authenticated'] = False
+# def main():
+#     if 'authenticated' not in st.session_state:
+#         st.session_state['authenticated'] = False
 
-    if st.session_state['authenticated']:
-        main_page()
-    else:
+#     if st.session_state['authenticated']:
+#         main_page()
+#     else:
+#         login_page()
+
+def main():
+    st.session_state['authenticated'] = False
+
+    if not st.session_state['authenticated']:
         login_page()
+    else:
+        main_page()
 
 if __name__ == "__main__":
     main()
