@@ -580,8 +580,6 @@ def main_page():
 
 # ログインページの関数
 def login_page():
-    title_placeholder = st.empty()
-    title_placeholder.title("ログイン")
     
     # ログイン状態を保持するための非表示のチェックボックス
     if "login_checked" not in st.session_state:
@@ -589,22 +587,28 @@ def login_page():
 
     # 認証が成功していない場合のみ、ユーザー名とパスワードの入力欄を表示
     if not st.session_state.login_checked:
-        username_placeholder = st.empty()
-        password_placeholder = st.empty()
-        username = username_placeholder.text_input("ユーザー名")
-        password = password_placeholder.text_input("パスワード", type="password")
+        # 空のカラム（左）、ログインフォームのカラム（中央）、空のカラム（右）を作成
+        col1, col2, col3 = st.beta_columns([1,2,1])
 
-        login_button_placeholder = st.empty()
-        if login_button_placeholder.button("ログイン"):
-            if authenticate(username, password):
-                st.session_state['authenticated'] = True
-                st.session_state.login_checked = True  # 認証成功時にチェック
-                title_placeholder.empty()  # タイトルをクリア
-                username_placeholder.empty()  # ユーザー名入力欄をクリア
-                password_placeholder.empty()  # パスワード入力欄をクリア
-                login_button_placeholder.empty()  # ログインボタンをクリア
-            else:
-                st.error("認証に失敗しました。")
+        with col2:
+            title_placeholder = st.empty()
+            title_placeholder.title("ログイン")
+            username_placeholder = st.empty()
+            password_placeholder = st.empty()
+            username = username_placeholder.text_input("ユーザー名")
+            password = password_placeholder.text_input("パスワード", type="password")
+
+            login_button_placeholder = st.empty()
+            if login_button_placeholder.button("ログイン"):
+                if authenticate(username, password):
+                    st.session_state['authenticated'] = True
+                    st.session_state.login_checked = True  # 認証成功時にチェック
+                    title_placeholder.empty()  # タイトルをクリア
+                    username_placeholder.empty()  # ユーザー名入力欄をクリア
+                    password_placeholder.empty()  # パスワード入力欄をクリア
+                    login_button_placeholder.empty()  # ログインボタンをクリア
+                else:
+                    st.error("認証に失敗しました。")
 
     # 認証後にセッション状態が更新されたことを確認し、メインページに遷移する
     if st.session_state.login_checked:
@@ -618,6 +622,7 @@ def main():
         main_page()
     else:
         login_page()
+
 
 if __name__ == "__main__":
     main()
