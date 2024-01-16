@@ -588,13 +588,17 @@ def login_page():
 
     # 認証が成功していない場合のみ、ユーザー名とパスワードの入力欄を表示
     if not st.session_state.login_checked:
-        username = st.text_input("ユーザー名")
-        password = st.text_input("パスワード", type="password")
+        username_placeholder = st.empty()
+        password_placeholder = st.empty()
+        username = username_placeholder.text_input("ユーザー名")
+        password = password_placeholder.text_input("パスワード", type="password")
 
         if st.button("ログイン"):
             if authenticate(username, password):
                 st.session_state['authenticated'] = True
                 st.session_state.login_checked = True  # 認証成功時にチェック
+                username_placeholder.empty()  # ユーザー名入力欄をクリア
+                password_placeholder.empty()  # パスワード入力欄をクリア
             else:
                 st.error("認証に失敗しました。")
 
