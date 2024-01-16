@@ -34,10 +34,12 @@ def authenticate(username, password):
     url = 'https://stg1.majisemi.com/e/api/check_user'
     data = {'name': username, 'pass': password}
     response = requests.post(url, data=data)
-    if response.status_code == 200:
+    # if response.status_code == 200:
+    if response.json().get('status') == 'ok'
         return response.json().get('status') == 'ok'
     else:
         return False
+
         
 # メインページの関数
 def main_page():
