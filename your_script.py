@@ -41,7 +41,6 @@ def authenticate(username, password):
         
 # メインページの関数
 def main_page():
-    show_analytics()
     
     # 直近3ヶ月のワードクラウドを生成する関数
     def generate_three_month_wordcloud():
@@ -508,9 +507,6 @@ def main_page():
         return f"Analysis results for {', '.join(keywords)}"
     
     
-    # Streamlitのページ設定をワイドモードに設定
-    st.set_page_config(page_title="Keyword Analytics", layout="wide")
-    
     def show_analytics():
         st.title("Keyword Analytics")
     
@@ -570,6 +566,10 @@ def main_page():
                 with col2:
                     st.write(f"## キーワード2: {keyword2} の結果")
                     analyze_keyword(keyword2, max_counts)
+
+    show_analytics()
+    # Streamlitのページ設定をワイドモードに設定
+    st.set_page_config(page_title="Keyword Analytics", layout="wide")
 
 # ログインページの関数
 def login_page():
