@@ -113,6 +113,7 @@ def main_page():
         SELECT title
         FROM `mythical-envoy-386309.ex_media.article`
         WHERE EXTRACT(YEAR FROM date) = {year}
+        AND EXTRACT(MONTH FROM date) BETWEEN 1 AND 12
         """
         df_articles = pd.DataFrame(run_query(articles_query))
     
@@ -120,6 +121,7 @@ def main_page():
         SELECT title
         FROM `mythical-envoy-386309.ex_media.seminar`
         WHERE EXTRACT(YEAR FROM date) = {year}
+        AND EXTRACT(MONTH FROM date) BETWEEN 1 AND 12
         """
         df_seminars = pd.DataFrame(run_query(seminars_query))
         combined_titles = ' '.join(df_articles['title']) + ' ' + ' '.join(df_seminars['title'])
