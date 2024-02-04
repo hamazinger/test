@@ -106,16 +106,6 @@ def main_page():
             # 画像を表示
             st.image(image, use_column_width=True)
         
-            # st.subheader('ワードクラウド：直近3ヶ月')
-            # plt.figure(figsize=(10, 10))
-            # plt.imshow(wordcloud, interpolation='bilinear')
-            # plt.axis('off')
-            # plt.show()
-    
-            # # 生成したワードクラウドをセッション状態に保存
-            # st.session_state['wordcloud_image'] = plt.gcf()
-            
-            # st.pyplot(plt)
             
     # 年別のワードクラウドを生成する関数
     def generate_yearly_wordcloud(year):
@@ -144,7 +134,7 @@ def main_page():
         words = [word for word in words if word not in exclude_words]
     
         wordcloud = WordCloud(
-            font_path='NotoSansJP-Regular.otf',
+            font_path = 'NotoSansJP-Regular.ttf',
             background_color='white',
             width=1600,
             height=800
