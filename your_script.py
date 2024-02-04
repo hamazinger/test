@@ -117,6 +117,47 @@ def main_page():
             
             # st.pyplot(plt)
             
+    # 年別のワードクラウドを生成する関数
+    def generate_yearly_wordcloud(year):
+        articles_query = f"""
+        SELECT title
+        FROM `mythical-envoy-386309.ex_media.article`
+        WHERE EXTRACT(YEAR FROM date) = {year}
+        """
+        df_articles = pd.DataFrame(run_query(articles_query))
+    
+        seminars_query = f"""
+        SELECT title
+        FROM `mythical-envoy-386309.ex_media.seminar`
+        WHERE EXTRACT(YEAR FROM date) = {year}
+        """
+        df_seminars = pd.DataFrame(run_query(seminars_query))
+        combined_titles = ' '.join(df_articles['title']) + ' ' + ' '.join(df_seminars['title'])
+    
+        t = Tokenizer()
+        tokens = t.tokenize(combined_titles)
+        words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]
+        words = [word for word in words if len(word) > 1]
+        words = [word for word in words if not re.match('^[ぁ-ん]{2}$', word)]
+        words = [word for word in words if not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
+        exclude_words = {'する'}
+        words = [word for word in words if word not in exclude_words]
+    
+        wordcloud = WordCloud(
+            font_path='NotoSansJP-Regular.otf',
+            background_color='white',
+            width=1600,
+            height=800
+        ).generate(' '.join(words))
+    
+        image = wordcloud.to_image()
+    
+        with BytesIO() as output:
+            image.save(output, format="PNG")
+            data = output.getvalue()
+    
+        st.image(image, use_column_width=True)
+    
     def get_max_count(keywords, data_type):
         # keywords_conditions = [f"REGEXP_CONTAINS(title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords.split(',')]
         # combined_keywords_condition = ' AND '.join(keywords_conditions)
@@ -535,6 +576,11 @@ def main_page():
             if st.button('直近3ヶ月のワードクラウドを表示'):
                 # st.session_state['show_three_month_wordcloud'] = True
                 generate_three_month_wordcloud()
+            # 年別ワードクラウドの表示
+            if st.button('年別ワードクラウドを表示'):
+                for year in [2023, 2022, 2021]:  # 対象年を変更する場合は、このリストを更新
+                    st.subheader(f'{year}年のワードクラウド')
+                    generate_yearly_wordcloud(year)
         
             # # セッション状態に基づいてワードクラウドを表示
             # if st.session_state.get('show_three_month_wordcloud'):
