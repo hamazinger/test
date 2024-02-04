@@ -579,7 +579,7 @@ def main_page():
         # with col_input2:
             keyword_input2 = st.text_input("キーワード2を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
         with col_input2:
-            st.subheader('ワードクラウド：直近3ヶ月')
+            st.subheader('ワードクラウドによるトレンド分析')
             # ボタンが押された場合、セッション状態を更新
             if st.button('直近3ヶ月のワードクラウドを表示'):
                 # st.session_state['show_three_month_wordcloud'] = True
