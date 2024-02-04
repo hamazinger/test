@@ -109,46 +109,62 @@ def main_page():
             
     # 年別のワードクラウドを生成する関数
     def generate_yearly_wordcloud(year):
-        articles_query = f"""
-        SELECT title
-        FROM `mythical-envoy-386309.ex_media.article`
-        WHERE EXTRACT(YEAR FROM date) = {year}
-        AND EXTRACT(MONTH FROM date) BETWEEN 1 AND 12
-        """
-        df_articles = pd.DataFrame(run_query(articles_query))
+        # セッション状態のキーを年別にする
+        session_key = f'wordcloud_image_{year}'
+        
+        if session_key in st.session_state:
+            # 保存されたワードクラウド画像を表示
+            st.image(st.session_state[session_key], use_column_width=True)
+        else:
+            articles_query = f"""
+            SELECT title
+            FROM `mythical-envoy-386309.ex_media.article`
+            WHERE EXTRACT(YEAR FROM date) = {year}
+            AND EXTRACT(MONTH FROM date) BETWEEN 1 AND 12
+            """
+            df_articles = pd.DataFrame(run_query(articles_query))
+        
+            seminars_query = f"""
+            SELECT title
+            FROM `mythical-envoy-386309.ex_media.seminar`
+            WHERE EXTRACT(YEAR FROM date) = {year}
+            AND EXTRACT(MONTH FROM date) BETWEEN 1 AND 12
+            """
+            df_seminars = pd.DataFrame(run_query(seminars_query))
+            combined_titles = ' '.join(df_articles['title']) + ' ' + ' '.join(df_seminars['title'])
+        
+            t = Tokenizer()
+            tokens = t.tokenize(combined_titles)
+            words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]
+            words = [word for word in words if len(word) > 1]
+            words = [word for word in words if not re.match('^[ぁ-ん]{2}$', word)]
+            words = [word for word in words if not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
+            exclude_words = {'する'}
+            words = [word for word in words if word not in exclude_words]
+        
+            wordcloud = WordCloud(
+                font_path = 'NotoSansJP-Regular.ttf',
+                background_color='white',
+                width=1600,
+                height=800
+            ).generate(' '.join(words))
+        
+            image = wordcloud.to_image()
+
+            # Pillow画像に変換し、セッション状態に画像を保存
+            with BytesIO() as output:
+                image.save(output, format="PNG")
+                data = output.getvalue()
+            st.session_state[session_key] = data
     
-        seminars_query = f"""
-        SELECT title
-        FROM `mythical-envoy-386309.ex_media.seminar`
-        WHERE EXTRACT(YEAR FROM date) = {year}
-        AND EXTRACT(MONTH FROM date) BETWEEN 1 AND 12
-        """
-        df_seminars = pd.DataFrame(run_query(seminars_query))
-        combined_titles = ' '.join(df_articles['title']) + ' ' + ' '.join(df_seminars['title'])
-    
-        t = Tokenizer()
-        tokens = t.tokenize(combined_titles)
-        words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]
-        words = [word for word in words if len(word) > 1]
-        words = [word for word in words if not re.match('^[ぁ-ん]{2}$', word)]
-        words = [word for word in words if not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
-        exclude_words = {'する'}
-        words = [word for word in words if word not in exclude_words]
-    
-        wordcloud = WordCloud(
-            font_path = 'NotoSansJP-Regular.ttf',
-            background_color='white',
-            width=1600,
-            height=800
-        ).generate(' '.join(words))
-    
-        image = wordcloud.to_image()
-    
-        with BytesIO() as output:
-            image.save(output, format="PNG")
-            data = output.getvalue()
-    
-        st.image(image, use_column_width=True)
+            # 画像を表示
+            st.image(image, use_column_width=True)
+        
+            # with BytesIO() as output:
+            #     image.save(output, format="PNG")
+            #     data = output.getvalue()
+        
+            # st.image(image, use_column_width=True)
     
     def get_max_count(keywords, data_type):
         # keywords_conditions = [f"REGEXP_CONTAINS(title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords.split(',')]
