@@ -40,9 +40,12 @@ def authenticate(username, password):
     response_json = response.json()
     # if response.status_code == 200:
     if response_json.get('status') == 'ok':
-        return True
+        majisemi = response_json.get('majisemi', False)  # `majisemi` の値を取得、デフォルトは False
+        return {'authenticated': True, 'majisemi': majisemi}
+        # return True
     else:
-        return False
+        return {'authenticated': False}
+        # return False
 
         
 # メインページの関数
@@ -482,7 +485,18 @@ def main_page():
             df_seminar['セミナー開催日'] = pd.to_datetime(df_seminar['セミナー開催日'])
             df_seminar['セミナー開催日'] = df_seminar['セミナー開催日'].dt.strftime('%Y-%m-%d')
             #st.dataframe(df_seminar)
-            st.dataframe(df_seminar.sort_values(by='セミナー開催日', ascending=False))
+            # majisemi の状態によって表示する列を変更
+            if st.session_state.get('majisemi', False):  # majisemi が True の場合
+                columns_to_display = ['セミナー開催日','セミナータイトル','主催企業名','大分類','カテゴリ','合計集客人数','集客速度','アクション回答数','アクション回答率（%）']
+            else:  # majisemi が False の場合
+                columns_to_display = ['セミナー開催日','セミナータイトル','主催企業名','大分類','カテゴリ','集客速度']
+        
+            # 選択した列のみを DataFrame から選択
+            df_seminar_filtered = df_seminar[columns_to_display]
+            
+            # データフレームの表示処理...
+            st.dataframe(df_seminar_filtered.sort_values(by='セミナー開催日', ascending=False))
+            # st.dataframe(df_seminar.sort_values(by='セミナー開催日', ascending=False))
             st.write("""
             ※集客速度は、1日あたりの平均申し込み数を表しています。
             """)
@@ -657,8 +671,10 @@ def login_page():
 
             login_button_placeholder = st.empty()
             if login_button_placeholder.button("ログイン"):
-                if authenticate(username, password):
+                auth_result = authenticate(username, password)  # 辞書を返すように変更
+                if auth_result['authenticated']:
                     st.session_state['authenticated'] = True
+                    st.session_state['majisemi'] = auth_result['majisemi']  # `majisemi` の状態を保存
                     st.session_state.login_checked = True  # 認証成功時にチェック
                     title_placeholder.empty()  # タイトルをクリア
                     username_placeholder.empty()  # ユーザー名入力欄をクリア
@@ -667,6 +683,17 @@ def login_page():
                     login_message_placeholder.empty()  # ログインメッセージをクリア
                 else:
                     st.error("認証に失敗しました。")
+            # if login_button_placeholder.button("ログイン"):
+            #     if authenticate(username, password):
+            #         st.session_state['authenticated'] = True
+            #         st.session_state.login_checked = True  # 認証成功時にチェック
+            #         title_placeholder.empty()  # タイトルをクリア
+            #         username_placeholder.empty()  # ユーザー名入力欄をクリア
+            #         password_placeholder.empty()  # パスワード入力欄をクリア
+            #         login_button_placeholder.empty()  # ログインボタンをクリア
+            #         login_message_placeholder.empty()  # ログインメッセージをクリア
+            #     else:
+            #         st.error("認証に失敗しました。")
 
     # 認証後にセッション状態が更新されたことを確認し、メインページに遷移する
     if st.session_state.login_checked:
