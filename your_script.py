@@ -487,7 +487,8 @@ def main_page():
             #st.dataframe(df_seminar)
             # majisemi の状態によって表示する列を変更
             if st.session_state.get('majisemi', False):  # majisemi が True の場合
-                columns_to_display = ['セミナー開催日','セミナータイトル','主催企業名','大分類','カテゴリ','合計集客人数','集客速度','アクション回答数','アクション回答率（%）']
+                # columns_to_display = ['セミナー開催日','セミナータイトル','主催企業名','大分類','カテゴリ','合計集客人数','集客速度','アクション回答数','アクション回答率（%）']
+                columns_to_display = ['セミナー開催日','セミナータイトル','主催企業名','カテゴリ','合計集客人数','集客速度','アクション回答数','アクション回答率（%）']
             else:  # majisemi が False の場合
                 columns_to_display = ['セミナー開催日','セミナータイトル','主催企業名','大分類','カテゴリ','集客速度']
         
