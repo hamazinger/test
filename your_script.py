@@ -84,7 +84,12 @@ def main_page():
             words = [word for word in words if not re.match('^[ぁ-ん]{2}$', word)]
             words = [word for word in words if not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
             # キーワードの除外
-            exclude_words = {'する'}
+            # exclude_words = {'する'}
+            exclude_words = {
+                'ギフト', 'ギフトカード', 'サービス', 'できる', 'ランキング', '可能', '課題', '会員', '会社', '開始', '開発', '活用', '管理', '企業', '機能',
+                '記事', '技術', '業界', '後編', '公開', '最適', '支援', '事業', '実現', '重要', '世界', '成功', '製品', '戦略', '前編', '対策', '抽選', '調査',
+                '提供', '投資', '導入', '発表', '必要', '方法', '目指す', '問題', '利用', '理由', 'する'
+            }
             words = [word for word in words if word not in exclude_words]
             # フォントファイルのパス指定
             font_path = 'NotoSansJP-Regular.ttf'
@@ -142,7 +147,12 @@ def main_page():
             words = [word for word in words if len(word) > 1]
             words = [word for word in words if not re.match('^[ぁ-ん]{2}$', word)]
             words = [word for word in words if not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
-            exclude_words = {'する'}
+            # exclude_words = {'する'}
+            exclude_words = {
+                'ギフト', 'ギフトカード', 'サービス', 'できる', 'ランキング', '可能', '課題', '会員', '会社', '開始', '開発', '活用', '管理', '企業', '機能',
+                '記事', '技術', '業界', '後編', '公開', '最適', '支援', '事業', '実現', '重要', '世界', '成功', '製品', '戦略', '前編', '対策', '抽選', '調査',
+                '提供', '投資', '導入', '発表', '必要', '方法', '目指す', '問題', '利用', '理由', 'する'
+            }
             words = [word for word in words if word not in exclude_words]
         
             wordcloud = WordCloud(
@@ -400,7 +410,12 @@ def main_page():
             words = [word for word in words if not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
         
             # キーワードの除外
-            exclude_words = set(keywords)
+            # exclude_words = set(keywords)
+            exclude_words = {
+                'ギフト', 'ギフトカード', 'サービス', 'できる', 'ランキング', '可能', '課題', '会員', '会社', '開始', '開発', '活用', '管理', '企業', '機能',
+                '記事', '技術', '業界', '後編', '公開', '最適', '支援', '事業', '実現', '重要', '世界', '成功', '製品', '戦略', '前編', '対策', '抽選', '調査',
+                '提供', '投資', '導入', '発表', '必要', '方法', '目指す', '問題', '利用', '理由', 'する'
+            }
             words = [word for word in words if word not in exclude_words]
         
             # フォントファイルのパス指定
