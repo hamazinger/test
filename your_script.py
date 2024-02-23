@@ -33,19 +33,39 @@ def run_query(query):
 st.set_page_config(page_title="Keyword Analytics", layout="wide")
 
 # 認証関数（APIを使用）
+# def authenticate(username, password):
+#     url = 'https://stg1.majisemi.com/e/api/check_user'
+#     data = {'name': username, 'pass': password}
+#     response = requests.post(url, data=data)
+#     response_json = response.json()
+#     # if response.status_code == 200:
+#     if response_json.get('status') == 'ok':
+#         majisemi = response_json.get('majisemi', False)  # `majisemi` の値を取得、デフォルトは False
+#         return {'authenticated': True, 'majisemi': majisemi}
+#         # return True
+#     else:
+#         return {'authenticated': False}
+#         # return False
+
 def authenticate(username, password):
     url = 'https://stg1.majisemi.com/e/api/check_user'
     data = {'name': username, 'pass': password}
     response = requests.post(url, data=data)
     response_json = response.json()
-    # if response.status_code == 200:
     if response_json.get('status') == 'ok':
         majisemi = response_json.get('majisemi', False)  # `majisemi` の値を取得、デフォルトは False
-        return {'authenticated': True, 'majisemi': majisemi}
-        # return True
+        payment = response_json.get('payment', '')  # 新たに `payment` の値を取得
+        if majisemi:
+            # majisemi が True の場合、ログイン成功で表示列の制限なし
+            return {'authenticated': True, 'majisemi': True}
+        elif payment == 'マジセミ倶楽部':
+            # payment が「マジセミ倶楽部」の場合、ログイン成功で表示列に制限あり
+            return {'authenticated': True, 'majisemi': False}
+        else:
+            # 上記以外はログイン失敗
+            return {'authenticated': False}
     else:
         return {'authenticated': False}
-        # return False
 
         
 # メインページの関数
