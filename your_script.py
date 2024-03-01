@@ -579,6 +579,10 @@ def main_page():
             
             # 各セミナーのタイトルと集客速度をループ処理
             for title, speed in zip(df_seminar['セミナータイトル'], df_seminar['集客速度']):
+
+                # 集客速度が欠損値の場合はスキップ
+                if pd.isna(speed):
+                    continue
                 # 形態素解析
                 tokens = t.tokenize(title)
                 words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]
