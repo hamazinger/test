@@ -237,7 +237,8 @@ def main_page():
             SELECT MAX(count) as max_count
             FROM (
                 SELECT TIMESTAMP_TRUNC(Seminar_Date, QUARTER) as quarter, COUNT(*) as count
-                FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
+                #FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
+                FROM `mythical-envoy-386309.majisemi.majisemi_seminar_usukiapi`
                 WHERE {combined_condition_majisemi}
                 GROUP BY quarter
             )
@@ -245,7 +246,8 @@ def main_page():
         elif data_type == "acquisition_speed":
             query = f"""
             SELECT MAX(Acquisition_Speed) as max_count
-            FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
+            #FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
+            FROM `mythical-envoy-386309.majisemi.majisemi_seminar_usukiapi`
             WHERE {combined_condition_majisemi}
             """
         df = pd.DataFrame(run_query(query))
@@ -466,7 +468,8 @@ def main_page():
     
         seminar_query = f"""
         SELECT *
-        FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
+        # FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
+        FROM `mythical-envoy-386309.majisemi.majisemi_seminar_usukiapi`
         WHERE {combined_condition_majisemi}
            AND Seminar_Date BETWEEN '{start_date}' AND '{end_date}'
         """
@@ -514,7 +517,9 @@ def main_page():
                 'Total_Participants': '合計集客人数',
                 'Acquisition_Speed': '集客速度',
                 'Action_Response_Count': 'アクション回答数',
-                'Action_Response_Rate': 'アクション回答率（%）'
+                'Action_Response_Rate': 'アクション回答率（%）',
+                'User_Company_Percentage': 'ユーザー企業割合（%）',
+                'Non_User_Company_Percentage': '非ユーザー企業割合（%）'
             }, inplace=True)
             # 'セミナー開催日'列を日付型に変換
             df_seminar['セミナー開催日'] = pd.to_datetime(df_seminar['セミナー開催日'])
@@ -523,7 +528,7 @@ def main_page():
             # majisemi の状態によって表示する列を変更
             if st.session_state.get('majisemi', False):  # majisemi が True の場合
                 # columns_to_display = ['セミナー開催日','セミナータイトル','主催企業名','大分類','カテゴリ','合計集客人数','集客速度','アクション回答数','アクション回答率（%）']
-                columns_to_display = ['セミナー開催日','セミナータイトル','主催企業名','カテゴリ','合計集客人数','集客速度','アクション回答数','アクション回答率（%）']
+                columns_to_display = ['セミナー開催日','セミナータイトル','主催企業名','カテゴリ','合計集客人数','集客速度','アクション回答数','アクション回答率（%）','ユーザー企業割合（%）','非ユーザー企業割合（%）']
             else:  # majisemi が False の場合
                 columns_to_display = ['セミナー開催日','セミナータイトル','主催企業名','大分類','カテゴリ','集客速度']
         
