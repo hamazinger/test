@@ -237,7 +237,6 @@ def main_page():
             SELECT MAX(count) as max_count
             FROM (
                 SELECT TIMESTAMP_TRUNC(Seminar_Date, QUARTER) as quarter, COUNT(*) as count
-                #FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
                 FROM `mythical-envoy-386309.majisemi.majisemi_seminar_usukiapi`
                 WHERE {combined_condition_majisemi}
                 GROUP BY quarter
@@ -246,7 +245,6 @@ def main_page():
         elif data_type == "acquisition_speed":
             query = f"""
             SELECT MAX(Acquisition_Speed) as max_count
-            #FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
             FROM `mythical-envoy-386309.majisemi.majisemi_seminar_usukiapi`
             WHERE {combined_condition_majisemi}
             """
@@ -468,7 +466,6 @@ def main_page():
     
         seminar_query = f"""
         SELECT *
-        # FROM `mythical-envoy-386309.majisemi.majisemi_seminar`
         FROM `mythical-envoy-386309.majisemi.majisemi_seminar_usukiapi`
         WHERE {combined_condition_majisemi}
            AND Seminar_Date BETWEEN '{start_date}' AND '{end_date}'
