@@ -468,7 +468,8 @@ def main_page():
         SELECT *
         FROM `mythical-envoy-386309.majisemi.majisemi_seminar_usukiapi`
         WHERE {combined_condition_majisemi}
-           AND Seminar_Date BETWEEN '{start_date}' AND '{end_date}'
+           # AND Seminar_Date BETWEEN '{start_date}' AND '{end_date}'
+           AND CAST(Seminar_Date AS TIMESTAMP) BETWEEN '{start_date}' AND '{end_date}'
         """
         df_seminar = pd.DataFrame(run_query(seminar_query))
     
