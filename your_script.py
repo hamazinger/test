@@ -48,7 +48,7 @@ st.set_page_config(page_title="Keyword Analytics", layout="wide")
 #         # return False
 
 def authenticate(username, password):
-    url = 'https://stg1.majisemi.com/e/api/check_user'
+    url = 'https://majisemi.com/e/api/check_user'
     data = {'name': username, 'pass': password}
     response = requests.post(url, data=data)
     response_json = response.json()
