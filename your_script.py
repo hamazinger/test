@@ -532,10 +532,30 @@ def main_page():
         
             # 選択した列のみを DataFrame から選択
             df_seminar_filtered = df_seminar[columns_to_display]
+
+            
+            #-------------24/4/3(水)追加--------------------
+            # ユーザー企業、非ユーザー企業の実数値を計算
+            df_seminar['ユーザー企業数'] = df_seminar['Total_Participants'] * df_seminar['User_Company_Percentage'] / 100
+            df_seminar['非ユーザー企業数'] = df_seminar['Total_Participants'] * df_seminar['Non_User_Company_Percentage'] / 100
+
+            # 抽出結果の全セミナーにおけるユーザー企業割合、非ユーザー企業割合を計算
+            total_participants = df_seminar['Total_Participants'].sum()
+            total_user_companies = df_seminar['ユーザー企業数'].sum()
+            total_non_user_companies = df_seminar['非ユーザー企業数'].sum()
+            user_company_percentage = total_user_companies / total_participants * 100
+            non_user_company_percentage = total_non_user_companies / total_participants * 100
+            #-------------24/4/3(水)追加ここまで--------------------
             
             # データフレームの表示処理...
             st.dataframe(df_seminar_filtered.sort_values(by='セミナー開催日', ascending=False))
             # st.dataframe(df_seminar.sort_values(by='セミナー開催日', ascending=False))
+
+            #-------------24/4/3(水)追加--------------------
+            st.write(f"抽出結果の全セミナーにおけるユーザー企業割合: {user_company_percentage:.2f}%")
+            st.write(f"抽出結果の全セミナーにおける非ユーザー企業割合: {non_user_company_percentage:.2f}%")
+            #-------------24/4/3(水)追加ここまで--------------------
+            
             st.write("""
             ※集客速度は、1日あたりの平均申し込み数を表しています。
             """)
