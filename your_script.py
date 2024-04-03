@@ -552,8 +552,10 @@ def main_page():
             # st.dataframe(df_seminar.sort_values(by='セミナー開催日', ascending=False))
 
             #-------------24/4/3(水)追加--------------------
-            st.write(f"抽出結果の全セミナーにおけるユーザー企業割合: {user_company_percentage:.2f}%")
-            st.write(f"抽出結果の全セミナーにおける非ユーザー企業割合: {non_user_company_percentage:.2f}%")
+            st.markdown(f"""
+            - ユーザー企業割合: {user_company_percentage:.2f}%
+            - 非ユーザー企業割合: {non_user_company_percentage:.2f}%
+            """)
             #-------------24/4/3(水)追加ここまで--------------------
             
             st.write("""
