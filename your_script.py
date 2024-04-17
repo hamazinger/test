@@ -133,6 +133,39 @@ def main_page():
     
             # 画像を表示
             st.image(image, use_column_width=True)
+
+            # マジセミセミナーのクエリ
+            majisemi_seminars_3m_query = f"""
+            SELECT *
+            FROM `mythical-envoy-386309.majisemi.majisemi_seminar_usukiapi`
+            WHERE CAST(Seminar_Date AS TIMESTAMP) BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
+            """
+            df_majisemi_seminars_3m = pd.DataFrame(run_query(majisemi_seminars_3m_query))
+            
+            # マジセミセミナーのタイトルを結合
+            majisemi_titles = ' '.join(df_majisemi_seminars_3m['Seminar_Title'])
+            
+            # マジセミセミナーのタイトルに対して形態素解析を実行
+            majisemi_tokens = t.tokenize(majisemi_titles)
+            majisemi_words = [token.surface for token in majisemi_tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]
+            
+            # フィルタリング条件（マジセミセミナー用）
+            majisemi_words = [word for word in majisemi_words if len(word) > 1]
+            majisemi_words = [word for word in majisemi_words if not re.match('^[ぁ-ん]{2}$', word)]
+            majisemi_words = [word for word in majisemi_words if not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
+            majisemi_words = [word for word in majisemi_words if word not in exclude_words]
+            
+            # マジセミセミナー用のワードクラウドを生成
+            majisemi_wordcloud = WordCloud(
+                font_path=font_path,
+                background_color='white',
+                width=1600,
+                height=800
+            ).generate(' '.join(majisemi_words))
+            
+            # マジセミセミナー用のワードクラウドを表示
+            st.subheader('ワードクラウド：マジセミセミナー（直近3ヶ月）')
+            st.image(majisemi_wordcloud.to_image(), use_column_width=True)
         
             
     # 年別のワードクラウドを生成する関数
