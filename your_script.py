@@ -230,10 +230,16 @@ def main_page():
             st.image(image, use_column_width=True)
         
         # マジセミセミナーのクエリ
+        # majisemi_seminars_3m_query = f"""
+        # SELECT *
+        # FROM `mythical-envoy-386309.majisemi.majisemi_seminar_usukiapi`
+        # WHERE CAST(Seminar_Date AS TIMESTAMP) BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
+        # """
+        
         majisemi_seminars_3m_query = f"""
         SELECT *
         FROM `mythical-envoy-386309.majisemi.majisemi_seminar_usukiapi`
-        WHERE CAST(Seminar_Date AS TIMESTAMP) BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
+        WHERE Seminar_Date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
         """
         df_majisemi_seminars_3m = pd.DataFrame(run_query(majisemi_seminars_3m_query))
         
