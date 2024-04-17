@@ -71,6 +71,102 @@ def authenticate(username, password):
 # メインページの関数
 def main_page():
     
+    # # 直近3ヶ月のワードクラウドを生成する関数
+    # def generate_three_month_wordcloud():
+    #     if 'wordcloud_image' in st.session_state:
+    #         # 保存されたワードクラウド画像を表示
+    #         st.image(st.session_state['wordcloud_image'], use_column_width=True)
+    #     else:
+    #         # 記事のクエリ
+    #         articles_3m_query = f"""
+    #         SELECT *
+    #         FROM `mythical-envoy-386309.ex_media.article`
+    #         WHERE date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
+    #         """
+    #         df_articles_3m = pd.DataFrame(run_query(articles_3m_query))
+    #         # セミナーのクエリ
+    #         seminars_3m_query = f"""
+    #         SELECT *
+    #         FROM `mythical-envoy-386309.ex_media.seminar`
+    #         WHERE date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
+    #         """
+    #         df_seminars_3m = pd.DataFrame(run_query(seminars_3m_query))
+    #         combined_titles = ' '.join(df_articles_3m['title']) + ' ' + ' '.join(df_seminars_3m['title'])
+    #         # 形態素解析の実行
+    #         t = Tokenizer()
+    #         tokens = t.tokenize(combined_titles)
+    #         words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]  # 名詞と動詞のみを抽出
+            
+    #         # フィルタリング条件
+    #         # 1文字の単語を除外
+    #         words = [word for word in words if len(word) > 1]
+    #         # ひらがな2文字の単語を除外
+    #         words = [word for word in words if not re.match('^[ぁ-ん]{2}$', word)]
+    #         words = [word for word in words if not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
+    #         # キーワードの除外
+    #         # exclude_words = {'する'}
+    #         exclude_words = {
+    #             'ギフト', 'ギフトカード', 'サービス', 'できる', 'ランキング', '可能', '課題', '会員', '会社', '開始', '開発', '活用', '管理', '企業', '機能',
+    #             '記事', '技術', '業界', '後編', '公開', '最適', '支援', '事業', '実現', '重要', '世界', '成功', '製品', '戦略', '前編', '対策', '抽選', '調査',
+    #             '提供', '投資', '導入', '発表', '必要', '方法', '目指す', '問題', '利用', '理由', 'する'
+    #         }
+    #         words = [word for word in words if word not in exclude_words]
+    #         # フォントファイルのパス指定
+    #         font_path = 'NotoSansJP-Regular.ttf'
+            
+    #         # ワードクラウドの生成
+    #         wordcloud = WordCloud(
+    #             font_path=font_path,
+    #             background_color='white',
+    #             width=1600,  # 幅を増やす
+    #             height=800   # 高さを増やす
+    #         ).generate(' '.join(words))
+    
+    #         # Pillow画像に変換
+    #         image = wordcloud.to_image()
+    
+    #         # セッション状態に画像を保存
+    #         with BytesIO() as output:
+    #             image.save(output, format="PNG")
+    #             data = output.getvalue()
+    #         st.session_state['wordcloud_image'] = data
+    
+    #         # 画像を表示
+    #         st.image(image, use_column_width=True)
+
+    #         # マジセミセミナーのクエリ
+    #         majisemi_seminars_3m_query = f"""
+    #         SELECT *
+    #         FROM `mythical-envoy-386309.majisemi.majisemi_seminar_usukiapi`
+    #         WHERE CAST(Seminar_Date AS TIMESTAMP) BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
+    #         """
+    #         df_majisemi_seminars_3m = pd.DataFrame(run_query(majisemi_seminars_3m_query))
+            
+    #         # マジセミセミナーのタイトルを結合
+    #         majisemi_titles = ' '.join(df_majisemi_seminars_3m['Seminar_Title'])
+            
+    #         # マジセミセミナーのタイトルに対して形態素解析を実行
+    #         majisemi_tokens = t.tokenize(majisemi_titles)
+    #         majisemi_words = [token.surface for token in majisemi_tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]
+            
+    #         # フィルタリング条件（マジセミセミナー用）
+    #         majisemi_words = [word for word in majisemi_words if len(word) > 1]
+    #         majisemi_words = [word for word in majisemi_words if not re.match('^[ぁ-ん]{2}$', word)]
+    #         majisemi_words = [word for word in majisemi_words if not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
+    #         majisemi_words = [word for word in majisemi_words if word not in exclude_words]
+            
+    #         # マジセミセミナー用のワードクラウドを生成
+    #         majisemi_wordcloud = WordCloud(
+    #             font_path=font_path,
+    #             background_color='white',
+    #             width=1600,
+    #             height=800
+    #         ).generate(' '.join(majisemi_words))
+            
+    #         # マジセミセミナー用のワードクラウドを表示
+    #         st.subheader('ワードクラウド：マジセミセミナー（直近3ヶ月）')
+    #         st.image(majisemi_wordcloud.to_image(), use_column_width=True)
+        
     # 直近3ヶ月のワードクラウドを生成する関数
     def generate_three_month_wordcloud():
         if 'wordcloud_image' in st.session_state:
@@ -104,7 +200,6 @@ def main_page():
             words = [word for word in words if not re.match('^[ぁ-ん]{2}$', word)]
             words = [word for word in words if not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
             # キーワードの除外
-            # exclude_words = {'する'}
             exclude_words = {
                 'ギフト', 'ギフトカード', 'サービス', 'できる', 'ランキング', '可能', '課題', '会員', '会社', '開始', '開発', '活用', '管理', '企業', '機能',
                 '記事', '技術', '業界', '後編', '公開', '最適', '支援', '事業', '実現', '重要', '世界', '成功', '製品', '戦略', '前編', '対策', '抽選', '調査',
@@ -133,41 +228,40 @@ def main_page():
     
             # 画像を表示
             st.image(image, use_column_width=True)
-
-            # マジセミセミナーのクエリ
-            majisemi_seminars_3m_query = f"""
-            SELECT *
-            FROM `mythical-envoy-386309.majisemi.majisemi_seminar_usukiapi`
-            WHERE CAST(Seminar_Date AS TIMESTAMP) BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
-            """
-            df_majisemi_seminars_3m = pd.DataFrame(run_query(majisemi_seminars_3m_query))
-            
-            # マジセミセミナーのタイトルを結合
-            majisemi_titles = ' '.join(df_majisemi_seminars_3m['Seminar_Title'])
-            
-            # マジセミセミナーのタイトルに対して形態素解析を実行
-            majisemi_tokens = t.tokenize(majisemi_titles)
-            majisemi_words = [token.surface for token in majisemi_tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]
-            
-            # フィルタリング条件（マジセミセミナー用）
-            majisemi_words = [word for word in majisemi_words if len(word) > 1]
-            majisemi_words = [word for word in majisemi_words if not re.match('^[ぁ-ん]{2}$', word)]
-            majisemi_words = [word for word in majisemi_words if not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
-            majisemi_words = [word for word in majisemi_words if word not in exclude_words]
-            
-            # マジセミセミナー用のワードクラウドを生成
-            majisemi_wordcloud = WordCloud(
-                font_path=font_path,
-                background_color='white',
-                width=1600,
-                height=800
-            ).generate(' '.join(majisemi_words))
-            
-            # マジセミセミナー用のワードクラウドを表示
-            st.subheader('ワードクラウド：マジセミセミナー（直近3ヶ月）')
-            st.image(majisemi_wordcloud.to_image(), use_column_width=True)
         
-            
+        # マジセミセミナーのクエリ
+        majisemi_seminars_3m_query = f"""
+        SELECT *
+        FROM `mythical-envoy-386309.majisemi.majisemi_seminar_usukiapi`
+        WHERE CAST(Seminar_Date AS TIMESTAMP) BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
+        """
+        df_majisemi_seminars_3m = pd.DataFrame(run_query(majisemi_seminars_3m_query))
+        
+        # マジセミセミナーのタイトルを結合
+        majisemi_titles = ' '.join(df_majisemi_seminars_3m['Seminar_Title'])
+        
+        # マジセミセミナーのタイトルに対して形態素解析を実行
+        majisemi_tokens = t.tokenize(majisemi_titles)
+        majisemi_words = [token.surface for token in majisemi_tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]
+        
+        # フィルタリング条件（マジセミセミナー用）
+        majisemi_words = [word for word in majisemi_words if len(word) > 1]
+        majisemi_words = [word for word in majisemi_words if not re.match('^[ぁ-ん]{2}$', word)]
+        majisemi_words = [word for word in majisemi_words if not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
+        majisemi_words = [word for word in majisemi_words if word not in exclude_words]
+        
+        # マジセミセミナー用のワードクラウドを生成
+        majisemi_wordcloud = WordCloud(
+            font_path=font_path,
+            background_color='white',
+            width=1600,
+            height=800
+        ).generate(' '.join(majisemi_words))
+        
+        # マジセミセミナー用のワードクラウドを表示
+        st.subheader('ワードクラウド：マジセミセミナー（直近3ヶ月）')
+        st.image(majisemi_wordcloud.to_image(), use_column_width=True)        
+    
     # 年別のワードクラウドを生成する関数
     def generate_yearly_wordcloud(year):
         # セッション状態のキーを年別にする
