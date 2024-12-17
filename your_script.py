@@ -14,7 +14,9 @@ from janome.tokenizer import Tokenizer
 from PIL import Image
 from io import BytesIO
 from collections import defaultdict
-# from datetime import datetime, timedelta
+
+# 最初のStreamlitコマンドとしてページ設定を行う
+st.set_page_config(page_title="Keyword Analytics", layout="wide")
 
 # 認証情報の設定
 credentials = service_account.Credentials.from_service_account_info(
@@ -22,30 +24,13 @@ credentials = service_account.Credentials.from_service_account_info(
 )
 client = bigquery.Client(credentials=credentials)
 
-@st.cache(ttl=600)
+# @st.cache -> @st.cache_data へ変更
+@st.cache_data(ttl=600)
 def run_query(query):
     query_job = client.query(query)
     rows_raw = query_job.result()
     rows = [dict(row) for row in rows_raw]
     return rows
-
-# Streamlitのページ設定をワイドモードに設定
-st.set_page_config(page_title="Keyword Analytics", layout="wide")
-
-# 認証関数（APIを使用）
-# def authenticate(username, password):
-#     url = 'https://stg1.majisemi.com/e/api/check_user'
-#     data = {'name': username, 'pass': password}
-#     response = requests.post(url, data=data)
-#     response_json = response.json()
-#     # if response.status_code == 200:
-#     if response_json.get('status') == 'ok':
-#         majisemi = response_json.get('majisemi', False)  # `majisemi` の値を取得、デフォルトは False
-#         return {'authenticated': True, 'majisemi': majisemi}
-#         # return True
-#     else:
-#         return {'authenticated': False}
-#         # return False
 
 def authenticate(username, password):
     url = 'https://majisemi.com/e/api/check_user'
@@ -67,107 +52,7 @@ def authenticate(username, password):
     else:
         return {'authenticated': False}
 
-        
-# メインページの関数
 def main_page():
-    
-    # # 直近3ヶ月のワードクラウドを生成する関数
-    # def generate_three_month_wordcloud():
-    #     if 'wordcloud_image' in st.session_state:
-    #         # 保存されたワードクラウド画像を表示
-    #         st.image(st.session_state['wordcloud_image'], use_column_width=True)
-    #     else:
-    #         # 記事のクエリ
-    #         articles_3m_query = f"""
-    #         SELECT *
-    #         FROM `mythical-envoy-386309.ex_media.article`
-    #         WHERE date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
-    #         """
-    #         df_articles_3m = pd.DataFrame(run_query(articles_3m_query))
-    #         # セミナーのクエリ
-    #         seminars_3m_query = f"""
-    #         SELECT *
-    #         FROM `mythical-envoy-386309.ex_media.seminar`
-    #         WHERE date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
-    #         """
-    #         df_seminars_3m = pd.DataFrame(run_query(seminars_3m_query))
-    #         combined_titles = ' '.join(df_articles_3m['title']) + ' ' + ' '.join(df_seminars_3m['title'])
-    #         # 形態素解析の実行
-    #         t = Tokenizer()
-    #         tokens = t.tokenize(combined_titles)
-    #         words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]  # 名詞と動詞のみを抽出
-            
-    #         # フィルタリング条件
-    #         # 1文字の単語を除外
-    #         words = [word for word in words if len(word) > 1]
-    #         # ひらがな2文字の単語を除外
-    #         words = [word for word in words if not re.match('^[ぁ-ん]{2}$', word)]
-    #         words = [word for word in words if not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
-    #         # キーワードの除外
-    #         # exclude_words = {'する'}
-    #         exclude_words = {
-    #             'ギフト', 'ギフトカード', 'サービス', 'できる', 'ランキング', '可能', '課題', '会員', '会社', '開始', '開発', '活用', '管理', '企業', '機能',
-    #             '記事', '技術', '業界', '後編', '公開', '最適', '支援', '事業', '実現', '重要', '世界', '成功', '製品', '戦略', '前編', '対策', '抽選', '調査',
-    #             '提供', '投資', '導入', '発表', '必要', '方法', '目指す', '問題', '利用', '理由', 'する'
-    #         }
-    #         words = [word for word in words if word not in exclude_words]
-    #         # フォントファイルのパス指定
-    #         font_path = 'NotoSansJP-Regular.ttf'
-            
-    #         # ワードクラウドの生成
-    #         wordcloud = WordCloud(
-    #             font_path=font_path,
-    #             background_color='white',
-    #             width=1600,  # 幅を増やす
-    #             height=800   # 高さを増やす
-    #         ).generate(' '.join(words))
-    
-    #         # Pillow画像に変換
-    #         image = wordcloud.to_image()
-    
-    #         # セッション状態に画像を保存
-    #         with BytesIO() as output:
-    #             image.save(output, format="PNG")
-    #             data = output.getvalue()
-    #         st.session_state['wordcloud_image'] = data
-    
-    #         # 画像を表示
-    #         st.image(image, use_column_width=True)
-
-    #         # マジセミセミナーのクエリ
-    #         majisemi_seminars_3m_query = f"""
-    #         SELECT *
-    #         FROM `mythical-envoy-386309.majisemi.majisemi_seminar_usukiapi`
-    #         WHERE CAST(Seminar_Date AS TIMESTAMP) BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
-    #         """
-    #         df_majisemi_seminars_3m = pd.DataFrame(run_query(majisemi_seminars_3m_query))
-            
-    #         # マジセミセミナーのタイトルを結合
-    #         majisemi_titles = ' '.join(df_majisemi_seminars_3m['Seminar_Title'])
-            
-    #         # マジセミセミナーのタイトルに対して形態素解析を実行
-    #         majisemi_tokens = t.tokenize(majisemi_titles)
-    #         majisemi_words = [token.surface for token in majisemi_tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]
-            
-    #         # フィルタリング条件（マジセミセミナー用）
-    #         majisemi_words = [word for word in majisemi_words if len(word) > 1]
-    #         majisemi_words = [word for word in majisemi_words if not re.match('^[ぁ-ん]{2}$', word)]
-    #         majisemi_words = [word for word in majisemi_words if not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
-    #         majisemi_words = [word for word in majisemi_words if word not in exclude_words]
-            
-    #         # マジセミセミナー用のワードクラウドを生成
-    #         majisemi_wordcloud = WordCloud(
-    #             font_path=font_path,
-    #             background_color='white',
-    #             width=1600,
-    #             height=800
-    #         ).generate(' '.join(majisemi_words))
-            
-    #         # マジセミセミナー用のワードクラウドを表示
-    #         st.subheader('ワードクラウド：マジセミセミナー（直近3ヶ月）')
-    #         st.image(majisemi_wordcloud.to_image(), use_column_width=True)
-        
-    # 直近3ヶ月のワードクラウドを生成する関数
     def generate_three_month_wordcloud():
         if 'wordcloud_image' in st.session_state:
             # 保存されたワードクラウド画像を表示
@@ -213,8 +98,8 @@ def main_page():
             wordcloud = WordCloud(
                 font_path=font_path,
                 background_color='white',
-                width=1600,  # 幅を増やす
-                height=800   # 高さを増やす
+                width=1600,
+                height=800
             ).generate(' '.join(words))
     
             # Pillow画像に変換
@@ -230,12 +115,6 @@ def main_page():
             st.image(image, use_column_width=True)
         
         # マジセミセミナーのクエリ
-        # majisemi_seminars_3m_query = f"""
-        # SELECT *
-        # FROM `mythical-envoy-386309.majisemi.majisemi_seminar_usukiapi`
-        # WHERE CAST(Seminar_Date AS TIMESTAMP) BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
-        # """
-        
         majisemi_seminars_3m_query = f"""
         SELECT *
         FROM `mythical-envoy-386309.majisemi.majisemi_seminar_usukiapi`
@@ -247,16 +126,15 @@ def main_page():
         majisemi_titles = ' '.join(df_majisemi_seminars_3m['Seminar_Title'])
         
         # マジセミセミナーのタイトルに対して形態素解析を実行
+        t = Tokenizer()
         majisemi_tokens = t.tokenize(majisemi_titles)
         majisemi_words = [token.surface for token in majisemi_tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]
         
-        # フィルタリング条件（マジセミセミナー用）
         majisemi_words = [word for word in majisemi_words if len(word) > 1]
         majisemi_words = [word for word in majisemi_words if not re.match('^[ぁ-ん]{2}$', word)]
         majisemi_words = [word for word in majisemi_words if not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
         majisemi_words = [word for word in majisemi_words if word not in exclude_words]
         
-        # マジセミセミナー用のワードクラウドを生成
         majisemi_wordcloud = WordCloud(
             font_path=font_path,
             background_color='white',
@@ -264,17 +142,13 @@ def main_page():
             height=800
         ).generate(' '.join(majisemi_words))
         
-        # マジセミセミナー用のワードクラウドを表示
         st.subheader('ワードクラウド：マジセミセミナー（直近3ヶ月）')
-        st.image(majisemi_wordcloud.to_image(), use_column_width=True)        
-    
-    # 年別のワードクラウドを生成する関数
+        st.image(majisemi_wordcloud.to_image(), use_column_width=True)
+
     def generate_yearly_wordcloud(year):
-        # セッション状態のキーを年別にする
         session_key = f'wordcloud_image_{year}'
         
         if session_key in st.session_state:
-            # 保存されたワードクラウド画像を表示
             st.image(st.session_state[session_key], use_column_width=True)
         else:
             articles_query = f"""
@@ -300,7 +174,6 @@ def main_page():
             words = [word for word in words if len(word) > 1]
             words = [word for word in words if not re.match('^[ぁ-ん]{2}$', word)]
             words = [word for word in words if not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
-            # exclude_words = {'する'}
             exclude_words = {
                 'ギフト', 'ギフトカード', 'サービス', 'できる', 'ランキング', '可能', '課題', '会員', '会社', '開始', '開発', '活用', '管理', '企業', '機能',
                 '記事', '技術', '業界', '後編', '公開', '最適', '支援', '事業', '実現', '重要', '世界', '成功', '製品', '戦略', '前編', '対策', '抽選', '調査',
@@ -317,29 +190,18 @@ def main_page():
         
             image = wordcloud.to_image()
 
-            # Pillow画像に変換し、セッション状態に画像を保存
             with BytesIO() as output:
                 image.save(output, format="PNG")
                 data = output.getvalue()
             st.session_state[session_key] = data
     
-            # 画像を表示
             st.image(image, use_column_width=True)
-        
-            # with BytesIO() as output:
-            #     image.save(output, format="PNG")
-            #     data = output.getvalue()
-        
-            # st.image(image, use_column_width=True)
-    
+
     def get_max_count(keywords, data_type):
-        # keywords_conditions = [f"REGEXP_CONTAINS(title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords.split(',')]
-        # combined_keywords_condition = ' AND '.join(keywords_conditions)
         keywords = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keywords.split(',')]
         conditions = [f"REGEXP_CONTAINS(title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords]
         combined_condition = ' AND '.join(conditions)
     
-        # マジセミセミナーの検索条件
         conditions_majisemi = [f"REGEXP_CONTAINS(Seminar_Title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords]
         combined_condition_majisemi = ' AND '.join(conditions_majisemi)
     
@@ -364,7 +226,6 @@ def main_page():
                 GROUP BY quarter
             )
             """
-        # 他のデータタイプについても同様にクエリを設定
         elif data_type == "majisemi_seminars":
             query = f"""
             SELECT MAX(count) as max_count
@@ -403,9 +264,7 @@ def main_page():
         ORDER BY quarter
         """
         df_articles = pd.DataFrame(run_query(articles_query))
-        # df_articles_quarterly = df_articles.set_index('quarter').resample('Q').sum().loc[start_date:end_date]
     
-        # エラーハンドリングを追加
         if not df_articles.empty and 'quarter' in df_articles.columns:
             df_articles_quarterly = df_articles.set_index('quarter').resample('Q').sum().loc[start_date:end_date]
         else:
@@ -419,18 +278,12 @@ def main_page():
         ORDER BY quarter
         """
         df_seminars = pd.DataFrame(run_query(seminars_query))
-        # df_seminars_quarterly = df_seminars.set_index('quarter').resample('Q').sum().loc[start_date:end_date]
     
-        # エラーハンドリングを追加
         if not df_seminars.empty and 'quarter' in df_seminars.columns:
             df_seminars_quarterly = df_seminars.set_index('quarter').resample('Q').sum().loc[start_date:end_date]
         else:
             df_seminars_quarterly = pd.DataFrame()  # 空のデータフレームを作成
     
-        # st.write(articles_query)
-        # st.write(seminars_query)
-    
-        # プロットの描画
         plt.figure(figsize=(12, 6))
         ax1 = plt.gca()
         ax2 = ax1.twinx()
@@ -439,61 +292,37 @@ def main_page():
         ax2.set_ylim(0, max_counts["seminars"])
         
         if not df_articles.empty:
-            # ax1.plot(df_articles_quarterly.index, df_articles_quarterly['count'], color='green', marker='x', label='Articles')
             x_articles = np.arange(len(df_articles_quarterly))
             y_articles = df_articles_quarterly['count'].values
     
             try:
-                # 多項式回帰（例：2次）
                 z_articles = np.polyfit(x_articles, y_articles, 2)
                 p_articles = np.poly1d(z_articles)
-    
-                # 近似曲線のプロット
                 ax1.plot(df_articles_quarterly.index, p_articles(x_articles), color='green', linestyle='--', label='Articles Approximation')
             except np.linalg.LinAlgError:
                 st.write("※多項式回帰が収束しませんでした。Articlesの近似曲線は表示されません。")
     
-            # 元のデータのプロット
             ax1.plot(df_articles_quarterly.index, y_articles, color='green', marker='x', label='Articles')       
             
         else:
             st.write("No article count data found.")
         
         if not df_seminars.empty:
-            # ax2.plot(df_seminars_quarterly.index, df_seminars_quarterly['count'], color='red', marker='^', label='Seminars')
             x_seminars = np.arange(len(df_seminars_quarterly))
             y_seminars = df_seminars_quarterly['count'].values
     
             try:
-                # 多項式回帰（例：2次）
                 z_seminars = np.polyfit(x_seminars, y_seminars, 2)
                 p_seminars = np.poly1d(z_seminars)
-                
-                # 近似曲線のプロット
                 ax2.plot(df_seminars_quarterly.index, p_seminars(x_seminars), color='red', linestyle='--', label='Seminars Approximation')
             except np.linalg.LinAlgError:
                 st.write("※多項式回帰が収束しませんでした。Seminarsの近似曲線は表示されません。")
     
-            # 元のデータのプロット
             ax2.plot(df_seminars_quarterly.index, y_seminars, color='red', marker='^', label='Seminars')
             
         else:
             st.write("No seminar count data found.")
         
-        # ax1.set_xlabel('Quarter')
-        # ax1.set_ylabel('Counts of Articles', color='green')
-        # ax1.tick_params(axis='y', labelcolor='green')
-        # ax1.legend(loc='upper left')
-        
-        # ax2.set_ylabel('Counts of Seminars', color='red')
-        # ax2.tick_params(axis='y', labelcolor='red')
-        # ax2.legend(loc='upper right')
-    
-        # # ax1.xaxis.set_major_locator(MaxNLocator(integer=True))
-        # ax1.yaxis.set_major_locator(MaxNLocator(integer=True))
-        # ax2.yaxis.set_major_locator(MaxNLocator(integer=True))
-    
-        # plt.title(f'Number of Articles and Seminars for "{", ".join(keywords)}"')
         ax1.set_xlabel('Quarter')
         ax1.set_ylabel('Counts of Articles', color='green')
         ax1.tick_params(axis='y', labelcolor='green')
@@ -503,14 +332,12 @@ def main_page():
         ax2.tick_params(axis='y', labelcolor='red')
         ax2.legend(loc='upper right')
     
-        # ax1.xaxis.set_major_locator(MaxNLocator(integer=True))
         ax1.yaxis.set_major_locator(MaxNLocator(integer=True))
         ax2.yaxis.set_major_locator(MaxNLocator(integer=True))
     
         plt.title(f'Number of Articles and Seminars for "{", ".join(keywords)}"')
         st.pyplot(plt)
     
-        # 検索条件に一致した記事・セミナーの一覧
         articles_full_query = f"""
         SELECT *
         FROM `mythical-envoy-386309.ex_media.article`
@@ -537,33 +364,22 @@ def main_page():
         else:
             st.write("No matched seminars found.")
         
-        # ワードクラウド作成
         if not df_articles_full.empty or not df_seminars_full.empty:
-    
             if df_seminars_full.empty:
                 combined_titles = ' '.join(df_articles_full['title']) + ' '
-    
             elif df_articles_full.empty:
                 combined_titles = ' '.join(df_seminars_full['title']) + ' '
-    
-            elif not df_articles_full.empty and not df_seminars_full.empty:
-                # 記事とセミナーのタイトルを結合
+            else:
                 combined_titles = ' '.join(df_articles_full['title']) + ' ' + ' '.join(df_seminars_full['title'])
         
-            # 形態素解析の実行
             t = Tokenizer()
             tokens = t.tokenize(combined_titles)
-            words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]  # 名詞と動詞のみを抽出
+            words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]
     
-            # フィルタリング条件
-            # 1文字の単語を除外
             words = [word for word in words if len(word) > 1]
-            # ひらがな2文字の単語を除外
             words = [word for word in words if not re.match('^[ぁ-ん]{2}$', word)]
             words = [word for word in words if not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
         
-            # キーワードの除外
-            # exclude_words = set(keywords)
             exclude_words = {
                 'ギフト', 'ギフトカード', 'サービス', 'できる', 'ランキング', '可能', '課題', '会員', '会社', '開始', '開発', '活用', '管理', '企業', '機能',
                 '記事', '技術', '業界', '後編', '公開', '最適', '支援', '事業', '実現', '重要', '世界', '成功', '製品', '戦略', '前編', '対策', '抽選', '調査',
@@ -571,29 +387,22 @@ def main_page():
             }
             words = [word for word in words if word not in exclude_words]
         
-            # フォントファイルのパス指定
             font_path = 'NotoSansJP-Regular.ttf'
         
-            # ワードクラウドの生成（記事とセミナーのタイトル用）
-            # wordcloud_combined = WordCloud(font_path=font_path,width=800, height=800, background_color='white', min_font_size=10).generate(combined_titles)
-        
-            # ワードクラウドの生成
             wordcloud = WordCloud(
                 font_path=font_path,
                 background_color='white',
-                width=1600,  # 幅を増やす
-                height=800   # 高さを増やす
+                width=1600,
+                height=800
             ).generate(' '.join(words))
             
             st.subheader('ワードクラウド：外部メディア')
-            # ワードクラウドの表示
             plt.figure(figsize=(10, 10))
             plt.imshow(wordcloud, interpolation='bilinear')
             plt.axis('off')
             plt.show()
             st.pyplot(plt)
     
-        # マジセミセミナーの検索条件
         conditions_majisemi = [f"REGEXP_CONTAINS(Seminar_Title, r'(?i)(^|\\W){k}(\\W|$)')" for k in keywords]
         combined_condition_majisemi = ' AND '.join(conditions_majisemi)
     
@@ -601,8 +410,7 @@ def main_page():
         SELECT *
         FROM `mythical-envoy-386309.majisemi.majisemi_seminar_usukiapi`
         WHERE {combined_condition_majisemi}
-           # AND Seminar_Date BETWEEN '{start_date}' AND '{end_date}'
-           AND CAST(Seminar_Date AS TIMESTAMP) BETWEEN '{start_date}' AND '{end_date}'
+        AND CAST(Seminar_Date AS TIMESTAMP) BETWEEN '{start_date}' AND '{end_date}'
         """
         df_seminar = pd.DataFrame(run_query(seminar_query))
     
@@ -652,77 +460,53 @@ def main_page():
                 'User_Company_Percentage': 'ユーザー企業割合（%）',
                 'Non_User_Company_Percentage': '非ユーザー企業割合（%）'
             }, inplace=True)
-            # 'セミナー開催日'列を日付型に変換
             df_seminar['セミナー開催日'] = pd.to_datetime(df_seminar['セミナー開催日'])
             df_seminar['セミナー開催日'] = df_seminar['セミナー開催日'].dt.strftime('%Y-%m-%d')
-            #st.dataframe(df_seminar)
-            # majisemi の状態によって表示する列を変更
-            if st.session_state.get('majisemi', False):  # majisemi が True の場合
-                # columns_to_display = ['セミナー開催日','セミナータイトル','主催企業名','大分類','カテゴリ','合計集客人数','集客速度','アクション回答数','アクション回答率（%）']
+            
+            if st.session_state.get('majisemi', False):
                 columns_to_display = ['セミナー開催日','セミナータイトル','主催企業名','カテゴリ','合計集客人数','集客速度','アクション回答数','アクション回答率（%）','ユーザー企業割合（%）','非ユーザー企業割合（%）']
-            else:  # majisemi が False の場合
+            else:
                 columns_to_display = ['セミナー開催日','セミナータイトル','主催企業名','大分類','カテゴリ','集客速度','ユーザー企業割合（%）','非ユーザー企業割合（%）']
         
-            # 選択した列のみを DataFrame から選択
             df_seminar_filtered = df_seminar[columns_to_display]
 
-            
-            #-------------24/4/3(水)追加--------------------
-            # ユーザー企業、非ユーザー企業の実数値を計算
+            # 追加ロジック
             df_seminar['ユーザー企業数'] = df_seminar['合計集客人数'] * df_seminar['ユーザー企業割合（%）'] / 100
             df_seminar['非ユーザー企業数'] = df_seminar['合計集客人数'] * df_seminar['非ユーザー企業割合（%）'] / 100
-        
-            # 抽出結果の全セミナーにおけるユーザー企業割合、非ユーザー企業割合を計算
             total_participants = df_seminar['合計集客人数'].sum()
             total_user_companies = df_seminar['ユーザー企業数'].sum()
             total_non_user_companies = df_seminar['非ユーザー企業数'].sum()
-            user_company_percentage = total_user_companies / total_participants * 100
-            non_user_company_percentage = total_non_user_companies / total_participants * 100
-            #-------------24/4/3(水)追加ここまで--------------------
-            
-            # データフレームの表示処理...
-            st.dataframe(df_seminar_filtered.sort_values(by='セミナー開催日', ascending=False))
-            # st.dataframe(df_seminar.sort_values(by='セミナー開催日', ascending=False))
+            user_company_percentage = total_user_companies / total_participants * 100 if total_participants != 0 else 0
+            non_user_company_percentage = total_non_user_companies / total_participants * 100 if total_participants != 0 else 0
 
-            #-------------24/4/3(水)追加--------------------
+            st.dataframe(df_seminar_filtered.sort_values(by='セミナー開催日', ascending=False))
+            
             st.markdown(f"""
             - ユーザー企業割合: {user_company_percentage:.2f}%
             - 非ユーザー企業割合: {non_user_company_percentage:.2f}%
             """)
-            #-------------24/4/3(水)追加ここまで--------------------
             
             st.write("""
             ※集客速度は、1日あたりの平均申し込み数を表しています。
             """)
     
-            # マジセミのセミナータイトルに対するワードクラウド生成
-            seminar_titles = ' '.join(df_seminar['セミナータイトル'])  # セミナータイトルの結合
-            
-            # 形態素解析の実行
+            seminar_titles = ' '.join(df_seminar['セミナータイトル'])  
             t = Tokenizer()
             tokens = t.tokenize(seminar_titles)
-            words_seminar = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]  # 名詞と動詞のみを抽出
+            words_seminar = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]
     
-            # フィルタリング条件
-            # 1文字の単語を除外
             words_seminar = [word for word in words_seminar if len(word) > 1]
-            # ひらがな2文字の単語を除外
             words_seminar = [word for word in words_seminar if not re.match('^[ぁ-ん]{2}$', word)]
-            # 漢字1文字とひらがな1文字から成る2文字の単語を除外
             words_seminar = [word for word in words_seminar if not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
-            
-            # キーワードの除外
             words_seminar = [word for word in words_seminar if word not in exclude_words]
             
-            # ワードクラウドの生成（セミナータイトル用）
             wordcloud_seminar = WordCloud(
-                font_path=font_path,
+                font_path='NotoSansJP-Regular.ttf',
                 background_color='white',
-                width=1600,  # 幅
-                height=800   # 高さ
+                width=1600,
+                height=800
             ).generate(' '.join(words_seminar))
             
-            # ワードクラウドの表示（セミナータイトル用）
             st.subheader('ワードクラウド：マジセミ')
             plt.figure(figsize=(10, 10))
             plt.imshow(wordcloud_seminar, interpolation='bilinear')
@@ -730,38 +514,27 @@ def main_page():
             plt.show()
             st.pyplot(plt)
     
-            # ワードクラウド：マジセミ（集客重み付け版）
             st.subheader('ワードクラウド：マジセミ（集客重み付け版）')
-            # 単語の重み付け頻度を格納する辞書
             weighted_word_freqs = defaultdict(int)
             
-            # 各セミナーのタイトルと集客速度をループ処理
             for title, speed in zip(df_seminar['セミナータイトル'], df_seminar['集客速度']):
-
-                # 集客速度が欠損値の場合はスキップ
                 if pd.isna(speed):
                     continue
-                # 形態素解析
                 tokens = t.tokenize(title)
                 words = [token.surface for token in tokens if token.part_of_speech.split(',')[0] in ['名詞', '動詞']]
-                
-                # フィルタリング条件
                 words = [word for word in words if len(word) > 1 and not re.match('^[ぁ-ん]{2}$', word) and not re.match('^[一-龠々]{1}[ぁ-ん]{1}$', word)]
                 words = [word for word in words if word not in exclude_words]
             
-                # 単語に対して重み（集客速度）を掛け、辞書に加算
                 for word in words:
                     weighted_word_freqs[word] += speed
             
-            # ワードクラウドの生成
             wordcloud_seminar = WordCloud(
-                font_path=font_path,
+                font_path='NotoSansJP-Regular.ttf',
                 background_color='white',
                 width=1600,
                 height=800
             ).generate_from_frequencies(weighted_word_freqs)
     
-            
             plt.figure(figsize=(10, 10))
             plt.imshow(wordcloud_seminar, interpolation='bilinear')
             plt.axis('off')
@@ -777,7 +550,6 @@ def main_page():
     def show_analytics():
         st.title("Keyword Analytics")
     
-        # キーワード入力ボックスを配置
         col_input1, col_input2 = st.columns([2, 2])
         with col_input1:
             st.subheader("＜Latest Updates＞")
@@ -791,28 +563,19 @@ def main_page():
             """)
             st.markdown("---")
             keyword_input1 = st.text_input("キーワード1を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
-        # with col_input2:
-            keyword_input2 = st.text_input("キーワード2を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）】")
+            keyword_input2 = st.text_input("キーワード2を入力【カンマ区切りでand検索可能（例：AI, ChatGPT）}")
         with col_input2:
             st.subheader('ワードクラウドによるトレンド分析')
-            # ボタンが押された場合、セッション状態を更新
             if st.button('直近3ヶ月のワードクラウドを表示'):
-                # st.session_state['show_three_month_wordcloud'] = True
                 generate_three_month_wordcloud()
-            # 年別ワードクラウドの表示
             if st.button('年別ワードクラウドを表示'):
-                for year in [2023, 2022, 2021]:  # 対象年を変更する場合は、このリストを更新
+                for year in [2023, 2022, 2021]:
                     st.subheader(f'{year}年のワードクラウド')
                     generate_yearly_wordcloud(year)
-        
-            # # セッション状態に基づいてワードクラウドを表示
-            # if st.session_state.get('show_three_month_wordcloud'):
-            #     generate_three_month_wordcloud()
         
         execute_button = st.button("キーワード分析を実行")
     
         if execute_button:
-            # 各指標の最大値を格納する辞書
             max_counts = {"articles": 0, "seminars": 0, "majisemi_seminars": 0, "acquisition_speed": 0}
     
             if keyword_input1:
@@ -827,37 +590,25 @@ def main_page():
                     max_count = get_max_count(keyword2, data_type)
                     max_counts[data_type] = max(max_counts[data_type], max_count)
     
-            # 画面を2つの列に分ける
             col1, col2 = st.columns([1,1])
     
-            # キーワード1の結果を左の列に表示
             if keyword_input1:
                 with col1:
                     st.write(f"## キーワード1: {keyword1} の結果")
                     analyze_keyword(keyword1, max_counts)
     
-            # キーワード2の結果を右の列に表示
             if keyword_input2:
                 with col2:
                     st.write(f"## キーワード2: {keyword2} の結果")
                     analyze_keyword(keyword2, max_counts)
     
     show_analytics()
-    
 
-
-
-# ログインページの関数
 def login_page():
-    
-    
-    # ログイン状態を保持するための非表示のチェックボックス
     if "login_checked" not in st.session_state:
         st.session_state.login_checked = False
 
-    # 認証が成功していない場合のみ、ユーザー名とパスワードの入力欄を表示
     if not st.session_state.login_checked:
-        # 空のカラム（左）、ログインフォームのカラム（中央）、空のカラム（右）を作成
         col1, col2, col3 = st.columns([1,2,1])
 
         with col2:
@@ -872,31 +623,19 @@ def login_page():
 
             login_button_placeholder = st.empty()
             if login_button_placeholder.button("ログイン"):
-                auth_result = authenticate(username, password)  # 辞書を返すように変更
+                auth_result = authenticate(username, password)
                 if auth_result['authenticated']:
                     st.session_state['authenticated'] = True
-                    st.session_state['majisemi'] = auth_result['majisemi']  # `majisemi` の状態を保存
-                    st.session_state.login_checked = True  # 認証成功時にチェック
-                    title_placeholder.empty()  # タイトルをクリア
-                    username_placeholder.empty()  # ユーザー名入力欄をクリア
-                    password_placeholder.empty()  # パスワード入力欄をクリア
-                    login_button_placeholder.empty()  # ログインボタンをクリア
-                    login_message_placeholder.empty()  # ログインメッセージをクリア
+                    st.session_state['majisemi'] = auth_result['majisemi']
+                    st.session_state.login_checked = True
+                    title_placeholder.empty()
+                    username_placeholder.empty()
+                    password_placeholder.empty()
+                    login_button_placeholder.empty()
+                    login_message_placeholder.empty()
                 else:
                     st.error("認証に失敗しました。")
-            # if login_button_placeholder.button("ログイン"):
-            #     if authenticate(username, password):
-            #         st.session_state['authenticated'] = True
-            #         st.session_state.login_checked = True  # 認証成功時にチェック
-            #         title_placeholder.empty()  # タイトルをクリア
-            #         username_placeholder.empty()  # ユーザー名入力欄をクリア
-            #         password_placeholder.empty()  # パスワード入力欄をクリア
-            #         login_button_placeholder.empty()  # ログインボタンをクリア
-            #         login_message_placeholder.empty()  # ログインメッセージをクリア
-            #     else:
-            #         st.error("認証に失敗しました。")
 
-    # 認証後にセッション状態が更新されたことを確認し、メインページに遷移する
     if st.session_state.login_checked:
         main_page()
 
