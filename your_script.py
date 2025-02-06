@@ -569,7 +569,7 @@ def main_page():
             if st.button('直近3ヶ月のワードクラウドを表示'):
                 generate_three_month_wordcloud()
             if st.button('年別ワードクラウドを表示'):
-                for year in [2023, 2022, 2021]:
+                for year in [2024, 2023, 2022]:
                     st.subheader(f'{year}年のワードクラウド')
                     generate_yearly_wordcloud(year)
         
