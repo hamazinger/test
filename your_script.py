@@ -72,6 +72,12 @@ def main_page():
             WHERE date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
             """
             df_seminars_3m = pd.DataFrame(run_query(seminars_3m_query))
+
+            # ★デバッグ: DataFrame の内容を確認
+            st.write("df_articles_3m:", df_articles_3m)
+            st.write("df_seminars_3m:", df_seminars_3m)
+
+            
             combined_titles = ' '.join(df_articles_3m['title']) + ' ' + ' '.join(df_seminars_3m['title'])
             # 形態素解析の実行
             t = Tokenizer()
@@ -121,6 +127,9 @@ def main_page():
         WHERE Seminar_Date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND CURRENT_DATE()
         """
         df_majisemi_seminars_3m = pd.DataFrame(run_query(majisemi_seminars_3m_query))
+
+        # ★デバッグ: DataFrame の内容を確認
+        st.write("df_majisemi_seminars_3m:", df_majisemi_seminars_3m)
         
         # マジセミセミナーのタイトルを結合
         majisemi_titles = ' '.join(df_majisemi_seminars_3m['Seminar_Title'])
