@@ -56,7 +56,7 @@ def main_page():
     def generate_three_month_wordcloud():
         if 'wordcloud_image' in st.session_state:
             # 保存されたワードクラウド画像を表示
-            st.image(st.session_state['wordcloud_image'], use_column_width=True)
+            st.image(st.session_state['wordcloud_image'], use_container_width=True)
         else:
             # 記事のクエリ
             articles_3m_query = f"""
@@ -118,7 +118,7 @@ def main_page():
             st.session_state['wordcloud_image'] = data
     
             # 画像を表示
-            st.image(image, use_column_width=True)
+            st.image(image, use_container_width=True)
         
         # マジセミセミナーのクエリ
         majisemi_seminars_3m_query = f"""
@@ -152,13 +152,13 @@ def main_page():
         ).generate(' '.join(majisemi_words))
         
         st.subheader('ワードクラウド：マジセミセミナー（直近3ヶ月）')
-        st.image(majisemi_wordcloud.to_image(), use_column_width=True)
+        st.image(majisemi_wordcloud.to_image(), use_container_width=True)
 
     def generate_yearly_wordcloud(year):
         session_key = f'wordcloud_image_{year}'
         
         if session_key in st.session_state:
-            st.image(st.session_state[session_key], use_column_width=True)
+            st.image(st.session_state[session_key], use_container_width=True)
         else:
             articles_query = f"""
             SELECT title
@@ -204,7 +204,7 @@ def main_page():
                 data = output.getvalue()
             st.session_state[session_key] = data
     
-            st.image(image, use_column_width=True)
+            st.image(image, use_container_width=True)
 
     def get_max_count(keywords, data_type):
         keywords = [unicodedata.normalize('NFKC', k.strip().lower()) for k in keywords.split(',')]
