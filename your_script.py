@@ -33,23 +33,48 @@ def run_query(query):
     return rows
 
 def authenticate(username, password):
-    url = 'https://majisemi.com/e/api/check_user'
-    data = {'name': username, 'pass': password}
-    response = requests.post(url, data=data)
-    response_json = response.json()
-    if response_json.get('status') == 'ok':
-        majisemi = response_json.get('majisemi', False)  # `majisemi` の値を取得、デフォルトは False
-        payment = response_json.get('payment', '')  # 新たに `payment` の値を取得
-        if majisemi:
-            # majisemi が True の場合、ログイン成功で表示列の制限なし
-            return {'authenticated': True, 'majisemi': True}
-        elif payment == 'マジセミ倶楽部':
-            # payment が「マジセミ倶楽部」の場合、ログイン成功で表示列に制限あり
-            return {'authenticated': True, 'majisemi': False}
-        else:
-            # 上記以外はログイン失敗
+    try:
+        url = 'https://majisemi.com/e/api/check_user'
+        st.info(f"リクエスト送信先: {url}")
+        
+        data = {'name': username, 'pass': password}
+        st.info(f"リクエスト送信開始...")
+        response = requests.post(url, data=data, timeout=10)
+        
+        st.info(f"レスポンスステータス: {response.status_code}")
+        
+        if response.status_code != 200:
+            st.error(f"API応答エラー: HTTP {response.status_code}")
             return {'authenticated': False}
-    else:
+            
+        response_json = response.json()
+        st.info(f"レスポンス内容: {response_json}")
+        
+        if response_json.get('status') == 'ok':
+            majisemi = response_json.get('majisemi', False)
+            payment = response_json.get('payment', '')
+            st.info(f"認証結果: status=ok, majisemi={majisemi}, payment={payment}")
+            if majisemi:
+                return {'authenticated': True, 'majisemi': True}
+            elif payment == 'マジセミ倶楽部':
+                return {'authenticated': True, 'majisemi': False}
+            else:
+                st.warning("認証成功しましたが、権限が不足しています")
+                return {'authenticated': False}
+        else:
+            st.warning(f"認証失敗: {response_json.get('status')}")
+            return {'authenticated': False}
+    except requests.exceptions.ConnectionError:
+        st.error("接続エラー: APIサーバーに接続できません。ネットワーク制限の可能性があります。")
+        return {'authenticated': False}
+    except requests.exceptions.Timeout:
+        st.error("タイムアウト: リクエストがタイムアウトしました。ネットワーク制限の可能性があります。")
+        return {'authenticated': False}
+    except ValueError as e:
+        st.error(f"JSONパースエラー: レスポンスが正しいJSON形式ではありません。{str(e)}")
+        return {'authenticated': False}
+    except Exception as e:
+        st.error(f"その他のエラー: {str(e)}")
         return {'authenticated': False}
 
 def main_page():
