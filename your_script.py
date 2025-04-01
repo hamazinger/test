@@ -33,47 +33,75 @@ def run_query(query):
     return rows
 
 def authenticate(username, password):
+    # ログを一時保存するためのリスト
+    logs = []
+    
     try:
         url = 'https://majisemi.com/e/api/check_user'
-        st.info(f"リクエスト送信先: {url}")
+        logs.append(f"リクエスト送信先: {url}")
         
         data = {'name': username, 'pass': password}
-        st.info(f"リクエスト送信開始...")
+        logs.append("リクエスト送信開始...")
         response = requests.post(url, data=data, timeout=10)
         
-        st.info(f"レスポンスステータス: {response.status_code}")
+        logs.append(f"レスポンスステータス: {response.status_code}")
         
         if response.status_code != 200:
+            # エラー時はログを表示
+            for log in logs:
+                st.info(log)
             st.error(f"API応答エラー: HTTP {response.status_code}")
             return {'authenticated': False}
             
         response_json = response.json()
-        st.info(f"レスポンス内容: {response_json}")
+        logs.append(f"レスポンス内容: {response_json}")
         
         if response_json.get('status') == 'ok':
             majisemi = response_json.get('majisemi', False)
             payment = response_json.get('payment', '')
-            st.info(f"認証結果: status=ok, majisemi={majisemi}, payment={payment}")
+            logs.append(f"認証結果: status=ok, majisemi={majisemi}, payment={payment}")
+            
             if majisemi:
+                # 認証成功時はログを表示しない
                 return {'authenticated': True, 'majisemi': True}
             elif payment == 'マジセミ倶楽部':
+                # 認証成功時はログを表示しない
                 return {'authenticated': True, 'majisemi': False}
             else:
+                # 権限不足時はログを表示
+                for log in logs:
+                    st.info(log)
                 st.warning("認証成功しましたが、権限が不足しています")
                 return {'authenticated': False}
         else:
+            # 認証失敗時はログを表示
+            for log in logs:
+                st.info(log)
             st.warning(f"認証失敗: {response_json.get('status')}")
             return {'authenticated': False}
+            
     except requests.exceptions.ConnectionError:
+        # エラー時はログを表示
+        for log in logs:
+            st.info(log)
         st.error("接続エラー: APIサーバーに接続できません。ネットワーク制限の可能性があります。")
         return {'authenticated': False}
     except requests.exceptions.Timeout:
+        # エラー時はログを表示
+        for log in logs:
+            st.info(log)
         st.error("タイムアウト: リクエストがタイムアウトしました。ネットワーク制限の可能性があります。")
         return {'authenticated': False}
     except ValueError as e:
+        # エラー時はログを表示
+        for log in logs:
+            st.info(log)
         st.error(f"JSONパースエラー: レスポンスが正しいJSON形式ではありません。{str(e)}")
         return {'authenticated': False}
     except Exception as e:
+        # エラー時はログを表示
+        for log in logs:
+            st.info(log)
         st.error(f"その他のエラー: {str(e)}")
         return {'authenticated': False}
 
