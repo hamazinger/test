@@ -608,6 +608,7 @@ def main_page():
         with col_input1:
             st.subheader("＜Latest Updates＞")
             st.markdown("""
+            - 2025/04/10(木) 2025年3月分のデータを追加
             - 2025/03/08(土) 2025年2月分のデータを追加
             """)
             st.write("""
